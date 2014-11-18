@@ -228,8 +228,10 @@ var Session = function() {
                 contentType: "application/json; charset=utf-8",
                 processData: false,
                 success: function(data) {
-                    
                     console.log("AAAAAAAA  ..successfully completed   ");
+                    console.log("AAAAAA clear cookies");
+                    util.clearCookies();
+                    $("#loginui").show();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log("Error in logout : " + textStatus);
@@ -250,6 +252,8 @@ var Session = function() {
                 },
                 success: function(data) {
                     console.log("AAAAAAAA  ..successfully completed   ");
+                    util.clearCookies();
+                    $("#loginui").show();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log("Error in logout : " + textStatus);
