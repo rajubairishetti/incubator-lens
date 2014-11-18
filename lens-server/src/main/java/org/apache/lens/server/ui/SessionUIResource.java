@@ -45,7 +45,7 @@ import java.util.UUID;
 public class SessionUIResource {
 
   /** The Constant LOG. */
-  public static final Log LOG = LogFactory.getLog(SessionResource.class);
+  public static final Log LOG = LogFactory.getLog(SessionUIResource.class);
 
   /** The open sessions. */
   public static HashMap<UUID, LensSessionHandle> openSessions = new HashMap<UUID, LensSessionHandle>();
@@ -102,6 +102,7 @@ public class SessionUIResource {
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
   public LensSessionHandle openSession(@FormDataParam("username") String username,
       @FormDataParam("password") String password, @FormDataParam("sessionconf") LensConf sessionconf) {
+    LOG.info("AAAAAAAAAAA open session   " + username );
     try {
       Map<String, String> conf;
       if (sessionconf != null) {
@@ -127,6 +128,7 @@ public class SessionUIResource {
   @DELETE
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
   public APIResult closeSession(@QueryParam("publicId") UUID publicId) {
+    LOG.info("AAAAAAA close session public id " + publicId + "   list of opened sessions " + openSessions);
     LensSessionHandle sessionHandle = openSessions.get(publicId);
     checkSessionHandle(sessionHandle);
     openSessions.remove(publicId);
