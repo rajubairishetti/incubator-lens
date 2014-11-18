@@ -58,6 +58,7 @@ var Session = function() {
             }),
             success: function(data) {
                 console.log(data);
+                console.log("AAAAAAA username " + username);
                 if (data.hasOwnProperty("publicId") && data.hasOwnProperty("secretId")) {
                     sessionHandle = data;
                     docCookies["publicId"] = sessionHandle["publicId"];
@@ -66,12 +67,15 @@ var Session = function() {
                     document.cookie="publicId=" + docCookies["publicId"];
                     document.cookie="secretId=" + docCookies["secretId"];
                     document.cookie="userName=" + docCookies["userName"];
-                } else
+                } else {
+                    alert("Error in authentication. Enter valid username/password... in success response");
                     console.log("Error authenticating user: " + data);
+                }
                 if (util.isFunction(callback))
                     callback();
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                alert("Error in authentication. Enter valid username/password in error response");
                 console.log("Error authenticating user: " + textStatus);
                 if (util.isFunction(callback))
                     callback();
@@ -215,10 +219,45 @@ var Session = function() {
         return sessionHandle;
     }
 
+    this.logOut = function() {
+        console.log("AAAAAAAA " + session.getSessionHandle()["publicId"]);
+        $.ajax({
+		url: util.SESSION_URL,
+		type: 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                processData: false,
+                data: {
+                     publicId: session.getSessionHandle()["publicId"]
+                },
+                success: function(data) {
+                    console.log("AAAAAAAA  ..successfully completed   ");
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("Error in logout : " + textStatus);
+                }
+       });
+    };
+
     /*
      * Submits the query to the server
      */
     this.submitQuery = function(query, callback) {
+      console.log("AAAAAAAAAAA logout is called " + session.getSessionHandle()["publicId"]);
+      //this.logOut();
+      /*$.ajax({
+              url: util.SESSION_URL,
+              type: 'DELETE',
+              dataType: 'json',
+              data: {
+                     publicId: session.getSessionHandle()["publicId"]
+              },
+              success: function(data) {
+                  alert("AAAAAAAAA logout is successful");
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("Error in logout : " + textStatus);
+              }
+            });*/
         if (this.isLoggedIn()) {
             //Submit query using ajax
             $.ajax({

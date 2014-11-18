@@ -396,6 +396,20 @@ $("#query-form").submit(function(event) {
     }
 });
 
+$("#navlinks li button").click(function(event) {
+   console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA click ");
+   event.preventDefault();
+   session.logOut(function() {
+     console.log("AAAAAAA logout in index.js");
+   });
+});
+/*
+$("#logout").submit(function(event)) {
+   event.preventDefault();
+   session.logOut(function() {
+     console.log("AAAAAAA logout in index.js");
+   });
+}*/
 //Login form submit logic
 $("#login-form").submit(function(event) {
     event.preventDefault();
@@ -405,12 +419,14 @@ $("#login-form").submit(function(event) {
 
     if (!email) {
         $("#email").addClass("error");
+        alert("Enter email id ");
         return;
     }
     $("#email").removeClass("error");
 
     if (!password) {
         $("#password").addClass("error");
+        alert("Enter password ");
         return;
     }
     $("#password").removeClass("error");
