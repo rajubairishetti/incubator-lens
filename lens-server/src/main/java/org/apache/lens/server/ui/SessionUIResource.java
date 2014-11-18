@@ -125,9 +125,9 @@ public class SessionUIResource {
    *          Session's public id of the session to be closed
    * @return APIResult object indicating if the operation was successful (check result.getStatus())
    */
-  @DELETE
+  @DELETE @Path("{publicId}")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
-  public APIResult closeSession(@QueryParam("publicId") UUID publicId) {
+  public APIResult closeSession(@PathParam("publicId") UUID publicId) {
     LOG.info("AAAAAAA close session public id " + publicId + "   list of opened sessions " + openSessions);
     LensSessionHandle sessionHandle = openSessions.get(publicId);
     checkSessionHandle(sessionHandle);

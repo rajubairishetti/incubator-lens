@@ -218,7 +218,26 @@ var Session = function() {
     this.getSessionHandle = function() {
         return sessionHandle;
     }
-
+    
+    this.logOut = function() {
+        console.log("AAAAAAAA " + session.getSessionHandle()["publicId"]);
+        var sessionVal = session.getSessionHandle()["publicId"];
+        $.ajax({
+                url: util.SESSION_URL+'/' + sessionVal,
+                type: 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                processData: false,
+                success: function(data) {
+                    
+                    console.log("AAAAAAAA  ..successfully completed   ");
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("Error in logout : " + textStatus);
+                }
+       });
+    };
+    
+/*
     this.logOut = function() {
         console.log("AAAAAAAA " + session.getSessionHandle()["publicId"]);
         $.ajax({
@@ -237,7 +256,7 @@ var Session = function() {
                 }
        });
     };
-
+*/
     /*
      * Submits the query to the server
      */
