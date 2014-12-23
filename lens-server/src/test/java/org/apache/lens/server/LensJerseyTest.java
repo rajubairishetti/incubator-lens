@@ -23,7 +23,6 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -37,7 +36,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
-import com.codahale.metrics.ScheduledReporter;
 
 /**
  * Extend this class for unit testing Lens Jersey resources
@@ -122,9 +120,6 @@ public abstract class LensJerseyTest extends JerseyTest {
     long queriesFailed = metrics.getTotalFailedQueries();
     long queriesCancelled = metrics.getTotalCancelledQueries();
     long queriesFinished = metrics.getTotalFinishedQueries();
-    List<ScheduledReporter> reporters = ((MetricsServiceImpl) metrics).getReporters();
-
-    assertEquals(reporters.size(), 1, "mismatch in the number of reporters");
 
     assertEquals(queriesFinished, queriesSuccessful + queriesFailed + queriesCancelled,
         "Total finished queries should be sum of successful, failed and cancelled queries");
