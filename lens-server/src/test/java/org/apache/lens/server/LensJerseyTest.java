@@ -36,7 +36,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
-
 /**
  * Extend this class for unit testing Lens Jersey resources
  */
