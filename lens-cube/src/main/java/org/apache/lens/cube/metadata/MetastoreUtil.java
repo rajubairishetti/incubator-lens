@@ -90,6 +90,10 @@ public class MetastoreUtil implements MetastoreConstants {
     return getDimensionKeyPrefix(dimName) + TYPE_SFX;
   }
 
+  public static final String getDimMaxDistinctValuePropertyKey(String dimName) {
+    return getDimensionKeyPrefix(dimName) + NUM_DISTINCT_VALUES;
+  }
+
   public static String getHierachyElementKeyPFX(String dimName) {
     return getDimensionKeyPrefix(dimName) + HIERARCHY_SFX;
   }

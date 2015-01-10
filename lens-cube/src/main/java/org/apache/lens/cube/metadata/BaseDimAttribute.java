@@ -25,25 +25,37 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   private final String type;
+  private final long numDistinctValues;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost) {
+    this(column, displayString, startTime, endTime, cost, -1);
+  }
+
+  public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
+      long numDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
+    this.numDistinctValues = numDistinctValues;
   }
 
   public String getType() {
     return type;
   }
 
+  public long getnumDistinctValues() {
+    return numDistinctValues;
+  }
+
   @Override
   public void addProperties(Map<String, String> props) {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
+    props.put(MetastoreUtil.getDimMaxDistinctValuePropertyKey(getName()), String.valueOf(numDistinctValues));
   }
 
   /**
@@ -55,10 +67,15 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
+    this.numDistinctValues = getDimMaxDistinctValue(name, props);
   }
 
   public static String getDimType(String name, Map<String, String> props) {
     return props.get(MetastoreUtil.getDimTypePropertyKey(name));
+  }
+
+  public static long getDimMaxDistinctValue(String name, Map<String, String> props) {
+    return Long.valueOf(props.get(MetastoreUtil.getDimMaxDistinctValuePropertyKey(name)));
   }
 
   @Override
@@ -87,7 +104,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   @Override
   public String toString() {
-    String str = super.toString() + ":" + getType();
+    String str = super.toString() + ":" + getType() + ":" + getnumDistinctValues();
     return str;
   }
 }
