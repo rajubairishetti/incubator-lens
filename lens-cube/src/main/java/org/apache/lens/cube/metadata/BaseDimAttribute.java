@@ -25,7 +25,7 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   private final String type;
-  private final long numDistinctValues;
+  private long numDistinctValues = -1;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
