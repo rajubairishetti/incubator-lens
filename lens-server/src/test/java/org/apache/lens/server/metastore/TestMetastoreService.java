@@ -268,8 +268,6 @@ public class TestMetastoreService extends LensJerseyTest {
     xd1.setStartTime(startDate);
     // Don't set endtime on this dim to validate null handling on server side
     xd1.setCost(10.0);
-    //xd1.setNumDistinctValues(100);
-    
 
     XDimAttribute xd2 = cubeObjectFactory.createXDimAttribute();
     xd2.setName("dim2");
@@ -589,8 +587,7 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getType(), "string");
       assertEquals(((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getChainName(), "chain1");
       assertEquals(((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getRefColumn(), "col2");
-      System.out.println("AAAAAAAAAAA ------------- value  " + -1);
-      assertEquals(((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getnumDistinctValues(), -1);
+      assertEquals(((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues(), -1);
       assertNotNull(hcube.getMeasureByName("msr1"));
       assertEquals(hcube.getMeasureByName("msr1").getDescription(), "first measure");
       assertEquals(hcube.getMeasureByName("msr1").getDisplayString(), "Measure1");
@@ -742,7 +739,7 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(actual.getWeight(), 200.0);
       assertEquals(actual.getDimAttributes().getDimAttributes().size(), 4);
       assertEquals(actual.getMeasures().getMeasures().size(), 3);
-      actual.getDimAttributes().getDimAttributes().get(0).getNumDistinctValues();
+      actual.getDimAttributes().getDimAttributes().get(0).getNumOfDistinctValues();
 
       CubeInterface hcube = JAXBUtils.hiveCubeFromXCube(actual, null);
       assertTrue(hcube instanceof Cube);

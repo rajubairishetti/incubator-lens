@@ -25,7 +25,7 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   private final String type;
-  private long numDistinctValues = -1;
+  private long numOfDistinctValues = -1;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
@@ -36,26 +36,26 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
-      long numDistinctValues) {
+      long numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
-    this.numDistinctValues = numDistinctValues;
+    this.numOfDistinctValues = numOfDistinctValues;
   }
 
   public String getType() {
     return type;
   }
 
-  public long getnumDistinctValues() {
-    return numDistinctValues;
+  public long getNumOfDistinctValues() {
+    return numOfDistinctValues;
   }
 
   @Override
   public void addProperties(Map<String, String> props) {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
-    props.put(MetastoreUtil.getDimMaxDistinctValuePropertyKey(getName()), String.valueOf(numDistinctValues));
+    props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()), String.valueOf(numOfDistinctValues));
   }
 
   /**
@@ -67,15 +67,15 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
-    this.numDistinctValues = getDimMaxDistinctValue(name, props);
+    this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
   }
 
   public static String getDimType(String name, Map<String, String> props) {
     return props.get(MetastoreUtil.getDimTypePropertyKey(name));
   }
 
-  public static long getDimMaxDistinctValue(String name, Map<String, String> props) {
-    return Long.valueOf(props.get(MetastoreUtil.getDimMaxDistinctValuePropertyKey(name)));
+  public static long getDimNumOfDistinctValues(String name, Map<String, String> props) {
+    return Long.valueOf(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
   }
 
   @Override
@@ -104,7 +104,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   @Override
   public String toString() {
-    String str = super.toString() + ":" + getType() + ":" + getnumDistinctValues();
+    String str = super.toString() + ":" + getType() + ":" + getNumOfDistinctValues();
     return str;
   }
 }

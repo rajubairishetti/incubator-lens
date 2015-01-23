@@ -55,8 +55,8 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
     this(column, displayString, reference, startTime, endTime, cost, isJoinKey, -1);
   }
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
-      Date endTime, Double cost, boolean isJoinKey, long numDistinctValues) {
-    super(column, displayString, startTime, endTime, cost, numDistinctValues);
+      Date endTime, Double cost, boolean isJoinKey, long numOfDistinctValues) {
+    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
     this.references.add(reference);
     this.isJoinKey = isJoinKey;
   }

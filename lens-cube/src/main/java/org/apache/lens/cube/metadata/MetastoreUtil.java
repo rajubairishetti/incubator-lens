@@ -90,7 +90,7 @@ public class MetastoreUtil implements MetastoreConstants {
     return getDimensionKeyPrefix(dimName) + TYPE_SFX;
   }
 
-  public static final String getDimMaxDistinctValuePropertyKey(String dimName) {
+  public static final String getDimNumOfDistinctValuesPropertyKey(String dimName) {
     return getDimensionKeyPrefix(dimName) + NUM_DISTINCT_VALUES;
   }
 
