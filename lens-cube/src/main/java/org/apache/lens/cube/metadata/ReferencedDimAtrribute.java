@@ -54,6 +54,7 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
       Date endTime, Double cost, boolean isJoinKey) {
     this(column, displayString, reference, startTime, endTime, cost, isJoinKey, -1);
   }
+
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
       Date endTime, Double cost, boolean isJoinKey, long numOfDistinctValues) {
     super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
@@ -72,14 +73,24 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
       Date startTime, Date endTime, Double cost, boolean isJoinKey) {
-    super(column, displayString, startTime, endTime, cost);
+    this(column, displayString, references, startTime, endTime, cost, true, -1);
+  }
+
+  public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
+      Date startTime, Date endTime, Double cost, boolean isJoinKey, long numOfDistinctValues) {
+    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
     this.references.addAll(references);
     this.isJoinKey = isJoinKey;
   }
-
+  
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
       Date startTime, Date endTime, Double cost) {
-    super(column, displayString, startTime, endTime, cost);
+    this(column, displayString, chainName, refColumn, startTime, endTime, cost, -1);
+  }
+
+  public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
+      Date startTime, Date endTime, Double cost, long numOfDistinctValues) {
+    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
     this.chainName = chainName.toLowerCase();
     this.refColumn = refColumn.toLowerCase();
     this.isJoinKey = false;

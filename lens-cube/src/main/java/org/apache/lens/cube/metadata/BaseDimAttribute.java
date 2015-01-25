@@ -55,9 +55,14 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public void addProperties(Map<String, String> props) {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
-    props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()), String.valueOf(numOfDistinctValues));
+    if (isSetNumOfDistinctValues()) {
+      props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()), String.valueOf(numOfDistinctValues));
+    }
   }
 
+  private boolean isSetNumOfDistinctValues() {
+    return numOfDistinctValues != -1;
+  }
   /**
    * This is used only for serializing
    * 
