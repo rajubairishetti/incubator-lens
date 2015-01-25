@@ -167,21 +167,23 @@ public class SessionResource {
   @Path("resources/list")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
   public StringList listResources(@QueryParam("sessionid") LensSessionHandle sessionid) {
+    List<String> resources = null;
     if (sessionService instanceof HiveSessionService) {
       LOG.info("AAAAAAAAA hivesession service    listttt   ");
-      List<String> resources = sessionService.listAllResources(sessionid);
-      return new StringList(resources);
-    } else {
+      resources = sessionService.listAllResources(sessionid);
+    }/* else {
       LOG.info("AAAAAAAAA noooooooooooooo service    listttt   ");
 
       List<String> resources = sessionService.listAllResources(sessionid);
-      if (resources == null) {
-        LOG.info("AAAAAAAAA noooooooooooooo service    resurces nullllllllllll     ");
 
-        resources = new ArrayList<String>();
-      }
       return new StringList(resources);
     }
+     */    if (resources == null) {
+       LOG.info("AAAAAAAAA noooooooooooooo service    resurces nullllllllllll     ");
+
+       resources = new ArrayList<String>();
+     }
+     return new StringList(resources);
   }
 
   /**
