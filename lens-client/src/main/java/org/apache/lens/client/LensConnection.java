@@ -300,10 +300,15 @@ public class LensConnection {
     return sb.toString();
   }
 
-public List<String> listReources() {
-	 WebTarget target = getSessionWebTarget();
-	 StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
-	        .get(StringList.class);
-	    return result.getElements();
-}
+  public List<String> listReources(String type) {
+	  WebTarget target = getSessionWebTarget();
+	  if (type ==null) {
+		  StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
+				  .get(StringList.class);
+		  return result.getElements();
+	  }
+	  StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle)
+			  .queryParam("type", type).request().get(StringList.class);
+	  return result.getElements();
+  }
 }

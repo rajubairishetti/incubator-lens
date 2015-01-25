@@ -70,12 +70,12 @@ public class LensConnectionCommands extends BaseLensCommand implements CommandMa
    * @return the string
    */
   @CliCommand(value = "list resources", help = "list of all resources ")
-  public String listResources() {
-    List<String> params = getClient().listResources();
+  public String listResources(@CliOption(key = { "", "param" }, mandatory = false, help = "jar/file") String type) {
+    System.out.println("AAAAAAA type ===> " + type);
+    List<String> params = getClient().listResources(type);
     return Joiner.on("\n").skipNulls().join(params);
   }
 
-  
   /**
    * Gets the param.
    *

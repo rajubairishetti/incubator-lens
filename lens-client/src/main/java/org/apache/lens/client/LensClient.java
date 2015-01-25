@@ -475,8 +475,8 @@ public class LensClient {
     return this.conn.isOpen();
   }
 
-public List<String> listResources() {
-	return this.conn.listReources();
+public List<String> listResources(String type) {
+	return this.conn.listReources(type);
 }
 
 }

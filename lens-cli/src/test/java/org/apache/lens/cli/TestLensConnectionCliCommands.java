@@ -93,7 +93,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     String result = commands.addFile(filename);
     Assert.assertEquals("Add resource succeeded", result);
 
-    String resourcesList = commands.listResources();
+    String resourcesList = commands.listResources("file");
     System.out.println("AAAAAAAAAAAAAA resources list in kens connection comands : " + resourcesList);
     Assert.assertEquals(resourcesList.split("\n").length, 1);
     result = commands.removeFile(filename);
