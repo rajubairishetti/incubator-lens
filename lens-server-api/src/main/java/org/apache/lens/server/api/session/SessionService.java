@@ -115,5 +115,8 @@ public interface SessionService {
    * @param path          the path
    * @return the number of services that the resource has been added to
    */
+
   int addResourceToAllServices(LensSessionHandle sessionHandle, String type, String path);
+
+  public List<String> listAllResources(LensSessionHandle sessionid);
 }

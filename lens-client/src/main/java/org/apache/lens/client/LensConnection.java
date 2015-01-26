@@ -299,4 +299,11 @@ public class LensConnection {
     sb.append('}');
     return sb.toString();
   }
+
+public List<String> listReources() {
+	 WebTarget target = getSessionWebTarget();
+	 StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
+	        .get(StringList.class);
+	    return result.getElements();
+}
 }

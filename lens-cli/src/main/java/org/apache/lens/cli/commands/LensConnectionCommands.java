@@ -63,6 +63,19 @@ public class LensConnectionCommands extends BaseLensCommand implements CommandMa
     return Joiner.on("\n").skipNulls().join(params);
   }
 
+
+  /**
+   * Show parameters.
+   *
+   * @return the string
+   */
+  @CliCommand(value = "list resources", help = "list of all resources ")
+  public String listResources() {
+    List<String> params = getClient().listResources();
+    return Joiner.on("\n").skipNulls().join(params);
+  }
+
+  
   /**
    * Gets the param.
    *

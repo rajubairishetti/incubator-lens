@@ -18,6 +18,7 @@
  */
 package org.apache.lens.server.session;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,6 +161,27 @@ public class SessionResource {
       return new APIResult(Status.PARTIAL, "Add resource is partial");
     }
     return new APIResult(Status.SUCCEEDED, "Add resource succeeded");
+  }
+
+  @GET
+  @Path("resources/list")
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
+  public StringList listResources(@QueryParam("sessionid") LensSessionHandle sessionid) {
+    if (sessionService instanceof HiveSessionService) {
+      LOG.info("AAAAAAAAA hivesession service    listttt   ");
+      List<String> resources = sessionService.listAllResources(sessionid);
+      return new StringList(resources);
+    } else {
+      LOG.info("AAAAAAAAA noooooooooooooo service    listttt   ");
+
+      List<String> resources = sessionService.listAllResources(sessionid);
+      if (resources == null) {
+        LOG.info("AAAAAAAAA noooooooooooooo service    resurces nullllllllllll     ");
+
+        resources = new ArrayList<String>();
+      }
+      return new StringList(resources);
+    }
   }
 
   /**
