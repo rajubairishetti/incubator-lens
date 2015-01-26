@@ -301,14 +301,14 @@ public class LensConnection {
   }
 
   public List<String> listReources(String type) {
-	  WebTarget target = getSessionWebTarget();
-	  if (type ==null) {
-		  StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
-				  .get(StringList.class);
-		  return result.getElements();
-	  }
-	  StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle)
-			  .queryParam("type", type).request().get(StringList.class);
-	  return result.getElements();
+    WebTarget target = getSessionWebTarget();
+    if (type ==null) {
+      StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
+          .get(StringList.class);
+      return result.getElements();
+    }
+    StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle)
+        .queryParam("type", type).request().get(StringList.class);
+    return result.getElements();
   }
 }
