@@ -25,14 +25,14 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   private final String type;
-  private long numOfDistinctValues = -1;
+  private long numOfDistinctValues;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost) {
-    this(column, displayString, startTime, endTime, cost, -1);
+    this(column, displayString, startTime, endTime, cost, MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
@@ -61,7 +61,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   private boolean isSetNumOfDistinctValues() {
-    return numOfDistinctValues != -1;
+    return (numOfDistinctValues != MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
   /**
    * This is used only for serializing
@@ -80,7 +80,10 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   public static long getDimNumOfDistinctValues(String name, Map<String, String> props) {
-    return Long.valueOf(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+    if (props.containsKey(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name))) {
+      return Long.valueOf(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+    }
+    return MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES;
   }
 
   @Override

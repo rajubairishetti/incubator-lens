@@ -52,7 +52,8 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
       Date endTime, Double cost, boolean isJoinKey) {
-    this(column, displayString, reference, startTime, endTime, cost, isJoinKey, -1);
+    this(column, displayString, reference, startTime, endTime, cost, isJoinKey,
+        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
@@ -73,7 +74,8 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
       Date startTime, Date endTime, Double cost, boolean isJoinKey) {
-    this(column, displayString, references, startTime, endTime, cost, true, -1);
+    this(column, displayString, references, startTime, endTime, cost, true,
+        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
@@ -85,7 +87,8 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
   
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
       Date startTime, Date endTime, Double cost) {
-    this(column, displayString, chainName, refColumn, startTime, endTime, cost, -1);
+    this(column, displayString, chainName, refColumn, startTime, endTime, cost,
+        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
