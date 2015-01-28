@@ -179,7 +179,9 @@ public class JAXBUtils {
           dimRefs,
           startDate,
           endDate,
-          xd.getCost()
+          xd.getCost(),
+          true,
+          xd.getNumOfDistinctValues()
           );
     } else if (xd.getChainrefcolumn() != null) {
       hiveDim = new ReferencedDimAtrribute(new FieldSchema(xd.getName(), xd.getType(), xd.getDescription()),
@@ -188,14 +190,16 @@ public class JAXBUtils {
           xd.getChainrefcolumn().getRefcol(),
           startDate,
           endDate,
-          xd.getCost()
+          xd.getCost(),
+          xd.getNumOfDistinctValues()
           );
     } else {
       hiveDim = new BaseDimAttribute(new FieldSchema(xd.getName(), xd.getType(), xd.getDescription()),
           xd.getDisplayString(),
           startDate,
           endDate,
-          xd.getCost()
+          xd.getCost(),
+          xd.getNumOfDistinctValues()
           );
     }
 

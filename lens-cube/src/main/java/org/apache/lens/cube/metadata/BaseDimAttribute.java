@@ -25,7 +25,7 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   private final String type;
-  private long numOfDistinctValues;
+  private Long numOfDistinctValues;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
@@ -36,7 +36,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
-      long numOfDistinctValues) {
+      Long numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
@@ -47,7 +47,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
     return type;
   }
 
-  public long getNumOfDistinctValues() {
+  public Long getNumOfDistinctValues() {
     return numOfDistinctValues;
   }
 
@@ -61,7 +61,8 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   private boolean isSetNumOfDistinctValues() {
-    return (numOfDistinctValues != MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+    return (numOfDistinctValues != null
+        && numOfDistinctValues.longValue() != MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
   }
   /**
    * This is used only for serializing
@@ -81,7 +82,8 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   public static long getDimNumOfDistinctValues(String name, Map<String, String> props) {
     if (props.containsKey(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name))) {
-      return Long.valueOf(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+      System.out.println("AAAAAAAAAAAAAAAA::::::::::: " + props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+      return Long.parseLong(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
     }
     return MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES;
   }

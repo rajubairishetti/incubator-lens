@@ -179,9 +179,8 @@
     <xs:attribute type="xs:string" name="name" use="required"/>
     <xs:attribute type="xs:string" name="type" use="required"/>
     <xs:attribute type="xs:string" name="description"/>
-
     <xs:attribute type="xs:long" name="numOfDistinctValues">
-      <xs:annotation>
+     <xs:annotation>
         <xs:documentation>
           It specifies number of distinct values it can allow for a dim attribute.
           This would give an idea of how big the grouping will be when an attribute is chosen for groupby expressions.
