@@ -286,6 +286,7 @@ public class JAXBUtils {
         xcc.setChainName(rd.getChainName());
         xcc.setRefcol(rd.getRefColumn());
         xd.setChainrefcolumn(xcc);
+        xd.setNumOfDistinctValues(((ReferencedDimAtrribute) cd).getNumOfDistinctValues());
       } else {
         xd.setReferences(xTabReferenceFromHiveTabReference(dimRefs));
       }
@@ -295,6 +296,7 @@ public class JAXBUtils {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
       xd.setCost(bd.getCost());
+      xd.setNumOfDistinctValues(((BaseDimAttribute) cd).getNumOfDistinctValues());
     }
     return xd;
   }
