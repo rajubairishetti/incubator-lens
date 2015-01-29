@@ -241,6 +241,21 @@ public class LensConnection {
   }
 
   /**
+   * List resources from session
+   * 
+   * @param type
+   *          type of resource
+   * @return
+   *         List of resources
+   */
+  public List<String> listResourcesFromConnection(String type) {
+    WebTarget target = getSessionWebTarget();
+    StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle)
+        .queryParam("type", type).request().get(StringList.class);
+    return result.getElements();
+  }
+
+  /**
    * Sets the connection params.
    *
    * @param key
@@ -298,17 +313,5 @@ public class LensConnection {
     sb.append("sessionHandle=").append(sessionHandle.getPublicId());
     sb.append('}');
     return sb.toString();
-  }
-
-  public List<String> listReources(String type) {
-    WebTarget target = getSessionWebTarget();
-    if (type ==null) {
-      StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle).request()
-          .get(StringList.class);
-      return result.getElements();
-    }
-    StringList result = target.path("resources/list").queryParam("sessionid", this.sessionHandle)
-        .queryParam("type", type).request().get(StringList.class);
-    return result.getElements();
   }
 }

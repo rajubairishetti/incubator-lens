@@ -96,15 +96,13 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   public List<String> listAllResources(LensSessionHandle sessionHandle, String type) {
-    LOG.info("AAAAAAAAA session handle list : " + sessionHandle);
     List<ResourceEntry> resources = getSession(sessionHandle).getResources();
-    List<String> allResources = new ArrayList<String>(); 
+    List<String> allResources = new ArrayList<String>();
     for (ResourceEntry resource : resources) {
       if (type == null || resource.getType().equals(type) ) {
         allResources.add(resource.toString());
       }
     }
-    LOG.info("AAAAAAAAAA list resources " + allResources);
     return allResources;
   }
 

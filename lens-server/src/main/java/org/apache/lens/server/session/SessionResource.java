@@ -166,24 +166,13 @@ public class SessionResource {
   @GET
   @Path("resources/list")
   @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
-  public StringList listResources(@QueryParam("sessionid") LensSessionHandle sessionid, @QueryParam("type") String type) {
-    List<String> resources = null;
-    if (sessionService instanceof HiveSessionService) {
-      LOG.info("AAAAAAAAA hivesession service    listttt   ");
-      resources = sessionService.listAllResources(sessionid, type);
-    }/* else {
-      LOG.info("AAAAAAAAA noooooooooooooo service    listttt   ");
-
-      List<String> resources = sessionService.listAllResources(sessionid);
-
-      return new StringList(resources);
+  public StringList listResources(@QueryParam("sessionid") LensSessionHandle sessionid,
+      @QueryParam("type") String type) {
+    List<String> resources = sessionService.listAllResources(sessionid, type);
+    if (resources == null) {
+      resources = new ArrayList<String>();
     }
-     */    if (resources == null) {
-       LOG.info("AAAAAAAAA noooooooooooooo service    resurces nullllllllllll     ");
-
-       resources = new ArrayList<String>();
-     }
-     return new StringList(resources);
+    return new StringList(resources);
   }
 
   /**

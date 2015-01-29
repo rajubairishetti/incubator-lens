@@ -118,5 +118,5 @@ public interface SessionService {
 
   int addResourceToAllServices(LensSessionHandle sessionHandle, String type, String path);
 
-  public List<String> listAllResources(LensSessionHandle sessionid, String type);
+  List<String> listAllResources(LensSessionHandle sessionid, String type);
 }

@@ -73,6 +73,16 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     commands.quitShell();
   }
 
+  private File createNewPath(String fileName) {
+    File f = new File(fileName);
+    try {
+      f.createNewFile();
+    } catch (IOException e) {
+      Assert.fail("Unable to create test file, so bailing out.");
+    }
+    return f;
+  }
+
   /**
    * Test file commands.
    */
@@ -93,9 +103,6 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     String result = commands.addFile(filename);
     Assert.assertEquals("Add resource succeeded", result);
 
-    String resourcesList = commands.listResources("file");
-    System.out.println("AAAAAAAAAAAAAA resources list in kens connection comands : " + resourcesList);
-    Assert.assertEquals(resourcesList.split("\n").length, 1);
     result = commands.removeFile(filename);
     Assert.assertEquals("Delete resource succeeded", result);
     LOG.debug("Testing set/remove file operation done");
@@ -127,6 +134,41 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     Assert.assertEquals("Delete resource succeeded", result);
     LOG.debug("Testing set/remove file operation done");
     f.delete();
+    commands.quitShell();
+  }
+
+  /**
+   * Test list resources commands.
+   */
+  @Test
+  public void testListResourcesCommands() {
+    LensClient client = new LensClient();
+    LensConnectionCommands commands = new LensConnectionCommands();
+    commands.setClient(client);
+    LOG.debug("Testing set/remove file operations");
+
+    String fileName = "/tmp/data";
+    File file = createNewPath(fileName);
+    commands.addFile(fileName);
+
+    String jarName = "/tmp/data.jar";
+    File jar = createNewPath(jarName);
+    commands.addJar(jarName);
+
+    String fileResourcesList = commands.listResources("file");
+    Assert.assertEquals(fileResourcesList.split("\n").length, 1);
+
+    String jarResourcesList = commands.listResources("jar");
+    Assert.assertEquals(jarResourcesList.split("\n").length, 1);
+
+    String allResources = commands.listResources(null);
+    Assert.assertEquals(allResources.split("\n").length, 2);
+
+    commands.removeFile(fileName);
+    commands.removeJar(jarName);
+    LOG.debug("Testing set/remove file operation done");
+    file.delete();
+    jar.delete();
     commands.quitShell();
   }
 }
