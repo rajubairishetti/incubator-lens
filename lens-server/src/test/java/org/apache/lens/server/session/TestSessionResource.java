@@ -219,7 +219,8 @@ public class TestSessionResource extends LensJerseyTest {
     Assert.assertEquals(result.getStatus(), Status.SUCCEEDED);
 
     // list all resources
-    StringList listResources = resourcetarget.path("list").queryParam("sessionid", handle).request().get(StringList.class);
+    StringList listResources = resourcetarget.path("list").queryParam("sessionid", handle).request()
+        .get(StringList.class);
     Assert.assertEquals(listResources.getElements().size(), 1);
 
     // delete the resource
@@ -278,6 +279,13 @@ public class TestSessionResource extends LensJerseyTest {
     }
     Assert.assertTrue(found);
 
+    final WebTarget resourcetarget = target().path("session/resources");
+    // list all resources
+    StringList listResources = resourcetarget.path("list").queryParam("sessionid", handle).request()
+        .get(StringList.class);
+    Assert.assertEquals(listResources.getElements().size(), 1);
+    Assert.assertTrue(listResources.getElements().get(0).contains("test-aux.jar"));
+    
     // close session
     APIResult result = target.queryParam("sessionid", handle).request().delete(APIResult.class);
     Assert.assertEquals(result.getStatus(), APIResult.Status.SUCCEEDED);

@@ -95,11 +95,12 @@ public class HiveSessionService extends LensService implements SessionService {
     return numAdded;
   }
 
+  @Override
   public List<String> listAllResources(LensSessionHandle sessionHandle, String type) {
     List<ResourceEntry> resources = getSession(sessionHandle).getResources();
     List<String> allResources = new ArrayList<String>();
     for (ResourceEntry resource : resources) {
-      if (type == null || resource.getType().equals(type) ) {
+      if (type == null || resource.getType().equals(type)) {
         allResources.add(resource.toString());
       }
     }
