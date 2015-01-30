@@ -242,7 +242,7 @@ public class LensConnection {
 
   /**
    * List resources from session
-   * 
+   *
    * @param type
    *          type of resource
    * @return

@@ -285,7 +285,7 @@ public class TestSessionResource extends LensJerseyTest {
         .get(StringList.class);
     Assert.assertEquals(listResources.getElements().size(), 1);
     Assert.assertTrue(listResources.getElements().get(0).contains("test-aux.jar"));
-    
+
     // close session
     APIResult result = target.queryParam("sessionid", handle).request().delete(APIResult.class);
     Assert.assertEquals(result.getStatus(), APIResult.Status.SUCCEEDED);
