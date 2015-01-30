@@ -744,7 +744,6 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(actual.getWeight(), 200.0);
       assertEquals(actual.getDimAttributes().getDimAttributes().size(), 4);
       assertEquals(actual.getMeasures().getMeasures().size(), 3);
-      actual.getDimAttributes().getDimAttributes().get(0).getNumOfDistinctValues();
 
       CubeInterface hcube = JAXBUtils.hiveCubeFromXCube(actual, null);
       assertTrue(hcube instanceof Cube);

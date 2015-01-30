@@ -84,7 +84,7 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
     this.references.addAll(references);
     this.isJoinKey = isJoinKey;
   }
-  
+
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
       Date startTime, Date endTime, Double cost) {
     this(column, displayString, chainName, refColumn, startTime, endTime, cost,

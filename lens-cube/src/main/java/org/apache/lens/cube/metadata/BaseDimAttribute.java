@@ -21,11 +21,13 @@ package org.apache.lens.cube.metadata;
 import java.util.Date;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
-  private final String type;
-  private Long numOfDistinctValues;
+  @Getter private final String type;
+  @Getter private Long numOfDistinctValues;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
@@ -41,14 +43,6 @@ public class BaseDimAttribute extends CubeDimAttribute {
     this.type = column.getType();
     assert (type != null);
     this.numOfDistinctValues = numOfDistinctValues;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public Long getNumOfDistinctValues() {
-    return numOfDistinctValues;
   }
 
   @Override
@@ -82,7 +76,6 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   public static long getDimNumOfDistinctValues(String name, Map<String, String> props) {
     if (props.containsKey(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name))) {
-      System.out.println("AAAAAAAAAAAAAAAA::::::::::: " + props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
       return Long.parseLong(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
     }
     return MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES;
