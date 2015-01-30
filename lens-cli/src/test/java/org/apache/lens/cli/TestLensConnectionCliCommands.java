@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 
+import javax.ws.rs.BadRequestException;
+
 /**
  * The Class TestLensConnectionCliCommands.
  */
@@ -172,6 +174,14 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
 
       String allResources = commands.listResources(null);
       Assert.assertEquals(allResources.split("\n").length, 2);
+
+      Throwable th = null;
+      try {
+        commands.listResources("invalid-resource-type");
+      } catch (Exception e) {
+        th = e;
+      }
+      Assert.assertTrue(th instanceof BadRequestException);
 
       commands.removeFile(fileName);
       commands.removeJar(jarName);

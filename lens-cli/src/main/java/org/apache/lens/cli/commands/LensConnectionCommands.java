@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import javax.ws.rs.BadRequestException;
+
 /**
  * The Class LensConnectionCommands.
  */
@@ -71,11 +73,18 @@ public class LensConnectionCommands extends BaseLensCommand implements CommandMa
    */
   @CliCommand(value = "list resources", help = "list all resources from session")
   public String listResources(@CliOption(key = { "", "type" }, mandatory = false, help = "jar/file") String type) {
+    if (!isValidResouceType(type)) {
+      throw new BadRequestException("Bad resource type is passed. Please pass jar or file as source type");
+    }
     List<String> resources = getClient().listResources(type);
     if (resources == null) {
       return StringUtils.EMPTY;
     }
     return Joiner.on("\n").skipNulls().join(resources);
+  }
+
+  private boolean isValidResouceType(String type) {
+    return (type == null || type.equals("jar") || type.equals("file"));
   }
 
   /**
