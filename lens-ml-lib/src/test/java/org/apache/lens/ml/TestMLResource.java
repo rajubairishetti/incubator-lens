@@ -78,6 +78,11 @@ public class TestMLResource extends LensJerseyTest {
     connectionParams.getConf().setUser("foo@localhost");
   }
 
+  @Override
+  protected int getTestPort() {
+    return 8089;
+  }
+
   private WebTarget mlTarget;
   private LensMLClient mlClient;
   private ServiceProvider serviceProvider;
@@ -89,11 +94,6 @@ public class TestMLResource extends LensJerseyTest {
         ServiceProviderFactory.class);
     ServiceProviderFactory spf = spfClass.newInstance();
     this.serviceProvider = spf.getServiceProvider();
-  }
-
-  @Override
-  protected int getTestPort() {
-    return 8089;
   }
 
   @Override
