@@ -74,11 +74,6 @@ public class TestSessionResource extends LensJerseyTest {
     super.tearDown();
   }
 
-  @Override
-  protected int getTestPort() {
-    return 9000;
-  }
-
   /*
    * (non-Javadoc)
    * 
