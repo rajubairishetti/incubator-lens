@@ -84,7 +84,7 @@ public class LensConnectionCommands extends BaseLensCommand implements CommandMa
   }
 
   private boolean isValidResouceType(String type) {
-    return (type == null || type.equals("jar") || type.equals("file"));
+    return (type == null || type.equalsIgnoreCase("jar") || type.equalsIgnoreCase("file"));
   }
 
   /**

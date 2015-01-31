@@ -100,7 +100,7 @@ public class HiveSessionService extends LensService implements SessionService {
     List<ResourceEntry> resources = getSession(sessionHandle).getResources();
     List<String> allResources = new ArrayList<String>();
     for (ResourceEntry resource : resources) {
-      if (type == null || resource.getType().equals(type)) {
+      if (type == null || resource.getType().equalsIgnoreCase(type)) {
         allResources.add(resource.toString());
       }
     }
