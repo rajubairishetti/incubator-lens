@@ -37,7 +37,7 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
   @Getter private final List<TableReference> references = new ArrayList<TableReference>();
   // boolean whether to say the key is only a denormalized variable kept or can
   // be used in join resolution as well
-  private Boolean isJoinKey = true;
+  @Getter private Boolean isJoinKey = true;
   @Getter private String chainName = null;
   @Getter private String refColumn = null;
 

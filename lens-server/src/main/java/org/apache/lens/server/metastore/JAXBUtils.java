@@ -289,7 +289,7 @@ public class JAXBUtils {
       } else {
         xd.setReferences(xTabReferenceFromHiveTabReference(dimRefs));
       }
-      //xd.setIsJoinKey(rd.);
+      xd.setIsJoinKey(rd.getIsJoinKey());
       xd.setNumOfDistinctValues(rd.getNumOfDistinctValues());
       xd.setType(rd.getType());
       xd.setCost(rd.getCost());
@@ -297,7 +297,7 @@ public class JAXBUtils {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
       xd.setCost(bd.getCost());
-      xd.setNumOfDistinctValues(((BaseDimAttribute) cd).getNumOfDistinctValues());
+      xd.setNumOfDistinctValues(bd.getNumOfDistinctValues());
     }
     return xd;
   }

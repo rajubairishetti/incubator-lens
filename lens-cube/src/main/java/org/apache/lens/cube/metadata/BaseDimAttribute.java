@@ -56,8 +56,9 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   private boolean isSetNumOfDistinctValues() {
     return (numOfDistinctValues != null
-        && numOfDistinctValues.longValue() != MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+        && !numOfDistinctValues.equals(MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES));
   }
+
   /**
    * This is used only for serializing
    * 

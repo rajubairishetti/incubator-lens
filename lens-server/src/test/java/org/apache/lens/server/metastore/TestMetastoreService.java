@@ -2082,6 +2082,7 @@ public class TestMetastoreService extends LensJerseyTest {
       cubeToDim1Ref.setDescription("test ref cube to dim1");
       cubeToDim1Ref.setDisplayString("cubeToDim1Ref");
       cubeToDim1Ref.setStartTime(startDate);
+      cubeToDim1Ref.setIsJoinKey(true);
       // Don't set endtime on this dim to validate null handling on server side
       cubeToDim1Ref.setCost(10.0);
       XTablereferences xTablereference = cubeObjectFactory.createXTablereferences();
@@ -2104,6 +2105,7 @@ public class TestMetastoreService extends LensJerseyTest {
       dim1ToDim2Ref.setStartTime(startDate);
       // Don't set endtime on this dim to validate null handling on server side
       dim1ToDim2Ref.setCost(10.0);
+      dim1ToDim2Ref.setIsJoinKey(true);
       XTablereferences xTablereferences2 = cubeObjectFactory.createXTablereferences();
       dim1ToDim2Ref.setReferences(xTablereferences2);
       List<XTablereference> refs = dim1ToDim2Ref.getReferences().getTableReferences();
