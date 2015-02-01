@@ -286,10 +286,11 @@ public class JAXBUtils {
         xcc.setChainName(rd.getChainName());
         xcc.setRefcol(rd.getRefColumn());
         xd.setChainrefcolumn(xcc);
+        xd.setIsJoinKey(Boolean.valueOf(false));
       } else {
         xd.setReferences(xTabReferenceFromHiveTabReference(dimRefs));
+        xd.setIsJoinKey(rd.useAsJoinKey());
       }
-      xd.setIsJoinKey(rd.getIsJoinKey());
       xd.setNumOfDistinctValues(rd.getNumOfDistinctValues());
       xd.setType(rd.getType());
       xd.setCost(rd.getCost());
