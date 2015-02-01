@@ -176,7 +176,7 @@ public class LensClient {
 
 
   private void connectToLensServer() {
-    System.out.println("Connecting to lens server " + new LensConnectionParams(conf));
+    LOG.debug("Connecting to lens server " + new LensConnectionParams(conf));
     conn = new LensConnection(new LensConnectionParams(conf));
     conn.open(password);
     LOG.debug("Successfully connected to server " + conn);
