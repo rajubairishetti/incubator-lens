@@ -57,7 +57,6 @@ public class TestLensClient extends LensAllApplicationJerseyTest {
 
   @Test
   public void testClient() throws Exception {
-    LOG.info("test unit si called");
     LensClientConfig lensClientConfig = new LensClientConfig();
     lensClientConfig.set(LensConfConstants.SERVER_BASE_URL, "http://localhost:"+getTestPort()+"/lensapi");
     LensClient client = new LensClient(lensClientConfig);
