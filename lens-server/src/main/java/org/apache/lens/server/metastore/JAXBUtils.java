@@ -180,7 +180,7 @@ public class JAXBUtils {
           startDate,
           endDate,
           xd.getCost(),
-          true,
+          xd.isIsJoinKey(),
           xd.getNumOfDistinctValues()
           );
     } else if (xd.getChainrefcolumn() != null) {
@@ -286,10 +286,11 @@ public class JAXBUtils {
         xcc.setChainName(rd.getChainName());
         xcc.setRefcol(rd.getRefColumn());
         xd.setChainrefcolumn(xcc);
-        xd.setNumOfDistinctValues(((ReferencedDimAtrribute) cd).getNumOfDistinctValues());
       } else {
         xd.setReferences(xTabReferenceFromHiveTabReference(dimRefs));
       }
+      //xd.setIsJoinKey(rd.);
+      xd.setNumOfDistinctValues(rd.getNumOfDistinctValues());
       xd.setType(rd.getType());
       xd.setCost(rd.getCost());
     } else if (cd instanceof BaseDimAttribute) {

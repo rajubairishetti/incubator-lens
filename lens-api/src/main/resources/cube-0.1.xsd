@@ -194,6 +194,7 @@
     <xs:attribute type="xs:double" name="cost"/>
     <xs:attribute type="xs:string" name="expr"/>
     <xs:attribute type="xs:string" name="cube_table"/>
+    <xs:attribute type="xs:boolean" name="isJoinKey"/>
   </xs:complexType>
   <xs:complexType name="x_chaincolumn">
     <xs:attribute type="xs:string" name="chainName" use="required"/>
