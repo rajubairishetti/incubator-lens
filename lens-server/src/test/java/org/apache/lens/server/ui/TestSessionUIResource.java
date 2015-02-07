@@ -40,7 +40,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * The Class TestSessionResource.
+ * The Class TestSessionUIResource.
  */
 @Test(groups = "unit-test")
 public class TestSessionUIResource extends LensJerseyTest {
@@ -86,40 +86,18 @@ public class TestSessionUIResource extends LensJerseyTest {
   }
 
   /**
-   * Test session.
+   * Test ui session
    */
-  @Test
-  public void testResponsesFromServer() {
-    final WebTarget target = target().path("uisession");
-    final FormDataMultiPart mp = getMultiFormData("foo", "bar");
-
-    Response response = target.request().accept(MediaType.APPLICATION_JSON).
-        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
-    Assert.assertEquals(response.getStatus(), 200);
-    Assert.assertEquals(response.getMediaType().toString(), "application/json");
-  }
-
-  @Test
-  public void testXMLResponsesFromServer() {
-    final WebTarget target = target().path("uisession");
-    final FormDataMultiPart mp = getMultiFormData("foo", "bar");
-
-    Response response = target.request().accept(MediaType.APPLICATION_XML).
-        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
-    Assert.assertEquals(response.getStatus(), 200);
-    Assert.assertEquals(response.getMediaType().toString(), "application/xml");
-  }
-
   @Test
   public void testUISession() {
     final WebTarget target = target().path("uisession");
-    final FormDataMultiPart mp = getMultiFormData("foo", "bar");
+    FormDataMultiPart mp = getMultiFormData("foo", "bar");
 
     LensSessionHandle lensSessionHandle = target.request().post(
         Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), LensSessionHandle.class);
     Assert.assertTrue(lensSessionHandle != null);
 
-    Response deleteResponse = target.path("/"+lensSessionHandle.getPublicId()).request().delete();
+    Response deleteResponse = target.path(lensSessionHandle.getPublicId().toString()).request().delete();
     Assert.assertEquals(deleteResponse.getStatus(), 200);
   }
 
@@ -133,5 +111,26 @@ public class TestSessionUIResource extends LensJerseyTest {
     return mp;
   }
 
+  @Test
+  public void testJsonResponsesFromServer() {
+    final WebTarget target = target().path("uisession");
+    FormDataMultiPart mp = getMultiFormData("foo", "bar");
+
+    Response response = target.request().accept(MediaType.APPLICATION_JSON).
+        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
+    Assert.assertEquals(response.getStatus(), 200);
+    Assert.assertEquals(response.getMediaType().toString(), "application/json");
+  }
+
+  @Test
+  public void testXMLResponsesFromServer() {
+    final WebTarget target = target().path("uisession");
+    FormDataMultiPart mp = getMultiFormData("foo", "bar");
+
+    Response response = target.request().accept(MediaType.APPLICATION_XML).
+        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
+    Assert.assertEquals(response.getStatus(), 200);
+    Assert.assertEquals(response.getMediaType().toString(), "application/xml");
+  }
 
 }
