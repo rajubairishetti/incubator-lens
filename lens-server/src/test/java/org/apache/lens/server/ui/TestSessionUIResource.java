@@ -18,24 +18,26 @@
  */
 package org.apache.lens.server.ui;
 
-import org.apache.lens.api.LensConf;
-import org.apache.lens.api.LensSessionHandle;
-import org.apache.lens.server.LensJerseyTest;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.apache.lens.api.LensConf;
+import org.apache.lens.api.LensSessionHandle;
+import org.apache.lens.server.LensJerseyTest;
+
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
  * The Class TestSessionResource.
@@ -45,7 +47,7 @@ public class TestSessionUIResource extends LensJerseyTest {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.glassfish.jersey.test.JerseyTest#setUp()
    */
   @BeforeTest
@@ -55,7 +57,7 @@ public class TestSessionUIResource extends LensJerseyTest {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.glassfish.jersey.test.JerseyTest#tearDown()
    */
   @AfterTest
@@ -63,14 +65,9 @@ public class TestSessionUIResource extends LensJerseyTest {
     super.tearDown();
   }
 
-  @Override
-  protected int getTestPort() {
-    return 9000;
-  }
-
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.glassfish.jersey.test.JerseyTest#configure()
    */
   @Override
@@ -80,7 +77,7 @@ public class TestSessionUIResource extends LensJerseyTest {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.glassfish.jersey.test.JerseyTest#configureClient(org.glassfish.jersey.client.ClientConfig)
    */
   @Override
@@ -96,7 +93,8 @@ public class TestSessionUIResource extends LensJerseyTest {
     final WebTarget target = target().path("uisession");
     final FormDataMultiPart mp = getMultiFormData("foo", "bar");
 
-    Response response = target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
+    Response response = target.request().accept(MediaType.APPLICATION_JSON).
+        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
     Assert.assertEquals(response.getStatus(), 200);
     Assert.assertEquals(response.getMediaType().toString(), "application/json");
   }
@@ -106,7 +104,8 @@ public class TestSessionUIResource extends LensJerseyTest {
     final WebTarget target = target().path("uisession");
     final FormDataMultiPart mp = getMultiFormData("foo", "bar");
 
-    Response response = target.request().accept(MediaType.APPLICATION_XML).post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
+    Response response = target.request().accept(MediaType.APPLICATION_XML).
+        post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
     Assert.assertEquals(response.getStatus(), 200);
     Assert.assertEquals(response.getMediaType().toString(), "application/xml");
   }
