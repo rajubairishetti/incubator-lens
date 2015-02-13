@@ -812,6 +812,10 @@ public class CubeMetastoreServiceImpl extends LensService implements CubeMetasto
         try {
           date = period.format().parse(dateStr);
         } catch (Exception e) {
+          LOG.info("AAAAAABABBBBBABBBBB partCol::::::::::: " + partCol) ;
+          if (partCol.equals("latest")) {
+            partSpec.remove(partCol);
+          }
           continue;
         }
         partSpec.remove(partCol);
@@ -862,6 +866,7 @@ public class CubeMetastoreServiceImpl extends LensService implements CubeMetasto
         Storage.getPrefix(storageName));
       List<Partition> partitions = getClient(sessionid).getPartitionsByFilter(
         tableName, filter);
+      LOG.info("AAAAAAAAAAAABBBBBBBBBABBBBBBBBBBBBAABBBBB list of partitions to be dropped " + partitions);
       for (Partition part : partitions) {
         try {
           Map<String, Date> timeSpec = new HashMap<String, Date>();

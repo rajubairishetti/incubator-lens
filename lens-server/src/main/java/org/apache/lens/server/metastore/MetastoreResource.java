@@ -1054,6 +1054,8 @@ public class MetastoreResource {
       @QueryParam("filter") String filter) {
     checkSessionId(sessionid);
     try {
+      LOG.info("AAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBB drop partitions  by filter from fact storage:::::::: " +
+    sessionid + "  ........... factname  " + factName + " .........  storage " + storage + "  .............. " + filter);
       getSvc().dropPartitionFromStorageByFilter(sessionid, factName, storage, filter);
     } catch (LensException exc) {
       LOG.warn("Got exception while dropping partition.", exc);

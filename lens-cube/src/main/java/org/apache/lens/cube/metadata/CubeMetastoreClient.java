@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -53,6 +55,8 @@ import org.apache.thrift.TException;
  * 
  */
 public class CubeMetastoreClient {
+  
+  private static final Log LOG = LogFactory.getLog(CubeMetastoreClient.class);
   private final HiveConf config;
   private final boolean enableCaching;
 
@@ -578,11 +582,16 @@ public class CubeMetastoreClient {
     List<FieldSchema> partCols = hiveTable.getPartCols();
     List<String> partColNames = new ArrayList<String>(partCols.size());
     List<String> partVals = new ArrayList<String>(partCols.size());
+    LOG.info("AAAAAAAAAAAAAAAAAA passed valuessss:::::: " + storageName + " st tablenaem::::::: " +
+    storageTableName + "  timepartspec:::::::::::: "+ timePartSpec + "       nonTimePartSpec:::::::: " + nonTimePartSpec);
     for (FieldSchema column : partCols) {
       partColNames.add(column.getName());
       if (timePartSpec.containsKey(column.getName())) {
+        LOG.info("AAAAAAAAAAAAAAAAAAA timeparrrrrrrrrrrrrrrrrtcolPartittionn " + column.getName());
         partVals.add(updatePeriod.format().format(timePartSpec.get(column.getName())));
       } else if (nonTimePartSpec.containsKey(column.getName())) {
+        LOG.info("AAAAAAAAAAAAAAAAAAA noooooooooooooooooooooooooooootttttimeparrrrrrrrrrrrrrrrrtcolPartittionn " + column.getName());
+
         partVals.add(nonTimePartSpec.get(column.getName()));
       } else {
         throw new HiveException("Invalid partspec, missing value for" + column.getName());
@@ -592,17 +601,22 @@ public class CubeMetastoreClient {
     Map<String, LatestInfo> latest = new HashMap<String, Storage.LatestInfo>();
     if (timePartColsStr != null) {
       List<String> timePartCols = Arrays.asList(StringUtils.split(timePartColsStr, ','));
+      LOG.info("AAAAAAAAAAAAAAAAAAA  time part columsnssss:::::::::: " + timePartCols + " ............. str .... " + timePartColsStr);
       for (String timeCol : timePartSpec.keySet()) {
         if (!timePartCols.contains(timeCol)) {
           throw new HiveException("Not a time partition column:" + timeCol);
         }
+        LOG.info("AAAAAAAAAAAAAAAAAAA  timeCol " + timeCol);
         int timeColIndex = partColNames.indexOf(timeCol);
         Partition part = getLatestPart(storageTableName, timeCol);
+        LOG.info("AAAAAAAAAAAAAAAAAAA  part " + part.getSpec());
 
         // check if partition being dropped is the latest partition
         boolean isLatest = true;
         for (int i = 0; i < partVals.size(); i++) {
           if (i != timeColIndex) {
+            LOG.info("AAAAAAAAAAAAAA time index column::::::::::: " + timeColIndex + "   parttition values    " +
+          part.getValues() + " ::::::: " + part.getSpec() + "     ........... partVals........." + partVals);
             if (!part.getValues().get(i).equals(partVals.get(i))) {
               isLatest = false;
               break;
@@ -611,6 +625,7 @@ public class CubeMetastoreClient {
         }
         if (isLatest) {
           Date latestTimestamp = getLatestTimeStamp(part, timeCol);
+          LOG.info("AAAAAAAAAAAAAA latest   time " + latestTimestamp);
           Date dropTimestamp;
           try {
             dropTimestamp = updatePeriod.format().parse(updatePeriod.format().format(timePartSpec.get(timeCol)));
@@ -619,8 +634,10 @@ public class CubeMetastoreClient {
           }
           if (latestTimestamp != null && dropTimestamp.equals(latestTimestamp)) {
             LatestInfo latestInfo = getNextLatest(hiveTable, timeCol, timeColIndex);
+            LOG.info("AAAAAAAAAAAAAA latestpart info  " + latestInfo);
             latest.put(timeCol, latestInfo);
           }
+          LOG.info("AAAAAAAAAAAAAAAAAA latest::::::::::: " + latest);
         }
       }
     } else {
