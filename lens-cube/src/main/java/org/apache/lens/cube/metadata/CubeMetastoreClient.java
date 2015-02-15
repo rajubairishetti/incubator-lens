@@ -591,7 +591,6 @@ public class CubeMetastoreClient {
         partVals.add(updatePeriod.format().format(timePartSpec.get(column.getName())));
       } else if (nonTimePartSpec.containsKey(column.getName())) {
         LOG.info("AAAAAAAAAAAAAAAAAAA noooooooooooooooooooooooooooootttttimeparrrrrrrrrrrrrrrrrtcolPartittionn " + column.getName());
-
         partVals.add(nonTimePartSpec.get(column.getName()));
       } else {
         throw new HiveException("Invalid partspec, missing value for" + column.getName());
@@ -601,31 +600,32 @@ public class CubeMetastoreClient {
     Map<String, LatestInfo> latest = new HashMap<String, Storage.LatestInfo>();
     if (timePartColsStr != null) {
       List<String> timePartCols = Arrays.asList(StringUtils.split(timePartColsStr, ','));
-      LOG.info("AAAAAAAAAAAAAAAAAAA  time part columsnssss:::::::::: " + timePartCols + " ............. str .... " + timePartColsStr);
       for (String timeCol : timePartSpec.keySet()) {
         if (!timePartCols.contains(timeCol)) {
           throw new HiveException("Not a time partition column:" + timeCol);
         }
-        LOG.info("AAAAAAAAAAAAAAAAAAA  timeCol " + timeCol);
         int timeColIndex = partColNames.indexOf(timeCol);
         Partition part = getLatestPart(storageTableName, timeCol);
-        LOG.info("AAAAAAAAAAAAAAAAAAA  part " + part.getSpec());
+        LOG.info("AAAAAABBBBBBBBBBBBBBBBBBBBBBBB       BBBBBBBBB  timeCol " + timeCol + "   ....... timecol index:::::: "
+        + timeColIndex + " ....... partspec " + part.getSpec() + "   ..... part valuessss " + partVals +  " ....size " + partVals.size());
+
 
         // check if partition being dropped is the latest partition
         boolean isLatest = true;
         for (int i = 0; i < partVals.size(); i++) {
           if (i != timeColIndex) {
-            LOG.info("AAAAAAAAAAAAAA time index column::::::::::: " + timeColIndex + "   parttition values    " +
+            LOG.info("AAAAAABBBBBBBBBBBBBBBBBBBBBBBBB time index column::::::::::: " + timeColIndex + "   parttition values    " +
           part.getValues() + " ::::::: " + part.getSpec() + "     ........... partVals........." + partVals);
             if (!part.getValues().get(i).equals(partVals.get(i))) {
               isLatest = false;
               break;
             }
+          } else {
+            LOG.info("AAAAAAAAAAAAAAAAAAAAABBBBBBBBBBB else blockkkkkkkkk ::::::: " + i + " ........ col " + timeColIndex);
           }
         }
         if (isLatest) {
           Date latestTimestamp = getLatestTimeStamp(part, timeCol);
-          LOG.info("AAAAAAAAAAAAAA latest   time " + latestTimestamp);
           Date dropTimestamp;
           try {
             dropTimestamp = updatePeriod.format().parse(updatePeriod.format().format(timePartSpec.get(timeCol)));
@@ -637,7 +637,6 @@ public class CubeMetastoreClient {
             LOG.info("AAAAAAAAAAAAAA latestpart info  " + latestInfo);
             latest.put(timeCol, latestInfo);
           }
-          LOG.info("AAAAAAAAAAAAAAAAAA latest::::::::::: " + latest);
         }
       }
     } else {

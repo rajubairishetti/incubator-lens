@@ -167,15 +167,14 @@ public final class LensConfConstants {
   public static final long SESSION_TIMEOUT_SECONDS_DEFAULT = 1440 * 60; // Default is one day
 
   /**
-   * The Constant 
+   * The Constant
    */
-  public static final String  SERVER_UI_START = SERVER_PFX + "ui.start";
-  
+  public static final String  SERVER_UI_ENABLE_START = SERVER_PFX + "ui.enable.start";
+
   /**
-   * The Constant 
+   * The Constant
    */
-  public static final boolean  DEFAULT_SERVER_UI_START = true;
-  
+  public static final boolean  DEFAULT_SERVER_UI_ENABLE_START = true;
 
   /**
    * The Constant SERVER_UI_URI.
