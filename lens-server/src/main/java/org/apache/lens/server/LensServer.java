@@ -96,9 +96,15 @@ public class LensServer {
     sgMetrics.addMapping("/admin/*");
 
     adminCtx.deploy(this.server);
-    String uiServerURI = conf.get(LensConfConstants.SERVER_UI_URI, LensConfConstants.DEFAULT_SERVER_UI_URI);
-    this.uiServer = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(uiServerURI).build(), getUIApp(),
-      false);
+
+    if (conf.getBoolean(LensConfConstants.SERVER_UI_ENABLE_START,
+        LensConfConstants.DEFAULT_SERVER_UI_ENABLE_START)) {
+      String uiServerURI = conf.get(LensConfConstants.SERVER_UI_URI, LensConfConstants.DEFAULT_SERVER_UI_URI);
+      this.uiServer = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(uiServerURI).build(), getUIApp(),
+          false);
+    } else {
+      this.uiServer = null;
+    }
   }
 
   private ResourceConfig getApp() {
@@ -132,7 +138,13 @@ public class LensServer {
    */
   public synchronized void start() throws IOException {
     server.start();
-    uiServer.start();
+    if (isUiServerStartEnabled()) {
+      uiServer.start();
+    }
+  }
+
+  private boolean isUiServerStartEnabled() {
+    return uiServer != null;
   }
 
   /**
@@ -140,7 +152,9 @@ public class LensServer {
    */
   public synchronized void stop() {
     server.shutdownNow();
-    uiServer.shutdownNow();
+    if (isUiServerStartEnabled()) {
+      uiServer.shutdownNow();
+    }
     LensServices.get().stop();
     printShutdownMessage();
   }
