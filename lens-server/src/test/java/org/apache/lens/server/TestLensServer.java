@@ -25,29 +25,21 @@ import org.apache.lens.server.api.LensConfConstants;
 import org.apache.hadoop.hive.conf.HiveConf;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class TestLensServer {
-
-  final HiveConf conf = new HiveConf();
-
-  @BeforeTest
-  public void setUp() {
-    conf.addResource("lensserver-default.xml");
-    conf.addResource("lens-site.xml");
-  }
 
   /**
    * Test UI server
    */
   @Test
   public void testUIServer() throws IOException {
+    HiveConf conf = new HiveConf(LensServerConf.get());
     LensServer thisServer = LensServer.createLensServer(conf);
-    Assert.assertNotNull(thisServer.uiServer);
+    Assert.assertNotNull(thisServer.getUiServer());
 
     conf.set(LensConfConstants.SERVER_UI_ENABLE_START, "false");
     thisServer = LensServer.createLensServer(conf);
-    Assert.assertNull(thisServer.uiServer);
+    Assert.assertNull(thisServer.getUiServer());
   }
 }
