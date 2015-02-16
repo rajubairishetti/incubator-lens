@@ -193,7 +193,7 @@ public class LensServer {
 
     printStartupMessage();
     try {
-      final LensServer thisServer = new LensServer(LensServerConf.get());
+      final LensServer thisServer = LensServer.createLensServer(LensServerConf.get());
 
       registerShutdownHook(thisServer);
       registerDefaultExceptionHandler();
