@@ -43,11 +43,11 @@ public class TestLensServer {
    */
   @Test
   public void testUIServer() throws IOException {
-    LensServer thisServer = new LensServer(conf);
+    LensServer thisServer = LensServer.createLensServer(conf);
     Assert.assertNotNull(thisServer.uiServer);
 
     conf.set(LensConfConstants.SERVER_UI_ENABLE_START, "false");
-    thisServer = new LensServer(conf);
+    thisServer = LensServer.createLensServer(conf);
     Assert.assertNull(thisServer.uiServer);
   }
 }
