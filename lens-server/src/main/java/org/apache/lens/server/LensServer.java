@@ -80,7 +80,7 @@ public class LensServer {
    * @param conf the conf
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  private LensServer(HiveConf conf) throws IOException {
+  LensServer(HiveConf conf) throws IOException {
     this.conf = conf;
     startServices(conf);
     String baseURI = conf.get(LensConfConstants.SERVER_BASE_URL, LensConfConstants.DEFAULT_SERVER_BASE_URL);
