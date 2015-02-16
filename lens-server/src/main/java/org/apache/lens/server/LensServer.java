@@ -26,13 +26,13 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.UriBuilder;
 
+import lombok.Getter;
+
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.ui.UIApp;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.conf.HiveConf;
-
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -58,7 +58,7 @@ public class LensServer {
   final HttpServer server;
 
   /** The ui server. */
-  final HttpServer uiServer;
+  @Getter final HttpServer uiServer;
 
   /** The conf. */
   final HiveConf conf;
