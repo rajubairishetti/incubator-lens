@@ -74,13 +74,18 @@ public class LensServer {
     SLF4JBridgeHandler.install();
   }
 
+  static LensServer createLensServer(HiveConf conf) throws IOException {
+    final LensServer thisServer = new LensServer(conf);
+    return thisServer;
+  }
+
   /**
    * Instantiates a new lens server.
    *
    * @param conf the conf
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  LensServer(HiveConf conf) throws IOException {
+  private LensServer(HiveConf conf) throws IOException {
     this.conf = conf;
     startServices(conf);
     String baseURI = conf.get(LensConfConstants.SERVER_BASE_URL, LensConfConstants.DEFAULT_SERVER_BASE_URL);
