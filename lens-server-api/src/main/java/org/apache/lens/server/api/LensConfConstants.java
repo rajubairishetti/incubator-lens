@@ -169,12 +169,12 @@ public final class LensConfConstants {
   /**
    * The Constant
    */
-  public static final String  SERVER_UI_ENABLE_START = SERVER_PFX + "ui.enable.start";
+  public static final String  SERVER_UI_ENABLE = SERVER_PFX + "ui.enable";
 
   /**
    * The Constant
    */
-  public static final boolean  DEFAULT_SERVER_UI_ENABLE_START = true;
+  public static final boolean  DEFAULT_SERVER_UI_ENABLE = true;
 
   /**
    * The Constant SERVER_UI_URI.

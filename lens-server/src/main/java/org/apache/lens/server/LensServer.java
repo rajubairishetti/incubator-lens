@@ -104,8 +104,8 @@ public class LensServer {
 
     adminCtx.deploy(this.server);
 
-    if (conf.getBoolean(LensConfConstants.SERVER_UI_ENABLE_START,
-        LensConfConstants.DEFAULT_SERVER_UI_ENABLE_START)) {
+    if (conf.getBoolean(LensConfConstants.SERVER_UI_ENABLE,
+        LensConfConstants.DEFAULT_SERVER_UI_ENABLE)) {
       String uiServerURI = conf.get(LensConfConstants.SERVER_UI_URI, LensConfConstants.DEFAULT_SERVER_UI_URI);
       this.uiServer = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(uiServerURI).build(), getUIApp(),
           false);
@@ -145,12 +145,12 @@ public class LensServer {
    */
   public synchronized void start() throws IOException {
     server.start();
-    if (isUiServerStartEnabled()) {
+    if (isUiServerEnabled()) {
       uiServer.start();
     }
   }
 
-  private boolean isUiServerStartEnabled() {
+  private boolean isUiServerEnabled() {
     return uiServer != null;
   }
 
@@ -159,7 +159,7 @@ public class LensServer {
    */
   public synchronized void stop() {
     server.shutdownNow();
-    if (isUiServerStartEnabled()) {
+    if (isUiServerEnabled()) {
       uiServer.shutdownNow();
     }
     LensServices.get().stop();
