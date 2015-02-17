@@ -142,7 +142,7 @@ Lens server configuration
 *--+--+---+--+
 |59|lens.server.ui.static.dir|webapp/lens-server/static|The base directory to server UI static files from|
 *--+--+---+--+
-|60|lens.server.ui.enable.start|true|Bringing up the ui server is optional. By default it brings up UI server|
+|60|lens.server.ui.enable|true|Bringing up the ui server is optional. By default it brings up UI server|
 *--+--+---+--+
 |61|lens.server.user.resolver.custom.class|full.package.name.Classname|Required for CUSTOM user resolver. In case the provided implementations are not sufficient for user config resolver, a custom classname can be provided. Class should extend org.apache.lens.server.user.UserConfigLoader|
 *--+--+---+--+
