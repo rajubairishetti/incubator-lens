@@ -20,6 +20,8 @@ package org.apache.lens.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -56,11 +58,8 @@ public class LensServer {
   private static final String SEP_LINE =
     "\n###############################################################\n";
 
-  /** The server. */
-  final HttpServer server;
-
-  /** The ui server. */
-  @Getter final HttpServer uiServer;
+  @Getter
+  private final List<HttpServer> serverList = new ArrayList<HttpServer>();
 
   /** The conf. */
   final HiveConf conf;
@@ -91,7 +90,9 @@ public class LensServer {
     this.conf = conf;
     startServices(conf);
     String baseURI = conf.get(LensConfConstants.SERVER_BASE_URL, LensConfConstants.DEFAULT_SERVER_BASE_URL);
-    server = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(baseURI).build(), getApp(), false);
+    HttpServer server = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(baseURI).build(), getApp(),
+        false);
+    serverList.add(server);
 
     WebappContext adminCtx = new WebappContext("admin", "");
     adminCtx.setAttribute("com.codahale.metrics.servlets.MetricsServlet.registry", ((MetricsServiceImpl) LensServices
@@ -102,15 +103,14 @@ public class LensServer {
     final ServletRegistration sgMetrics = adminCtx.addServlet("admin", new AdminServlet());
     sgMetrics.addMapping("/admin/*");
 
-    adminCtx.deploy(this.server);
+    adminCtx.deploy(server);
 
     if (conf.getBoolean(LensConfConstants.SERVER_UI_ENABLE,
         LensConfConstants.DEFAULT_SERVER_UI_ENABLE)) {
       String uiServerURI = conf.get(LensConfConstants.SERVER_UI_URI, LensConfConstants.DEFAULT_SERVER_UI_URI);
-      this.uiServer = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(uiServerURI).build(), getUIApp(),
-          false);
-    } else {
-      this.uiServer = null;
+      HttpServer uiServer = GrizzlyHttpServerFactory.createHttpServer(UriBuilder.fromUri(uiServerURI).build(),
+          getUIApp(), false);
+      serverList.add(uiServer);
     }
   }
 
@@ -144,23 +144,17 @@ public class LensServer {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public synchronized void start() throws IOException {
-    server.start();
-    if (isUiServerEnabled()) {
-      uiServer.start();
+    for (HttpServer server : serverList) {
+      server.start();
     }
-  }
-
-  private boolean isUiServerEnabled() {
-    return uiServer != null;
   }
 
   /**
    * Stop.
    */
   public synchronized void stop() {
-    server.shutdownNow();
-    if (isUiServerEnabled()) {
-      uiServer.shutdownNow();
+    for (HttpServer server : serverList) {
+      server.shutdown();
     }
     LensServices.get().stop();
     printShutdownMessage();

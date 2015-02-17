@@ -36,10 +36,10 @@ public class TestLensServer {
   public void testUIServer() throws IOException {
     HiveConf conf = new HiveConf(LensServerConf.get());
     LensServer thisServer = LensServer.createLensServer(conf);
-    Assert.assertNotNull(thisServer.getUiServer());
+    Assert.assertEquals(thisServer.getServerList().size(), 2);
 
-    conf.set(LensConfConstants.SERVER_UI_ENABLE_START, "false");
+    conf.set(LensConfConstants.SERVER_UI_ENABLE, "false");
     thisServer = LensServer.createLensServer(conf);
-    Assert.assertNull(thisServer.getUiServer());
+    Assert.assertEquals(thisServer.getServerList().size(), 1);
   }
 }
