@@ -613,9 +613,10 @@ public class CubeMetastoreClient {
         // check if partition being dropped is the latest partition
         boolean isLatest = true;
         for (int i = 0; i < partVals.size(); i++) {
+          LOG.info("AAAAAABBBBBBBBBBBBBBBBBBBBBBBBB time index column::::::::::: " + timeColIndex + "   parttition values    " +
+        part.getValues() + " ::::::: " + part.getSpec() + "     ........... partVals........." + partVals);
+          
           if (i != timeColIndex) {
-            LOG.info("AAAAAABBBBBBBBBBBBBBBBBBBBBBBBB time index column::::::::::: " + timeColIndex + "   parttition values    " +
-          part.getValues() + " ::::::: " + part.getSpec() + "     ........... partVals........." + partVals);
             if (!part.getValues().get(i).equals(partVals.get(i))) {
               isLatest = false;
               break;
