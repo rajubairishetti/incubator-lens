@@ -617,6 +617,8 @@ public class CubeMetastoreClient {
         part.getValues() + " ::::::: " + part.getSpec() + "     ........... partVals........." + partVals);
           
           if (i != timeColIndex) {
+            LOG.info("AAAAAAAAAAAAAAAA   part part.getValues().get(i)" + part.getValues().get(i)
+                + "  .............. partVals.get(i)" + partVals.get(i));
             if (!part.getValues().get(i).equals(partVals.get(i))) {
               isLatest = false;
               break;
