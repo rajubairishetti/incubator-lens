@@ -174,8 +174,8 @@ public final class JAXBUtils {
         startDate,
         endDate,
         null,
-        xd.isIsJoinKey(),
-        xd.getNumOfDistinctValues()
+        xd.isJoinKey(),
+        xd.getNumDistinctValues()
       );
     } else if (xd.getRefSpec() != null && xd.getRefSpec().getChainRefColumn() != null) {
       hiveDim = new ReferencedDimAtrribute(new FieldSchema(xd.getName(), xd.getType().toLowerCase(),
@@ -186,7 +186,7 @@ public final class JAXBUtils {
         startDate,
         endDate,
         null,
-        xd.getNumOfDistinctValues()
+        xd.getNumDistinctValues()
       );
     } else {
       hiveDim = new BaseDimAttribute(new FieldSchema(xd.getName(), xd.getType().toLowerCase(),
@@ -195,7 +195,7 @@ public final class JAXBUtils {
         startDate,
         endDate,
         null,
-        xd.getNumOfDistinctValues()
+        xd.getNumDistinctValues()
       );
     }
 
@@ -286,19 +286,19 @@ public final class JAXBUtils {
           xcc.setDestTable(baseTable.getChainByName(rd.getChainName()).getDestTable());
         }
         refspec.setChainRefColumn(xcc);
-        xd.setIsJoinKey(Boolean.valueOf(false));
+        xd.setJoinKey(Boolean.valueOf(false));
       } else {
         refspec.setTableReferences(new XTableReferences());
         refspec.getTableReferences().getTableReference().addAll(xTabReferencesFromHiveTabReferences(dimRefs));
-        xd.setIsJoinKey(rd.useAsJoinKey());
+        xd.setJoinKey(rd.useAsJoinKey());
       }
       xd.setRefSpec(refspec);
       xd.setType(rd.getType());
-      xd.setNumOfDistinctValues(rd.getNumOfDistinctValues());
+      xd.setNumDistinctValues(rd.getNumOfDistinctValues());
     } else if (cd instanceof BaseDimAttribute) {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
-      xd.setNumOfDistinctValues(bd.getNumOfDistinctValues());
+      xd.setNumDistinctValues(bd.getNumOfDistinctValues());
     }
     return xd;
   }
