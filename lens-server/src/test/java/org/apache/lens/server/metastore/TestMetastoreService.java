@@ -280,7 +280,7 @@ public class TestMetastoreService extends LensJerseyTest {
     xd1.setDisplayString("Dimension1");
     // Don't set endtime on this dim to validate null handling on server side
     xd1.setStartTime(startDate);
-      xd1.setNumOfDistinctValues(2000L);
+    xd1.setNumOfDistinctValues(2000L);
 
     XDimAttribute xd2 = cubeObjectFactory.createXDimAttribute();
     xd2.setName("dim2");
@@ -300,7 +300,7 @@ public class TestMetastoreService extends LensJerseyTest {
     xcc.setRefCol("col2");
     xd3.setRefSpec(cubeObjectFactory.createXDimAttributeRefSpec());
     xd3.getRefSpec().setChainRefColumn(xcc);
-      xd3.setNumOfDistinctValues(1000L);
+    xd3.setNumOfDistinctValues(1000L);
 
     // add attribute with complex type
     XDimAttribute xd4 = cubeObjectFactory.createXDimAttribute();
@@ -624,9 +624,8 @@ public class TestMetastoreService extends LensJerseyTest {
       Cube hcube = (Cube) JAXBUtils.hiveCubeFromXCube(actual, null);
       assertEquals(hcube.getDimAttributeByName("dim1").getDescription(), "first dimension");
       assertEquals(hcube.getDimAttributeByName("dim1").getDisplayString(), "Dimension1");
-
-        assertEquals((((BaseDimAttribute)hcube.getDimAttributeByName("dim1")).getNumOfDistinctValues()).longValue(),
-                (long) 2000);
+      assertEquals((((BaseDimAttribute)hcube.getDimAttributeByName("dim1")).getNumOfDistinctValues()).longValue(),
+          (long) 2000);
       assertNotNull(hcube.getDimAttributeByName("testdim2col2"));
       assertEquals(hcube.getDimAttributeByName("testdim2col2").getDisplayString(), "Chained Dimension");
       assertEquals(hcube.getDimAttributeByName("testdim2col2").getDescription(), "ref chained dimension");
@@ -635,10 +634,10 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getType(), "string");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getChainName(), "chain1");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getRefColumn(), "col2");
-        assertEquals((((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues())
-                .longValue(), (long)1000);
+      assertEquals((((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues())
+        .longValue(), (long)1000);
 
-        assertNotNull(hcube.getMeasureByName("msr1"));
+      assertNotNull(hcube.getMeasureByName("msr1"));
       assertEquals(hcube.getMeasureByName("msr1").getDescription(), "first measure");
       assertEquals(hcube.getMeasureByName("msr1").getDisplayString(), "Measure1");
       assertNotNull(hcube.getExpressionByName("expr1"));

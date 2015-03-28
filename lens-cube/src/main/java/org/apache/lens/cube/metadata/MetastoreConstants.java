@@ -66,7 +66,7 @@ public final class MetastoreConstants {
   public static final String COST_SFX = ".cost";
   public static final String DESC_SFX = ".description";
   public static final String DISPLAY_SFX = ".displaystring";
-    public static final String NUM_DISTINCT_VALUES = ".num.distinct.values";
+  public static final String NUM_DISTINCT_VALUES = ".num.distinct.values";
 
   // measure constants
   public static final String MEASURE_KEY_PFX = "cube.measure.";
@@ -106,5 +106,5 @@ public final class MetastoreConstants {
   public static final String PARTITION_UPDATE_PERIOD = "cube.storagetable.partition.update.period";
   public static final String TIMEDIM_TO_PART_MAPPING_PFX = "cube.timedim.partition.";
 
-    public static final Long DEFAULT_NUM_OF_DISTINCT_VALUES = -1L;
+  public static final Long DEFAULT_NUM_OF_DISTINCT_VALUES = -1L;
 }
