@@ -21,19 +21,28 @@ package org.apache.lens.cube.metadata;
 import java.util.Date;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
 public class BaseDimAttribute extends CubeDimAttribute {
-  private final String type;
+  @Getter private final String type;
+  @Getter private Long numOfDistinctValues;
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost) {
+      this(column, displayString, startTime, endTime, cost, MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+  }
+
+    public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
+                            Long numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
+        this.numOfDistinctValues = numOfDistinctValues;
   }
 
   public String getType() {
@@ -44,8 +53,15 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public void addProperties(Map<String, String> props) {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
+      if (isSetNumOfDistinctValues()) {
+          props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()), String.valueOf(numOfDistinctValues));
+      }
   }
 
+    private boolean isSetNumOfDistinctValues() {
+        return (numOfDistinctValues != null
+                && !numOfDistinctValues.equals(MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES));
+    }
   /**
    * This is used only for serializing
    *
@@ -55,11 +71,19 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
+      this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
   }
 
   public static String getDimType(String name, Map<String, String> props) {
     return props.get(MetastoreUtil.getDimTypePropertyKey(name));
   }
+
+    public static long getDimNumOfDistinctValues(String name, Map<String, String> props) {
+        if (props.containsKey(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name))) {
+            return Long.parseLong(props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+        }
+        return MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES;
+    }
 
   @Override
   public int hashCode() {
@@ -87,7 +111,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   @Override
   public String toString() {
-    String str = super.toString() + ":" + getType();
+      String str = super.toString() + ":" + getType() + ":" + getNumOfDistinctValues();
     return str;
   }
 }
