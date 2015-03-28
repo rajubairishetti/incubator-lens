@@ -352,16 +352,16 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-      <xs:attribute type="xs:long" name="numOfDistinctValues">
-          <xs:annotation>
-              <xs:documentation>
-                  It specifies number of distinct values it can allow for a dim attribute.
-                  This would give an idea of how big the grouping will be when an attribute is chosen for groupby expressions.
-                  This is just an approximate value.
-              </xs:documentation>
-          </xs:annotation>
-      </xs:attribute>
-      <xs:attribute type="xs:boolean" name="isJoinKey" default="false"/>
+    <xs:attribute type="xs:long" name="numOfDistinctValues">
+      <xs:annotation>
+        <xs:documentation>
+          It specifies number of distinct values it can allow for a dim attribute.
+          This would give an idea of how big the grouping will be when an attribute is chosen for groupby expressions.
+          This is just an approximate value.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:boolean" name="isJoinKey" default="false"/>
   </xs:complexType>
 
   <xs:complexType name="x_dim_attributes">
