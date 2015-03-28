@@ -89,6 +89,10 @@ public class MetastoreUtil {
     return getDimensionKeyPrefix(dimName) + TYPE_SFX;
   }
 
+    public static final String getDimNumOfDistinctValuesPropertyKey(String dimName) {
+        return getDimensionKeyPrefix(dimName) + NUM_DISTINCT_VALUES;
+    }
+
   public static String getHierachyElementKeyPFX(String dimName) {
     return getDimensionKeyPrefix(dimName) + HIERARCHY_SFX;
   }
