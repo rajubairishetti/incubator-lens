@@ -44,9 +44,9 @@ CURR_BRANCH=`git branch | sed -n '/\* /s///p'`
 echo "Running site in current lens branch" $CURR_BRANCH
 mvn clean test -Dtest=TestGenerateConfigDoc || die "Unable to generate config docs"
 mvn install -DskipTests
-mvn site site:stage -Ddependency.locations.enabled=false -Ddependency.details.enabled=false || die "unable to generate site"
+mvn site site:stage -DskipTests -Ddependency.locations.enabled=false -Ddependency.details.enabled=false || die "unable to generate site"
 cd lens-server
-mvn enunciate:docs
+mvn enunciate:docs -Penunciate
 cd ..
 echo "Site gen complete"
 
