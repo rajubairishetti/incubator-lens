@@ -352,7 +352,7 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute type="xs:long" name="num_distinct_values">
+    <xs:attribute type="xs:long" name="num_distinct_values" use="optional">
       <xs:annotation>
         <xs:documentation>
           Specifies an indicative value of how many distinct values the dim attribute can take.

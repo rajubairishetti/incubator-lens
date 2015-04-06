@@ -28,7 +28,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.lens.api.metastore.*;
 import org.apache.lens.cube.metadata.*;
-
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.Order;
@@ -39,6 +38,8 @@ import org.apache.hadoop.hive.ql.parse.ParseException;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
+import com.google.common.base.Optional;
 
 /**
  * Utilities for converting to and from JAXB types to hive.ql.metadata.cube types
@@ -294,11 +295,11 @@ public final class JAXBUtils {
       }
       xd.setRefSpec(refspec);
       xd.setType(rd.getType());
-      xd.setNumDistinctValues(rd.getNumOfDistinctValues());
+      xd.setNumDistinctValues(Optional.of(rd.getNumOfDistinctValues()));
     } else if (cd instanceof BaseDimAttribute) {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
-      xd.setNumDistinctValues(bd.getNumOfDistinctValues());
+      xd.setNumDistinctValues(Optional.of(bd.getNumOfDistinctValues()));
     }
     return xd;
   }
