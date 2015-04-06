@@ -28,6 +28,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.lens.api.metastore.*;
 import org.apache.lens.cube.metadata.*;
+
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.Order;
@@ -196,7 +197,7 @@ public final class JAXBUtils {
         startDate,
         endDate,
         null,
-        xd.getNumDistinctValues()
+        Optional.fromNullable(xd.getNumDistinctValues())
       );
     }
 
@@ -295,11 +296,17 @@ public final class JAXBUtils {
       }
       xd.setRefSpec(refspec);
       xd.setType(rd.getType());
-      xd.setNumDistinctValues(Optional.of(rd.getNumOfDistinctValues()));
+      Optional<Long> numOfDistinctValues = rd.getNumOfDistinctValues();
+      if (numOfDistinctValues.isPresent()) {
+        xd.setNumDistinctValues(numOfDistinctValues.get());
+      }
     } else if (cd instanceof BaseDimAttribute) {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
-      xd.setNumDistinctValues(Optional.of(bd.getNumOfDistinctValues()));
+      Optional<Long> numOfDistinctValues = bd.getNumOfDistinctValues();
+      if (numOfDistinctValues.isPresent()) {
+        xd.setNumDistinctValues(numOfDistinctValues.get());
+      }
     }
     return xd;
   }

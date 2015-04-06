@@ -23,6 +23,8 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
+import com.google.common.base.Optional;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -51,13 +53,14 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
       Date endTime, Double cost, boolean isJoinKey) {
-    this(column, displayString, reference, startTime, endTime, cost, isJoinKey,
-        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+    super(column, displayString, startTime, endTime, cost);
+    this.references.add(reference);
+    this.isJoinKey = isJoinKey;
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, TableReference reference, Date startTime,
       Date endTime, Double cost, boolean isJoinKey, Long numOfDistinctValues) {
-    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
+    super(column, displayString, startTime, endTime, cost, Optional.fromNullable(numOfDistinctValues));
     this.references.add(reference);
     this.isJoinKey = isJoinKey;
   }
@@ -73,26 +76,29 @@ public class ReferencedDimAtrribute extends BaseDimAttribute {
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
       Date startTime, Date endTime, Double cost, boolean isJoinKey) {
-    this(column, displayString, references, startTime, endTime, cost, isJoinKey,
-        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+    super(column, displayString, startTime, endTime, cost);
+    this.references.addAll(references);
+    this.isJoinKey = isJoinKey;
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, Collection<TableReference> references,
       Date startTime, Date endTime, Double cost, boolean isJoinKey, Long numOfDistinctValues) {
-    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
+    super(column, displayString, startTime, endTime, cost, Optional.fromNullable(numOfDistinctValues));
     this.references.addAll(references);
     this.isJoinKey = isJoinKey;
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
       Date startTime, Date endTime, Double cost) {
-    this(column, displayString, chainName, refColumn, startTime, endTime, cost,
-        MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES);
+    super(column, displayString, startTime, endTime, cost);
+    this.chainName = chainName.toLowerCase();
+    this.refColumn = refColumn.toLowerCase();
+    this.isJoinKey = false;
   }
 
   public ReferencedDimAtrribute(FieldSchema column, String displayString, String chainName, String refColumn,
       Date startTime, Date endTime, Double cost, Long numOfDistinctValues) {
-    super(column, displayString, startTime, endTime, cost, numOfDistinctValues);
+    super(column, displayString, startTime, endTime, cost, Optional.fromNullable(numOfDistinctValues));
     this.chainName = chainName.toLowerCase();
     this.refColumn = refColumn.toLowerCase();
     this.isJoinKey = false;

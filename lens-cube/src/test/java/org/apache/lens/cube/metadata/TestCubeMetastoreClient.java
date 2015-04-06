@@ -47,6 +47,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Optional;
+
 public class TestCubeMetastoreClient {
 
   private static CubeMetastoreClient client;
@@ -408,7 +410,7 @@ public class TestCubeMetastoreClient {
     Table tbl = client.getHiveTable(zipDim.getName());
     Dimension toAlter = new Dimension(tbl);
     toAlter.alterAttribute(new BaseDimAttribute(new FieldSchema("newZipDim", "int", "new dim added"), null, null, null,
-      null, 1000L));
+      null, Optional.of(1000L)));
     toAlter.alterAttribute(new ReferencedDimAtrribute(new FieldSchema("newRefDim", "int", "new ref-dim added"),
       "New city ref", new TableReference("citydim", "id")));
     toAlter.alterAttribute(new BaseDimAttribute(new FieldSchema("f2", "varchar", "modified field")));
@@ -439,7 +441,7 @@ public class TestCubeMetastoreClient {
     CubeDimAttribute newzipdim = altered.getAttributeByName("newZipDim");
     Assert.assertTrue(newzipdim instanceof BaseDimAttribute);
     Assert.assertEquals(((BaseDimAttribute) newzipdim).getType(), "int");
-    Assert.assertEquals((((BaseDimAttribute) newzipdim).getNumOfDistinctValues()), 1000L);
+    Assert.assertEquals((((BaseDimAttribute) newzipdim).getNumOfDistinctValues().get()).longValue(), (long)1000);
 
     CubeDimAttribute newrefdim = altered.getAttributeByName("newRefDim");
     Assert.assertTrue(newrefdim instanceof ReferencedDimAtrribute);

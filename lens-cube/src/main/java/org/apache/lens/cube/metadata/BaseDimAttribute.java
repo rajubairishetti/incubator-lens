@@ -42,12 +42,15 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
-      Long numOfDistinctValues) {
+      Optional<Long> numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
-    this.numOfDistinctValues = Optional.of(numOfDistinctValues);
-    if (this.numOfDistinctValues.isPresent()) {
+
+    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA value: " + numOfDistinctValues);
+    if (numOfDistinctValues.isPresent()) {
+      this.numOfDistinctValues = numOfDistinctValues;
+      System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCC   " + this.numOfDistinctValues);
       assert(this.numOfDistinctValues.get() > 0);
     }
   }
@@ -57,12 +60,19 @@ public class BaseDimAttribute extends CubeDimAttribute {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
     if (isSetNumOfDistinctValues()) {
-      props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()), String.valueOf(numOfDistinctValues));
+      System.out.println("BCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBB  putttitttnggggg " + 
+          MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName())
+          + "   valuuuuuue " +String.valueOf(numOfDistinctValues.get()));
+      props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()),
+          String.valueOf(numOfDistinctValues.get()));
     }
   }
 
   private boolean isSetNumOfDistinctValues() {
-    return numOfDistinctValues.isPresent();
+    System.out.println("BBBBBBBBBBBBBBBBBB   " + numOfDistinctValues);
+    return numOfDistinctValues != null && numOfDistinctValues.isPresent();
+   // return !Optional.fromNullable(numOfDistinctValues).equals(Optional.absent());
+   // return numOfDistinctValues.orNull() != null && numOfDistinctValues.isPresent();
     /*return (numOfDistinctValues != null
         && !numOfDistinctValues.equals(MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES));*/
   }
@@ -75,7 +85,9 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
-    this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
+    if (getDimNumOfDistinctValues(name, props).isPresent()) {
+      this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
+    }
   }
 
   public static String getDimType(String name, Map<String, String> props) {

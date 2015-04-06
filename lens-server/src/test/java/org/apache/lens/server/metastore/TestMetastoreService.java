@@ -624,8 +624,8 @@ public class TestMetastoreService extends LensJerseyTest {
       Cube hcube = (Cube) JAXBUtils.hiveCubeFromXCube(actual, null);
       assertEquals(hcube.getDimAttributeByName("dim1").getDescription(), "first dimension");
       assertEquals(hcube.getDimAttributeByName("dim1").getDisplayString(), "Dimension1");
-      assertEquals((((BaseDimAttribute)hcube.getDimAttributeByName("dim1")).getNumOfDistinctValues()).longValue(),
-          (long) 2000);
+      assertEquals((((BaseDimAttribute)hcube.getDimAttributeByName("dim1")).getNumOfDistinctValues().get()).longValue(),
+          (long)2000);
 
       assertNotNull(hcube.getDimAttributeByName("testdim2col2"));
       assertEquals(hcube.getDimAttributeByName("testdim2col2").getDisplayString(), "Chained Dimension");
@@ -635,8 +635,9 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getType(), "string");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getChainName(), "chain1");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getRefColumn(), "col2");
-      assertEquals((((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues())
-        .longValue(), (long)1000);
+      assertEquals(((
+          (ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues()
+          .get()).longValue(), (long)1000);
 
       assertNotNull(hcube.getMeasureByName("msr1"));
       assertEquals(hcube.getMeasureByName("msr1").getDescription(), "first measure");
