@@ -77,6 +77,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
     /*return (numOfDistinctValues != null
         && !numOfDistinctValues.equals(MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES));*/
   }
+
   /**
    * This is used only for serializing
    *
@@ -86,8 +87,9 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
-    if (getDimNumOfDistinctValues(name, props).isPresent()) {
-      this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
+    Optional<Long> numDistinctValues = getDimNumOfDistinctValues(name, props);
+    if (numDistinctValues.isPresent()) {
+      this.numOfDistinctValues = numDistinctValues;
     }
   }
 
