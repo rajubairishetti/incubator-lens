@@ -635,9 +635,8 @@ public class TestMetastoreService extends LensJerseyTest {
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getType(), "string");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getChainName(), "chain1");
       assertEquals(((ReferencedDimAtrribute) hcube.getDimAttributeByName("testdim2col2")).getRefColumn(), "col2");
-      assertEquals(((
-          (ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2")).getNumOfDistinctValues()
-          .get()).longValue(), (long)1000);
+      assertEquals((((ReferencedDimAtrribute)hcube.getDimAttributeByName("testdim2col2"))
+          .getNumOfDistinctValues().get()).longValue(), (long)1000);
 
       assertNotNull(hcube.getMeasureByName("msr1"));
       assertEquals(hcube.getMeasureByName("msr1").getDescription(), "first measure");
