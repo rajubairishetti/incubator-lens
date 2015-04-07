@@ -303,7 +303,11 @@ public class QueryExecutionServiceImpl extends LensService implements QueryExecu
   }
 
   protected LensEventService getEventService() {
-    return (LensEventService) LensServices.get().getService(LensEventService.NAME);
+    LensEventService  eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
+    if (eventService == null) {
+      throw new NullPointerException("Could not get event service");
+    }
+    return eventService;
   }
 
   private MetricsService getMetrics() {
