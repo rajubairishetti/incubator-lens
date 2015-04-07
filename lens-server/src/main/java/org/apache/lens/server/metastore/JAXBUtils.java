@@ -297,14 +297,14 @@ public final class JAXBUtils {
       xd.setRefSpec(refspec);
       xd.setType(rd.getType());
       Optional<Long> numOfDistinctValues = rd.getNumOfDistinctValues();
-      if (numOfDistinctValues.isPresent()) {
+      if (numOfDistinctValues != null && numOfDistinctValues.isPresent()) {
         xd.setNumDistinctValues(numOfDistinctValues.get());
       }
     } else if (cd instanceof BaseDimAttribute) {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
       Optional<Long> numOfDistinctValues = bd.getNumOfDistinctValues();
-      if (numOfDistinctValues.orNull() != null && numOfDistinctValues.isPresent()) {
+      if (numOfDistinctValues != null && numOfDistinctValues.isPresent()) {
      // if (numOfDistinctValues != null && numOfDistinctValues.isPresent()) {
         xd.setNumDistinctValues(numOfDistinctValues.get());
       }
