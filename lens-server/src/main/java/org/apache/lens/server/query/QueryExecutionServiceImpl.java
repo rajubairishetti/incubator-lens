@@ -205,11 +205,6 @@ public class QueryExecutionServiceImpl extends LensService implements QueryExecu
   private Map<QueryHandle, LensResultSet> resultSets = new HashMap<QueryHandle, LensResultSet>();
 
   /**
-   * The event service.
-   */
-  private LensEventService eventService;
-
-  /**
    * The metrics service.
    */
   private MetricsService metricsService;
@@ -308,13 +303,7 @@ public class QueryExecutionServiceImpl extends LensService implements QueryExecu
   }
 
   protected LensEventService getEventService() {
-    if (eventService == null) {
-      eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
-      if (eventService == null) {
-        throw new NullPointerException("Could not get event service");
-      }
-    }
-    return eventService;
+    return (LensEventService) LensServices.get().getService(LensEventService.NAME);
   }
 
   private MetricsService getMetrics() {
