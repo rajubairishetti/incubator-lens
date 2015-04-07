@@ -304,7 +304,8 @@ public final class JAXBUtils {
       BaseDimAttribute bd = (BaseDimAttribute) cd;
       xd.setType(bd.getType());
       Optional<Long> numOfDistinctValues = bd.getNumOfDistinctValues();
-      if (numOfDistinctValues.isPresent()) {
+      if (numOfDistinctValues.orNull() != null && numOfDistinctValues.isPresent()) {
+     // if (numOfDistinctValues != null && numOfDistinctValues.isPresent()) {
         xd.setNumDistinctValues(numOfDistinctValues.get());
       }
     }

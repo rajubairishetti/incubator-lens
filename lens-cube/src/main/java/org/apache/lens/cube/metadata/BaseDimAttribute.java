@@ -60,8 +60,8 @@ public class BaseDimAttribute extends CubeDimAttribute {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
     if (isSetNumOfDistinctValues()) {
-      System.out.println("BCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBB  putttitttnggggg " + 
-          MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName())
+      System.out.println("BCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBB  putttitttnggggg "
+          + MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName())
           + "   valuuuuuue " +String.valueOf(numOfDistinctValues.get()));
       props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()),
           String.valueOf(numOfDistinctValues.get()));
@@ -70,6 +70,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   private boolean isSetNumOfDistinctValues() {
     System.out.println("BBBBBBBBBBBBBBBBBB   " + numOfDistinctValues);
+    //return numOfDistinctValues.orNull() != null) {
     return numOfDistinctValues != null && numOfDistinctValues.isPresent();
    // return !Optional.fromNullable(numOfDistinctValues).equals(Optional.absent());
    // return numOfDistinctValues.orNull() != null && numOfDistinctValues.isPresent();
