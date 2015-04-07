@@ -125,6 +125,14 @@ public interface MetricsService {
    */
   String FINISHED_QUERIES = "finished-queries";
 
+  String OPENED_SESSIONS = "opend-sessions";
+
+  String RESTORED_SESSIONS = "restored-sessions";
+
+  String EXPIRED_SESSIONS = "expired-sessions";
+
+  String CLOSED_SESSIONS = "closed-sessions";
+
   long getQueuedQueries();
 
   long getRunningQueries();
