@@ -197,7 +197,7 @@ public final class JAXBUtils {
         startDate,
         endDate,
         null,
-        Optional.fromNullable(xd.getNumDistinctValues())
+        xd.getNumDistinctValues()
       );
     }
 

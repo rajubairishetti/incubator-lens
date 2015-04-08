@@ -105,6 +105,4 @@ public final class MetastoreConstants {
   public static final String PARTITION_UPDATE_PERIOD_SFX = ".partition.update.period";
   public static final String PARTITION_UPDATE_PERIOD = "cube.storagetable.partition.update.period";
   public static final String TIMEDIM_TO_PART_MAPPING_PFX = "cube.timedim.partition.";
-
-  public static final Long DEFAULT_NUM_OF_DISTINCT_VALUES = -1L;
 }

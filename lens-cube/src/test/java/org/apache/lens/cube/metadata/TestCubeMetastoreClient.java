@@ -47,8 +47,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Optional;
-
 public class TestCubeMetastoreClient {
 
   private static CubeMetastoreClient client;
@@ -410,7 +408,7 @@ public class TestCubeMetastoreClient {
     Table tbl = client.getHiveTable(zipDim.getName());
     Dimension toAlter = new Dimension(tbl);
     toAlter.alterAttribute(new BaseDimAttribute(new FieldSchema("newZipDim", "int", "new dim added"), null, null, null,
-      null, Optional.of(1000L)));
+      null, 1000L));
     toAlter.alterAttribute(new ReferencedDimAtrribute(new FieldSchema("newRefDim", "int", "new ref-dim added"),
       "New city ref", new TableReference("citydim", "id")));
     toAlter.alterAttribute(new BaseDimAttribute(new FieldSchema("f2", "varchar", "modified field")));

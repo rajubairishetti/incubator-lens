@@ -42,14 +42,14 @@ public class BaseDimAttribute extends CubeDimAttribute {
   }
 
   public BaseDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
-      Optional<Long> numOfDistinctValues) {
+      Long numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
     assert (type != null);
-
-    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA value: " + numOfDistinctValues);
-    if (numOfDistinctValues.isPresent()) {
-      this.numOfDistinctValues = numOfDistinctValues;
+    Optional<Long> optionalNumOfDistnctValues = Optional.fromNullable(numOfDistinctValues);
+    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA value: " + Optional.fromNullable(numOfDistinctValues));
+    if (optionalNumOfDistnctValues.isPresent()) {
+      this.numOfDistinctValues = optionalNumOfDistnctValues;
       System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCC   " + this.numOfDistinctValues);
       assert(this.numOfDistinctValues.get() > 0);
     }

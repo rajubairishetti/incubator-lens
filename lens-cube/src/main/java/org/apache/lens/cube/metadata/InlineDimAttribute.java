@@ -26,8 +26,6 @@ import java.util.Map;
 
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
-import com.google.common.base.Optional;
-
 public class InlineDimAttribute extends BaseDimAttribute {
 
   private final List<String> values;
@@ -38,7 +36,7 @@ public class InlineDimAttribute extends BaseDimAttribute {
 
   public InlineDimAttribute(FieldSchema column, String displayString, Date startTime, Date endTime, Double cost,
     List<String> values) {
-    super(column, displayString, startTime, endTime, cost, Optional.fromNullable(Long.valueOf(values.size())));
+    super(column, displayString, startTime, endTime, cost, Long.valueOf(values.size()));
     this.values = values;
   }
 
