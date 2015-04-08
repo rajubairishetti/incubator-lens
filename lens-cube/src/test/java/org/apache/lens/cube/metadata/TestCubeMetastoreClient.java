@@ -439,7 +439,7 @@ public class TestCubeMetastoreClient {
     CubeDimAttribute newzipdim = altered.getAttributeByName("newZipDim");
     Assert.assertTrue(newzipdim instanceof BaseDimAttribute);
     Assert.assertEquals(((BaseDimAttribute) newzipdim).getType(), "int");
-    Assert.assertEquals((((BaseDimAttribute) newzipdim).getNumOfDistinctValues().get()).longValue(), (long)1000);
+    Assert.assertEquals((((BaseDimAttribute) newzipdim).getNumOfDistinctValues().get()), Long.valueOf(1000));
 
     CubeDimAttribute newrefdim = altered.getAttributeByName("newRefDim");
     Assert.assertTrue(newrefdim instanceof ReferencedDimAtrribute);
