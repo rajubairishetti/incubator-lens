@@ -29,7 +29,7 @@ import lombok.Getter;
 
 public class BaseDimAttribute extends CubeDimAttribute {
   @Getter private final String type;
-  @Getter private Optional<Long> numOfDistinctValues;
+  @Getter private Optional<Long> numOfDistinctValues = Optional.absent();
 
   public BaseDimAttribute(FieldSchema column) {
     this(column, null, null, null, null);
@@ -47,10 +47,8 @@ public class BaseDimAttribute extends CubeDimAttribute {
     this.type = column.getType();
     assert (type != null);
     Optional<Long> optionalNumOfDistnctValues = Optional.fromNullable(numOfDistinctValues);
-    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA value: " + Optional.fromNullable(numOfDistinctValues));
     if (optionalNumOfDistnctValues.isPresent()) {
       this.numOfDistinctValues = optionalNumOfDistnctValues;
-      System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCC   " + this.numOfDistinctValues);
       assert(this.numOfDistinctValues.get() > 0);
     }
   }
@@ -59,23 +57,10 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public void addProperties(Map<String, String> props) {
     super.addProperties(props);
     props.put(MetastoreUtil.getDimTypePropertyKey(getName()), type);
-    if (isSetNumOfDistinctValues()) {
-      System.out.println("BCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBB  putttitttnggggg "
-          + MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName())
-          + "   valuuuuuue " +String.valueOf(numOfDistinctValues.get()));
+    if (numOfDistinctValues.isPresent()) {
       props.put(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(getName()),
           String.valueOf(numOfDistinctValues.get()));
     }
-  }
-
-  private boolean isSetNumOfDistinctValues() {
-    System.out.println("BBBBBBBBBBBBBBBBBB   " + numOfDistinctValues);
-    //return numOfDistinctValues.orNull() != null) {
-    return numOfDistinctValues != null && numOfDistinctValues.isPresent();
-   // return !Optional.fromNullable(numOfDistinctValues).equals(Optional.absent());
-   // return numOfDistinctValues.orNull() != null && numOfDistinctValues.isPresent();
-    /*return (numOfDistinctValues != null
-        && !numOfDistinctValues.equals(MetastoreConstants.DEFAULT_NUM_OF_DISTINCT_VALUES));*/
   }
 
   /**
