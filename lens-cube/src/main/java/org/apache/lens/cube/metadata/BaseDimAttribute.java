@@ -26,7 +26,10 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import com.google.common.base.Optional;
 
 import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.apachecommons.CommonsLog;
 
+@CommonsLog @ToString(callSuper=true, includeFieldNames=true)
 public class BaseDimAttribute extends CubeDimAttribute {
   @Getter private final String type;
   @Getter private Optional<Long> numOfDistinctValues = Optional.absent();
@@ -70,10 +73,7 @@ public class BaseDimAttribute extends CubeDimAttribute {
   public BaseDimAttribute(String name, Map<String, String> props) {
     super(name, props);
     this.type = getDimType(name, props);
-    Optional<Long> numDistinctValues = getDimNumOfDistinctValues(name, props);
-    if (numDistinctValues.isPresent()) {
-      this.numOfDistinctValues = numDistinctValues;
-    }
+    this.numOfDistinctValues = getDimNumOfDistinctValues(name, props);
   }
 
   public static String getDimType(String name, Map<String, String> props) {
@@ -82,7 +82,12 @@ public class BaseDimAttribute extends CubeDimAttribute {
 
   public static Optional<Long> getDimNumOfDistinctValues(String name, Map<String, String> props) {
     if (props.containsKey(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name))) {
-      return Optional.of(Long.parseLong((props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)))));
+      try {
+        return Optional.of(Long.parseLong((props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)))));
+      } catch (NumberFormatException ne) {
+        log.error("NumberFormat exception while parsing the num of distinct vlaues "
+            + props.get(MetastoreUtil.getDimNumOfDistinctValuesPropertyKey(name)));
+      }
     }
     return Optional.absent();
   }
@@ -109,11 +114,5 @@ public class BaseDimAttribute extends CubeDimAttribute {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public String toString() {
-    String str = super.toString() + ":" + getType() + ":" + getNumOfDistinctValues();
-    return str;
   }
 }
