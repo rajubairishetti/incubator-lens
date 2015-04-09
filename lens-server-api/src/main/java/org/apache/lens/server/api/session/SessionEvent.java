@@ -25,7 +25,9 @@ import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.server.api.events.LensEvent;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString()
 public abstract class SessionEvent extends LensEvent {
 
   /**

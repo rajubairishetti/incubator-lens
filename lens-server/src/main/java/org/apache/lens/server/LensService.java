@@ -35,13 +35,13 @@ import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensException;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.server.api.LensConfConstants;
+import org.apache.lens.server.api.events.LensEvent;
 import org.apache.lens.server.api.events.LensEventService;
 import org.apache.lens.server.api.session.SessionClosed;
 import org.apache.lens.server.api.session.SessionOpened;
 import org.apache.lens.server.session.LensSessionImpl;
 import org.apache.lens.server.user.UserConfigLoaderFactory;
 import org.apache.lens.server.util.UtilityMethods;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,13 +151,21 @@ public abstract class LensService extends CompositeService implements Externaliz
     }
     LensSessionHandle lensSession = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
       sessionHandle.getHandleIdentifier().getSecretId());
-      SESSION_MAP.put(lensSession.getPublicId().toString(), lensSession);
+    SESSION_MAP.put(lensSession.getPublicId().toString(), lensSession);
     getEventService().notifyEvent(new SessionOpened(System.currentTimeMillis(), lensSession, username));
     return lensSession;
   }
 
+  private void notifyEvent(LensEvent event) throws LensException {
+    getEventService().notifyEvent(event);
+  }
+
   protected LensEventService getEventService() {
-    return (LensEventService) LensServices.get().getService(LensEventService.NAME);
+    LensEventService  eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
+    if (eventService == null) {
+      throw new NullPointerException("Could not get event service");
+    }
+    return eventService;
   }
 
   /**
@@ -224,7 +232,7 @@ public abstract class LensService extends CompositeService implements Externaliz
     } catch (Exception e) {
       throw new LensException(e);
     }
-    getEventService().notifyEvent(new SessionClosed(System.currentTimeMillis(), sessionHandle));
+    notifyEvent(new SessionClosed(System.currentTimeMillis(), sessionHandle));
   }
 
   public SessionManager getSessionManager() {
