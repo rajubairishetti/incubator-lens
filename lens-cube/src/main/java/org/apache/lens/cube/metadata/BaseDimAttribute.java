@@ -23,6 +23,8 @@ import java.util.Map;
 
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 
+import static com.google.common.base.Preconditions.*;
+
 import com.google.common.base.Optional;
 
 import lombok.Getter;
@@ -46,11 +48,11 @@ public class BaseDimAttribute extends CubeDimAttribute {
       Long numOfDistinctValues) {
     super(column.getName(), column.getComment(), displayString, startTime, endTime, cost);
     this.type = column.getType();
-    assert (type != null);
+    checkNotNull(type);
     Optional<Long> optionalNumOfDistnctValues = Optional.fromNullable(numOfDistinctValues);
     if (optionalNumOfDistnctValues.isPresent()) {
       this.numOfDistinctValues = optionalNumOfDistnctValues;
-      assert(this.numOfDistinctValues.get() > 0);
+      checkArgument(this.numOfDistinctValues.get() > 0);
     }
   }
 
