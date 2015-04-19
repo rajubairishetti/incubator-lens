@@ -42,4 +42,8 @@ public class SessionOpened extends SessionEvent {
     super(eventTime, handle);
     this.user = user;
   }
+
+  public Status getSession() {
+    return Status.OPENED;
+  }
 }

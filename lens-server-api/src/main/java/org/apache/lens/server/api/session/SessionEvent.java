@@ -30,6 +30,12 @@ import lombok.ToString;
 @ToString()
 public abstract class SessionEvent extends LensEvent {
 
+  public enum Status {
+    OPENED,
+    CLOSED,
+    EXPIRED,
+    RESTORED
+  }
   /**
    * The lens session handle.
    */
@@ -68,5 +74,9 @@ public abstract class SessionEvent extends LensEvent {
     StringBuilder buf = new StringBuilder("SessionEvent: ").append(getClass().getSimpleName()).append(":{id: ")
         .append(id).append(", session:").append(getSessionHandle());
     return buf.toString();
+  }
+
+  public Status getStatus() {
+    return null;
   }
 }

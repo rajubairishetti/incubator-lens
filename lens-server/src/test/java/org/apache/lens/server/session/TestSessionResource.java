@@ -37,16 +37,15 @@ import org.apache.lens.api.APIResult.Status;
 import org.apache.lens.server.LensJerseyTest;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
+import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.common.LenServerTestException;
 import org.apache.lens.server.common.LensServerTestFileUtils;
 import org.apache.lens.server.common.TestResourceFile;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.ql.metadata.Hive;
-
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -63,6 +62,10 @@ import org.testng.annotations.Test;
 @Test(groups = "unit-test")
 public class TestSessionResource extends LensJerseyTest {
 
+
+  /** The metrics svc. */
+  MetricsService metricsSvc;
+
   /*
    * (non-Javadoc)
    *
@@ -70,6 +73,7 @@ public class TestSessionResource extends LensJerseyTest {
    */
   @BeforeTest
   public void setUp() throws Exception {
+    metricsSvc = (MetricsService) LensServices.get().getService(MetricsService.NAME);
     super.setUp();
   }
 
@@ -119,6 +123,7 @@ public class TestSessionResource extends LensJerseyTest {
     final LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
       LensSessionHandle.class);
     Assert.assertNotNull(handle);
+    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 1);
 
     // get all session params
     final WebTarget paramtarget = target().path("session/params");

@@ -157,4 +157,8 @@ public interface MetricsService {
    * @see MethodMetricsContext
    */
   MethodMetricsContext getMethodMetricsContext(ResourceMethod method, ContainerRequest containerRequest);
+
+  long getTotalOpenedSessions();
+
+  long getTotalClosedSessions();
 }

@@ -32,4 +32,8 @@ public class SessionClosed extends SessionEvent {
   public SessionClosed(long eventTime, LensSessionHandle handle) {
     super(eventTime, handle);
   }
+
+  public Status getSession() {
+    return Status.CLOSED;
+  }
 }

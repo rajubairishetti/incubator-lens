@@ -20,6 +20,7 @@
 package org.apache.lens.server.api.session;
 
 import org.apache.lens.api.LensSessionHandle;
+import org.apache.lens.server.api.session.SessionEvent.Status;
 
 public class SessionRestored extends SessionEvent {
 
@@ -31,5 +32,9 @@ public class SessionRestored extends SessionEvent {
    */
   public SessionRestored(long eventTime, LensSessionHandle handle) {
     super(eventTime, handle);
+  }
+
+  public Status getSession() {
+    return Status.RESTORED;
   }
 }

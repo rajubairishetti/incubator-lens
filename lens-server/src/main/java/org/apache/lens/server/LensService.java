@@ -42,6 +42,7 @@ import org.apache.lens.server.api.session.SessionOpened;
 import org.apache.lens.server.session.LensSessionImpl;
 import org.apache.lens.server.user.UserConfigLoaderFactory;
 import org.apache.lens.server.util.UtilityMethods;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +76,7 @@ public abstract class LensService extends CompositeService implements Externaliz
   // Static session map which is used by query submission thread to get the
   // lens session before submitting a query to hive server
   /** The session map. */
-  protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
+  public static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
   /**
