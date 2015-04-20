@@ -76,7 +76,5 @@ public abstract class SessionEvent extends LensEvent {
     return buf.toString();
   }
 
-  public Status getStatus() {
-    return null;
-  }
+  public abstract Status getSessionStatus();
 }

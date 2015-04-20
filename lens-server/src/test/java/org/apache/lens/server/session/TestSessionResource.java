@@ -42,10 +42,12 @@ import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.common.LenServerTestException;
 import org.apache.lens.server.common.LensServerTestFileUtils;
 import org.apache.lens.server.common.TestResourceFile;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.ql.metadata.Hive;
+
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;

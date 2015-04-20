@@ -33,7 +33,6 @@ import org.apache.lens.server.LensService;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.events.AsyncEventListener;
-import org.apache.lens.server.api.events.LensEvent;
 import org.apache.lens.server.api.events.LensEventService;
 import org.apache.lens.server.api.metrics.DisabledMethodMetricsContext;
 import org.apache.lens.server.api.metrics.LensMetricsRegistry;
@@ -42,8 +41,8 @@ import org.apache.lens.server.api.metrics.MethodMetricsFactory;
 import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.query.QueryExecutionService;
 import org.apache.lens.server.api.query.StatusChange;
-
 import org.apache.lens.server.api.session.SessionEvent;
+import org.apache.lens.server.api.session.SessionOpened;
 import org.apache.lens.server.api.session.SessionService;
 
 import org.apache.hadoop.hive.conf.HiveConf;
@@ -192,14 +191,13 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
     }
   }
 
-
   /**
    * The listener interface for receiving asyncQueryStatus events. The class that is interested in processing a
    * asyncQueryStatus event implements this interface, and the object created with that class is registered with a
    * component using the component's <code>addAsyncQueryStatusListener<code> method. When the asyncQueryStatus event
    * occurs, that object's appropriate method is invoked.
    */
-  public class AsyncSessionEventListener extends AsyncEventListener<LensEvent> {
+  public class AsyncSessionEventListener extends AsyncEventListener<SessionEvent> {
 
     /*
      * (non-Javadoc)
@@ -207,10 +205,17 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
      * @see org.apache.lens.server.api.events.AsyncEventListener#process(org.apache.lens.server.api.events.LensEvent)
      */
     @Override
-    public void process(LensEvent event) {
-      processCurrentStatus(((SessionEvent) event).getStatus());
+    public void process(SessionEvent event) {
+      System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBB evnttttttttttt " + event + "  CC " + event.getSessionStatus());
+      processCurrentStatus(event.getSessionStatus());
     }
 
+    protected void processCurrentStatus(SessionEvent event) {
+      if (event instanceof SessionOpened) {
+        System.out.println("AAAAAAAAAAAAAAAAAAAAA   ........... ");
+        totalOpenedSessions.inc();
+      }
+    }
     /**
      * Process current status.
      *
@@ -218,15 +223,15 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
      */
     protected void processCurrentStatus(org.apache.lens.server.api.session.SessionEvent.Status sessionStatus) {
       switch (sessionStatus) {
-        case OPENED:
-          totalOpenedSessions.inc();
-          break;
-        case CLOSED:
-          totalClosedSessions.inc();
-          totalOpenedSessions.dec();
-          break;
-        default:
-          break;
+      case OPENED:
+        totalOpenedSessions.inc();
+        break;
+      case CLOSED:
+        totalClosedSessions.inc();
+        totalOpenedSessions.dec();
+        break;
+      default:
+        break;
       }
     }
   }

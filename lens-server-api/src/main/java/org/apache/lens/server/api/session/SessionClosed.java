@@ -33,7 +33,7 @@ public class SessionClosed extends SessionEvent {
     super(eventTime, handle);
   }
 
-  public Status getSession() {
+  public Status getSessionStatus() {
     return Status.CLOSED;
   }
 }
