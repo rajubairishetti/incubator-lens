@@ -44,8 +44,7 @@ public class SessionOpened extends SessionEvent {
   }
 
   @Override
-  public Status getSessionStatus() {
-    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ");
-    return Status.OPENED;
+  public SessionStatus getSessionStatus() {
+    return SessionStatus.OPENED;
   }
 }

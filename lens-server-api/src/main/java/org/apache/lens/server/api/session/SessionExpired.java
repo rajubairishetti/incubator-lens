@@ -33,7 +33,8 @@ public class SessionExpired extends SessionEvent {
     super(eventTime, handle);
   }
 
-  public Status getSessionStatus() {
-    return Status.EXPIRED;
+  @Override
+  public SessionStatus getSessionStatus() {
+    return SessionStatus.EXPIRED;
   }
 }

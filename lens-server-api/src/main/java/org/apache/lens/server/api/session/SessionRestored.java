@@ -33,7 +33,8 @@ public class SessionRestored extends SessionEvent {
     super(eventTime, handle);
   }
 
-  public Status getSessionStatus() {
-    return Status.RESTORED;
+  @Override
+  public SessionStatus getSessionStatus() {
+    return SessionStatus.RESTORED;
   }
 }
