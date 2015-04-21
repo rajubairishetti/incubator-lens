@@ -22,7 +22,9 @@ package org.apache.lens.server.api.session;
 import org.apache.lens.api.LensSessionHandle;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString(callSuper=true)
 public class SessionOpened extends SessionEvent {
 
   /**

@@ -199,7 +199,6 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
      */
     @Override
     public void process(SessionEvent event) {
-      System.out.println("AAAAAAAAAAA.... " + event);
       processCurrentStatus(event.getSessionStatus());
     }
 
