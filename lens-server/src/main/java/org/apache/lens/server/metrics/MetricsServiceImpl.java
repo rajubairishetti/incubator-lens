@@ -42,7 +42,6 @@ import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.query.QueryExecutionService;
 import org.apache.lens.server.api.query.StatusChange;
 import org.apache.lens.server.api.session.SessionEvent;
-import org.apache.lens.server.api.session.SessionOpened;
 import org.apache.lens.server.api.session.SessionService;
 
 import org.apache.hadoop.hive.conf.HiveConf;
@@ -210,12 +209,6 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
       processCurrentStatus(event.getSessionStatus());
     }
 
-    protected void processCurrentStatus(SessionEvent event) {
-      if (event instanceof SessionOpened) {
-        System.out.println("AAAAAAAAAAAAAAAAAAAAA   ........... ");
-        totalOpenedSessions.inc();
-      }
-    }
     /**
      * Process current status.
      *
@@ -538,6 +531,11 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   @Override
   public long getTotalFailedQueries() {
     return totalFailedQueries.getCount();
+  }
+
+  @Override
+  public int getOpenedSessions() {
+    return opendSessions.getValue();
   }
 
   @Override

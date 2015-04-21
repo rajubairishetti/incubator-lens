@@ -161,4 +161,6 @@ public interface MetricsService {
   long getTotalOpenedSessions();
 
   long getTotalClosedSessions();
+
+  int getOpenedSessions();
 }
