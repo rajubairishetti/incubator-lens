@@ -42,18 +42,15 @@ import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.common.LenServerTestException;
 import org.apache.lens.server.common.LensServerTestFileUtils;
 import org.apache.lens.server.common.TestResourceFile;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.ql.metadata.Hive;
-
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -126,8 +123,6 @@ public class TestSessionResource extends LensJerseyTest {
     final LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
       LensSessionHandle.class);
     Assert.assertNotNull(handle);
-    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 1);
-    Assert.assertEquals(metricsSvc.getOpenedSessions(), 1);
 
     // get all session params
     final WebTarget paramtarget = target().path("session/params");
@@ -178,8 +173,6 @@ public class TestSessionResource extends LensJerseyTest {
     final LensSessionHandle handle2 = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
       LensSessionHandle.class);
     Assert.assertNotNull(handle);
-    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 2);
-    Assert.assertEquals(metricsSvc.getOpenedSessions(), 2);
 
     // get myvar session params on handle2
     try {
@@ -202,8 +195,6 @@ public class TestSessionResource extends LensJerseyTest {
     // close session
     result = target.queryParam("sessionid", handle).request().delete(APIResult.class);
     Assert.assertEquals(result.getStatus(), APIResult.Status.SUCCEEDED);
-    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 1);
-    Assert.assertEquals(metricsSvc.getOpenedSessions(), 1);
 
     // now getting session params should return session is expired
     try {
@@ -216,8 +207,6 @@ public class TestSessionResource extends LensJerseyTest {
 
     result = target.queryParam("sessionid", handle2).request().delete(APIResult.class);
     Assert.assertEquals(result.getStatus(), APIResult.Status.SUCCEEDED);
-    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 0);
-    Assert.assertEquals(metricsSvc.getOpenedSessions(), 0);
   }
 
   /**
@@ -479,5 +468,41 @@ public class TestSessionResource extends LensJerseyTest {
     } catch (ClientErrorException cee) {
       // PASS
     }
+  }
+
+  private FormDataMultiPart getMultiFormData(String username, String password) {
+    final FormDataMultiPart mp = new FormDataMultiPart();
+
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("username").build(), username));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("password").build(), password));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
+        new LensConf(), MediaType.APPLICATION_XML_TYPE));
+    return mp;
+  }
+
+  @Test
+  public void testSessionEvents() {
+    final WebTarget target = target().path("session");
+    FormDataMultiPart mp = getMultiFormData("foo", "bar");
+
+    LensSessionHandle lensSessionHandle = target.request().post(
+        Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), LensSessionHandle.class);
+    Assert.assertTrue(lensSessionHandle != null);
+    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 1);
+    Assert.assertEquals(metricsSvc.getOpenedSessions(), 1);
+
+    LensSessionHandle lensSessionHandle1 = target.request().post(
+        Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), LensSessionHandle.class);
+    Assert.assertTrue(lensSessionHandle != null);
+    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 2);
+    Assert.assertEquals(metricsSvc.getOpenedSessions(), 2);
+
+    APIResult result = target.queryParam("sessionid", lensSessionHandle).request().delete(APIResult.class);
+    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 1);
+    Assert.assertEquals(metricsSvc.getOpenedSessions(), 1);
+
+    result = target.queryParam("sessionid", lensSessionHandle1).request().delete(APIResult.class);
+    Assert.assertEquals(metricsSvc.getTotalOpenedSessions(), 0);
+    Assert.assertEquals(metricsSvc.getOpenedSessions(), 0);
   }
 }
