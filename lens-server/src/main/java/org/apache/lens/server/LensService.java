@@ -157,10 +157,6 @@ public abstract class LensService extends CompositeService implements Externaliz
     return lensSession;
   }
 
-  private void notifyEvent(LensEvent event) throws LensException {
-    getEventService().notifyEvent(event);
-  }
-
   protected LensEventService getEventService() {
     LensEventService  eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
     if (eventService == null) {
@@ -233,7 +229,7 @@ public abstract class LensService extends CompositeService implements Externaliz
     } catch (Exception e) {
       throw new LensException(e);
     }
-    notifyEvent(new SessionClosed(System.currentTimeMillis(), sessionHandle));
+    getEventService().notifyEvent(new SessionClosed(System.currentTimeMillis(), sessionHandle));
   }
 
   public SessionManager getSessionManager() {
