@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.lens.api.query.QueryStatus.Status;
+import org.apache.lens.server.LensService;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.events.AsyncEventListener;
@@ -40,6 +41,11 @@ import org.apache.lens.server.api.metrics.MethodMetricsFactory;
 import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.query.QueryExecutionService;
 import org.apache.lens.server.api.query.StatusChange;
+import org.apache.lens.server.api.session.SessionClosed;
+import org.apache.lens.server.api.session.SessionEvent;
+import org.apache.lens.server.api.session.SessionExpired;
+import org.apache.lens.server.api.session.SessionOpened;
+import org.apache.lens.server.api.session.SessionService;
 
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hive.service.AbstractService;
@@ -56,6 +62,7 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+
 import info.ganglia.gmetric4j.gmetric.GMetric;
 import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 import lombok.Getter;
@@ -71,6 +78,8 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   /** The query status listener. */
   private AsyncEventListener<StatusChange> queryStatusListener;
 
+  private AsyncEventListener<SessionEvent> sessionEventListener;
+
   /** The metric registry. */
   @Getter
   private MetricRegistry metricRegistry;
@@ -82,6 +91,15 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   /** The health check. */
   @Getter
   private HealthCheckRegistry healthCheck;
+
+  /** The total opened sessions*/
+  private Counter totalOpenedSessions;
+
+  /** The total closed sessions*/
+  private Counter totalClosedSessions;
+
+  /** The total expired sessions*/
+  private Counter totalExpiredSessions;
 
   /** The total accepted queries. */
   private Counter totalAcceptedQueries;
@@ -97,6 +115,9 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
 
   /** The total cancelled queries. */
   private Counter totalCancelledQueries;
+
+  /** The opened sessions */
+  private Gauge<Integer> openedSessions;
 
   /** The queued queries. */
   private Gauge<Long> queuedQueries;
@@ -169,6 +190,36 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   }
 
   /**
+   * The listener interface for receiving asyncSession events. The class that is interested in processing a
+   * asyncSession event implements this interface, and the object created with that class is registered with a
+   * component using the component's <code>addAsyncSessionEventListener<code> method. When the asyncSessionEvent event
+   * occurs, that object's appropriate method is invoked.
+   */
+  public class AsyncSessionEventListener extends AsyncEventListener<SessionEvent> {
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.apache.lens.server.api.events.AsyncEventListener#process(org.apache.lens.server.api.events.LensEvent)
+     */
+    @Override
+    public void process(SessionEvent event) {
+      if (event instanceof SessionOpened) {
+        totalOpenedSessions.inc();
+      } else if (event instanceof SessionExpired) {
+        totalExpiredSessions.inc();
+      }
+
+      if (event instanceof SessionClosed) {
+        totalClosedSessions.inc();
+        if (totalOpenedSessions.getCount() > 0) {
+          totalOpenedSessions.dec();
+        }
+      }
+    }
+  }
+
+  /**
    * Instantiates a new metrics service impl.
    *
    * @param name the name
@@ -181,6 +232,9 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
     return (QueryExecutionService) LensServices.get().getService(QueryExecutionService.NAME);
   }
 
+  private SessionService getSessionSvc() {
+    return (SessionService) LensServices.get().getService(SessionService.NAME);
+  }
   /** The time between polls. */
   private static int timeBetweenPolls = 10;
 
@@ -192,8 +246,10 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   @Override
   public synchronized void init(HiveConf hiveConf) {
     queryStatusListener = new AsyncQueryStatusListener();
+    sessionEventListener = new AsyncSessionEventListener();
     LensEventService eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
     eventService.addListenerForType(queryStatusListener, StatusChange.class);
+    eventService.addListenerForType(sessionEventListener, SessionEvent.class);
     metricRegistry = LensMetricsRegistry.getStaticRegistry();
     methodMetricsFactory = new MethodMetricsFactory(metricRegistry);
     setEnableResourceMethodMetering(hiveConf.getBoolean(LensConfConstants.ENABLE_RESOURCE_METHOD_METERING, false));
@@ -255,6 +311,14 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
    * Inits the counters.
    */
   protected void initCounters() {
+    openedSessions = metricRegistry.register(MetricRegistry.name(SessionService.class, OPENED_SESSIONS),
+      new Gauge<Integer>() {
+        @Override
+        public Integer getValue() {
+          return LensService.getNumberOfSessions();
+        }
+      });
+
     queuedQueries = metricRegistry.register(MetricRegistry.name(QueryExecutionService.class, QUEUED_QUERIES),
       new Gauge<Long>() {
         @Override
@@ -292,7 +356,16 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
       + FAILED_QUERIES));
 
     totalCancelledQueries = metricRegistry.counter(MetricRegistry.name(QueryExecutionService.class, "total-"
-      + CANCELLED_QUERIES));
+        + CANCELLED_QUERIES));
+
+    totalOpenedSessions = metricRegistry.counter(MetricRegistry.name(QueryExecutionService.class, "total-"
+        + OPENED_SESSIONS));
+
+    totalClosedSessions = metricRegistry.counter(MetricRegistry.name(QueryExecutionService.class, "total-"
+        + CLOSED_SESSIONS));
+
+    totalExpiredSessions = metricRegistry.counter(MetricRegistry.name(QueryExecutionService.class, "total-"
+        + EXPIRED_SESSIONS));
 
     metricRegistry.register("gc", new GarbageCollectorMetricSet());
     metricRegistry.register("memory", new MemoryUsageGaugeSet());
@@ -451,6 +524,26 @@ public class MetricsServiceImpl extends AbstractService implements MetricsServic
   @Override
   public long getTotalFailedQueries() {
     return totalFailedQueries.getCount();
+  }
+
+  @Override
+  public int getOpenedSessions() {
+    return openedSessions.getValue();
+  }
+
+  @Override
+  public long getTotalOpenedSessions() {
+    return totalOpenedSessions.getCount();
+  }
+
+  @Override
+  public long getTotalClosedSessions() {
+    return totalClosedSessions.getCount();
+  }
+
+  @Override
+  public long getTotalExpiredSessions() {
+    return totalExpiredSessions.getCount();
   }
 
   /*

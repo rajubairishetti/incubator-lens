@@ -37,6 +37,7 @@ import org.apache.lens.api.APIResult.Status;
 import org.apache.lens.server.LensJerseyTest;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
+import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.common.LenServerTestException;
 import org.apache.lens.server.common.LensServerTestFileUtils;
@@ -63,6 +64,10 @@ import org.testng.annotations.Test;
 @Test(groups = "unit-test")
 public class TestSessionResource extends LensJerseyTest {
 
+
+  /** The metrics svc. */
+  MetricsService metricsSvc;
+
   /*
    * (non-Javadoc)
    *
@@ -70,6 +75,7 @@ public class TestSessionResource extends LensJerseyTest {
    */
   @BeforeTest
   public void setUp() throws Exception {
+    metricsSvc = (MetricsService) LensServices.get().getService(MetricsService.NAME);
     super.setUp();
   }
 
@@ -464,5 +470,41 @@ public class TestSessionResource extends LensJerseyTest {
     } catch (ClientErrorException cee) {
       // PASS
     }
+  }
+
+  private FormDataMultiPart getMultiFormData(String username, String password) {
+    final FormDataMultiPart mp = new FormDataMultiPart();
+
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("username").build(), username));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("password").build(), password));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
+        new LensConf(), MediaType.APPLICATION_XML_TYPE));
+    return mp;
+  }
+
+  @Test
+  public void testSessionEvents() {
+    final WebTarget target = target().path("session");
+    FormDataMultiPart mp = getMultiFormData("foo", "bar");
+
+    LensSessionHandle lensSessionHandle = target.request().post(
+        Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), LensSessionHandle.class);
+    Assert.assertTrue(lensSessionHandle != null);
+    Assert.assertTrue(metricsSvc.getTotalOpenedSessions() >= 1);
+    Assert.assertTrue(metricsSvc.getOpenedSessions() >= 1);
+
+    LensSessionHandle lensSessionHandle1 = target.request().post(
+        Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), LensSessionHandle.class);
+    Assert.assertTrue(lensSessionHandle1 != null);
+    Assert.assertTrue(metricsSvc.getTotalOpenedSessions() >= 2);
+    Assert.assertTrue(metricsSvc.getOpenedSessions() >= 2);
+
+    APIResult result = target.queryParam("sessionid", lensSessionHandle).request().delete(APIResult.class);
+    Assert.assertTrue(metricsSvc.getTotalOpenedSessions() >= 1);
+    Assert.assertTrue(metricsSvc.getTotalClosedSessions() >= 1);
+    Assert.assertTrue(metricsSvc.getOpenedSessions() >= 1);
+
+    result = target.queryParam("sessionid", lensSessionHandle1).request().delete(APIResult.class);
+    Assert.assertTrue(metricsSvc.getTotalClosedSessions() >= 2);
   }
 }

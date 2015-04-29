@@ -125,6 +125,12 @@ public interface MetricsService {
    */
   String FINISHED_QUERIES = "finished-queries";
 
+  String OPENED_SESSIONS = "opened-sessions";
+
+  String CLOSED_SESSIONS = "closed-sessions";
+
+  String EXPIRED_SESSIONS = "expired-sessions";
+
   long getQueuedQueries();
 
   long getRunningQueries();
@@ -157,4 +163,21 @@ public interface MetricsService {
    * @see MethodMetricsContext
    */
   MethodMetricsContext getMethodMetricsContext(ResourceMethod method, ContainerRequest containerRequest);
+
+  /**
+   * Specifies the count of opened sessions
+   */
+  long getTotalOpenedSessions();
+
+  /**
+   * Specifies the number of sessions closed
+   */
+  long getTotalClosedSessions();
+
+  /**
+   * Specifies the number of sessions were idle for more than session timeout
+   */
+  long getTotalExpiredSessions();
+
+  int getOpenedSessions();
 }

@@ -36,6 +36,10 @@ import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.server.LensService;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
+import org.apache.lens.server.api.session.SessionClosed;
+import org.apache.lens.server.api.session.SessionExpired;
+import org.apache.lens.server.api.session.SessionOpened;
+import org.apache.lens.server.api.session.SessionRestored;
 import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.query.QueryExecutionServiceImpl;
 import org.apache.lens.server.session.LensSessionImpl.ResourceEntry;
@@ -200,6 +204,7 @@ public class HiveSessionService extends LensService implements SessionService {
     throws LensException {
     LensSessionHandle sessionid = super.openSession(username, password, configuration);
     LOG.info("Opened session " + sessionid + " for user " + username);
+    notifyEvent(new SessionOpened(System.currentTimeMillis(), sessionid, username));
 
     // Set current database
     if (StringUtils.isNotBlank(database)) {
@@ -379,6 +384,7 @@ public class HiveSessionService extends LensService implements SessionService {
           }
         }
         LOG.info("Restored session " + persistInfo.getSessionHandle().getPublicId());
+        notifyEvent(new SessionRestored(System.currentTimeMillis(), sessionHandle));
       } catch (LensException e) {
         throw new RuntimeException(e);
       }
@@ -440,6 +446,7 @@ public class HiveSessionService extends LensService implements SessionService {
   @Override
   public void closeSession(LensSessionHandle sessionHandle) throws LensException {
     super.closeSession(sessionHandle);
+    notifyEvent(new SessionClosed(System.currentTimeMillis(), sessionHandle));
     // Inform query service
     LensService svc = LensServices.get().getService(QueryExecutionServiceImpl.NAME);
     if (svc instanceof QueryExecutionServiceImpl) {
@@ -495,6 +502,7 @@ public class HiveSessionService extends LensService implements SessionService {
           closeSession(sessionHandle);
           LOG.info("Closed inactive session " + sessionHandle.getPublicId() + " last accessed at "
             + new Date(lastAccessTime));
+          notifyEvent(new SessionExpired(System.currentTimeMillis(), sessionHandle));
         } catch (ClientErrorException nfe) {
           // Do nothing
         } catch (LensException e) {

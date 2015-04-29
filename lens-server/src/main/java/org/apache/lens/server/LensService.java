@@ -35,6 +35,8 @@ import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensException;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.server.api.LensConfConstants;
+import org.apache.lens.server.api.events.LensEvent;
+import org.apache.lens.server.api.events.LensEventService;
 import org.apache.lens.server.session.LensSessionImpl;
 import org.apache.lens.server.user.UserConfigLoaderFactory;
 import org.apache.lens.server.util.UtilityMethods;
@@ -97,6 +99,10 @@ public abstract class LensService extends CompositeService implements Externaliz
     return cliService.getHiveConf().get(LensConfConstants.SERVER_DOMAIN);
   }
 
+  public static int getNumberOfSessions() {
+    return LensService.SESSION_MAP.size();
+  }
+
   /**
    * Open session.
    *
@@ -150,6 +156,18 @@ public abstract class LensService extends CompositeService implements Externaliz
       sessionHandle.getHandleIdentifier().getSecretId());
     SESSION_MAP.put(lensSession.getPublicId().toString(), lensSession);
     return lensSession;
+  }
+
+  protected LensEventService getEventService() {
+    LensEventService  eventService = (LensEventService) LensServices.get().getService(LensEventService.NAME);
+    if (eventService == null) {
+      throw new NullPointerException("Could not get event service");
+    }
+    return eventService;
+  }
+
+  protected void notifyEvent(LensEvent event) throws LensException {
+    getEventService().notifyEvent(event);
   }
 
   /**
