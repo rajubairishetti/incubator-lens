@@ -108,8 +108,12 @@ public class LensClient {
   }
 
   public LensClientResultSetWithStats getResults(String sql, String queryName) {
+    return getResults(sql, queryName, false);
+  }
+
+  public LensClientResultSetWithStats getResults(String sql, String queryName, boolean verbose) {
     LOG.debug("Executing query " + sql);
-    statement.execute(sql, true, queryName);
+    statement.execute(sql, true, queryName, verbose);
     return getResultsFromStatement(statement);
   }
 
@@ -507,10 +511,14 @@ public class LensClient {
   }
 
   public LensClientResultSetWithStats getResultsFromPrepared(QueryPrepareHandle phandle, String queryName) {
-    QueryHandle qh = statement.executeQuery(phandle, true, queryName);
-    return getResultsFromHandle(qh);
+    return getResultsFromPrepared(phandle, queryName, true);
   }
 
+  public LensClientResultSetWithStats getResultsFromPrepared(QueryPrepareHandle phandle, String queryName,
+      boolean verbose) {
+    QueryHandle qh = statement.executeQuery(phandle, true, queryName, verbose);
+    return getResultsFromHandle(qh);
+  }
   public QueryHandle executePrepared(QueryPrepareHandle phandle, String queryName) {
     return statement.executeQuery(phandle, false, queryName);
   }

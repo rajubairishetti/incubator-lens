@@ -35,6 +35,8 @@ import org.apache.lens.api.response.NoErrorPayload;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.apache.log4j.Logger;
+
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -44,6 +46,8 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
  * Top level class which is used to execute lens queries.
  */
 public class LensStatement {
+
+  public static final Logger CLILOGGER =  Logger.getLogger("cliLogger");
 
   /** The connection. */
   private final LensConnection connection;
@@ -60,6 +64,10 @@ public class LensStatement {
     this.connection = connection;
   }
 
+  public void execute(String sql, boolean waitForQueryToComplete, String queryName) {
+    this.execute(sql, waitForQueryToComplete, queryName, true);
+  }
+
   /**
    * Execute.
    *
@@ -67,8 +75,8 @@ public class LensStatement {
    * @param waitForQueryToComplete the wait for query to complete
    * @param queryName              the query name
    */
-  public void execute(String sql, boolean waitForQueryToComplete, String queryName) {
-    QueryHandle handle = executeQuery(sql, waitForQueryToComplete, queryName);
+  public void execute(String sql, boolean waitForQueryToComplete, String queryName, boolean verbose) {
+    QueryHandle handle = executeQuery(sql, waitForQueryToComplete, queryName, verbose);
     this.query = getQuery(handle);
   }
 
@@ -92,10 +100,23 @@ public class LensStatement {
    * @return the query handle
    */
   public QueryHandle executeQuery(String sql, boolean waitForQueryToComplete, String queryName) {
+    return executeQuery(sql, waitForQueryToComplete, queryName, true);
+  }
+
+  /**
+   * Execute query.
+   *
+   * @param sql                    the sql
+   * @param waitForQueryToComplete the wait for query to complete
+   * @param queryName              the query name
+   * @param verbose                enables cli logging if it is true
+   * @return the query handle
+   */
+  public QueryHandle executeQuery(String sql, boolean waitForQueryToComplete, String queryName, boolean verbose) {
     QueryHandle handle = executeQuery(sql, queryName);
 
     if (waitForQueryToComplete) {
-      waitForQueryToComplete(handle);
+      waitForQueryToComplete(handle, verbose);
     }
     return handle;
   }
@@ -109,10 +130,24 @@ public class LensStatement {
    * @return the query handle
    */
   public QueryHandle executeQuery(QueryPrepareHandle phandle, boolean waitForQueryToComplete, String queryName) {
+    return executeQuery(phandle, waitForQueryToComplete, queryName, true);
+  }
+
+  /**
+   * Execute query.
+   *
+   * @param phandle                the phandle
+   * @param waitForQueryToComplete the wait for query to complete
+   * @param queryName              the query name
+   * @param verbose                enables cli logging if it is true
+   * @return the query handle
+   */
+  public QueryHandle executeQuery(QueryPrepareHandle phandle, boolean waitForQueryToComplete, String queryName,
+      boolean verbose) {
     QueryHandle handle = executeQuery(phandle, queryName);
 
     if (waitForQueryToComplete) {
-      waitForQueryToComplete(handle);
+      waitForQueryToComplete(handle, verbose);
     }
     return handle;
   }
@@ -186,16 +221,31 @@ public class LensStatement {
    *
    * @param handle the handle
    */
-  private void waitForQueryToComplete(QueryHandle handle) {
+  private void waitForQueryToComplete(QueryHandle handle, boolean verbose) {
     query = getQuery(handle);
+    if (verbose) {
+      CLILOGGER.info("Query was submitted to " + gerDriverNameFromClassName(
+          query.getSelectedDriverClassName()));
+    }
     while (!query.getStatus().finished()) {
       query = getQuery(handle);
+      if (verbose) {
+        CLILOGGER.info(query.getStatus());
+      }
       try {
         Thread.sleep(connection.getLensConnectionParams().getQueryPollInterval());
       } catch (InterruptedException e) {
         throw new IllegalStateException(e);
       }
     }
+  }
+
+  private String gerDriverNameFromClassName(String className) {
+    if (className != null) {
+      String [] classNameSplits = StringUtils.split(className, ".");
+      return classNameSplits[classNameSplits.length - 1];
+    }
+    return null;
   }
 
   /**

@@ -123,12 +123,12 @@ public class TestLensQueryCommands extends LensCliApplicationTest {
     Assert.assertTrue(result.contains("User query:cube select id, name from test_dim"));
     Assert.assertTrue(result.contains(qh));
 
-    result = qCom.executePreparedQuery(qh, false, "testPrepQuery1");
+    result = qCom.executePreparedQuery(qh, false, "testPrepQuery1", true);
 
     LOG.warn("XXXXXX Prepared query sync result is  " + result);
     Assert.assertTrue(result.contains("1\tfirst"));
 
-    String handle = qCom.executePreparedQuery(qh, true, "testPrepQuery2");
+    String handle = qCom.executePreparedQuery(qh, true, "testPrepQuery2", true);
     LOG.debug("Perpared query handle is   " + handle);
     while (!client.getQueryStatus(handle).finished()) {
       Thread.sleep(5000);
@@ -218,7 +218,7 @@ public class TestLensQueryCommands extends LensCliApplicationTest {
     System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     String sql = "cube select id,name from test_dim";
     long submitTime = System.currentTimeMillis();
-    String qh = qCom.executeQuery(sql, true, "testQuery1");
+    String qh = qCom.executeQuery(sql, true, "testQuery1", true);
     String user = qCom.getClient().getLensStatement(new QueryHandle(UUID.fromString(qh))).getQuery().getSubmittedUser();
     String result = qCom.getAllQueries("", "testQuery1", user, -1, Long.MAX_VALUE);
     // this is because previous query has run two query handle will be there
@@ -323,7 +323,7 @@ public class TestLensQueryCommands extends LensCliApplicationTest {
    */
   private void testExecuteSyncQuery(LensQueryCommands qCom) {
     String sql = "cube select id,name from test_dim";
-    String result = qCom.executeQuery(sql, false, "testQuery2");
+    String result = qCom.executeQuery(sql, false, "testQuery2", true);
     Assert.assertTrue(result.contains("1\tfirst"), result);
   }
 
@@ -338,7 +338,7 @@ public class TestLensQueryCommands extends LensCliApplicationTest {
     client.setConnectionParam("lens.query.enable.persistent.resultset.indriver", "true");
     String query = "cube select id,name from test_dim";
     try {
-      String result = qCom.executeQuery(query, false, "testQuery3");
+      String result = qCom.executeQuery(query, false, "testQuery3", true);
       System.out.println("@@ RESULT " + result);
       Assert.assertNotNull(result);
       Assert.assertFalse(result.contains("Failed to get resultset"));
@@ -360,7 +360,7 @@ public class TestLensQueryCommands extends LensCliApplicationTest {
     client.setConnectionParam("lens.query.enable.persistent.resultset", "true");
     String query = "cube select id,name from test_dim";
     try {
-      String qh = qCom.executeQuery(query, true, "testQuery");
+      String qh = qCom.executeQuery(query, true, "testQuery", true);
       while (!client.getQueryStatus(qh).finished()) {
         Thread.sleep(5000);
       }

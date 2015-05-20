@@ -52,10 +52,12 @@ public class LensQueryCommands extends BaseLensCommand implements CommandMarker 
     @CliOption(key = {"", "query"}, mandatory = true, help = "Query to execute") String sql,
     @CliOption(key = {"async"}, mandatory = false, unspecifiedDefaultValue = "false",
       specifiedDefaultValue = "true", help = "Sync query execution") boolean asynch,
-    @CliOption(key = {"name"}, mandatory = false, help = "Query name") String queryName) {
+    @CliOption(key = {"name"}, mandatory = false, help = "Query name") String queryName,
+    @CliOption(key = {"verbose"}, mandatory = false, unspecifiedDefaultValue = "true",
+      help = "verbose") boolean verbose) {
     if (!asynch) {
       try {
-        LensClient.LensClientResultSetWithStats result = getClient().getResults(sql, queryName);
+        LensClient.LensClientResultSetWithStats result = getClient().getResults(sql, queryName, verbose);
         return formatResultSet(result);
       } catch (Throwable t) {
         return t.getMessage();
@@ -337,7 +339,9 @@ public class LensQueryCommands extends BaseLensCommand implements CommandMarker 
     @CliOption(key = {"", "handle"}, mandatory = true, help = "Prepare handle to execute") String phandle,
     @CliOption(key = {"async"}, mandatory = false, unspecifiedDefaultValue = "false",
       specifiedDefaultValue = "true", help = "Sync query execution") boolean asynch,
-    @CliOption(key = {"name"}, mandatory = false, help = "query name") String queryName) {
+    @CliOption(key = {"name"}, mandatory = false, help = "query name") String queryName,
+    @CliOption(key = {"verbose"}, mandatory = false, unspecifiedDefaultValue = "true",
+      help = "verbose") boolean verbose) {
     if (!asynch) {
       try {
         LensClient.LensClientResultSetWithStats result = getClient().getResultsFromPrepared(
