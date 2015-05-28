@@ -84,6 +84,11 @@ public class HiveSessionService extends LensService implements SessionService {
   private DatabaseResourceService databaseResourceService;
 
   /**
+   * The conf.
+   */
+  private Configuration conf;
+
+  /**
    * Instantiates a new hive session service.
    *
    * @param cliService the cli service
@@ -337,6 +342,7 @@ public class HiveSessionService extends LensService implements SessionService {
   public synchronized void init(HiveConf hiveConf) {
     this.databaseResourceService = new DatabaseResourceService(DatabaseResourceService.NAME);
     addService(this.databaseResourceService);
+    this.conf = hiveConf;
     super.init(hiveConf);
   }
 
@@ -350,7 +356,11 @@ public class HiveSessionService extends LensService implements SessionService {
     super.start();
 
     sessionExpiryThread = Executors.newSingleThreadScheduledExecutor();
-    sessionExpiryThread.scheduleWithFixedDelay(sessionExpiryRunnable, 60, 60, TimeUnit.MINUTES);
+    int sessionExpiryInterval;
+    sessionExpiryInterval = conf.getInt(LensConfConstants.SESSION_EXPIRY_SERVICE_INTERVAL,
+        LensConfConstants.DEFAULT_SESSION_EXPIRY_SERVICE_INTERVAL);
+    sessionExpiryThread.scheduleWithFixedDelay(sessionExpiryRunnable, sessionExpiryInterval,
+        sessionExpiryInterval, TimeUnit.MINUTES);
 
     // Restore sessions if any
     if (restorableSessions == null || restorableSessions.size() <= 0) {
@@ -405,6 +415,10 @@ public class HiveSessionService extends LensService implements SessionService {
     if (sessionExpiryThread != null) {
       sessionExpiryThread.shutdownNow();
     }
+  }
+
+  private Configuration getLensConf() {
+    return LensSessionImpl.createDefaultConf();
   }
 
   /*

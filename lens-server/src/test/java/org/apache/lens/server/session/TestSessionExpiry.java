@@ -38,8 +38,8 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "unit-test")
 public class TestSessionExpiry {
-
-  /**
+/*
+  *//**
    * Test session expiry.
    *
    * @throws Exception the exception
@@ -78,4 +78,39 @@ public class TestSessionExpiry {
       lensService.stop();
     }
   }
+
+ /* public void testSessionExpiryInterval() throws Exception {
+    HiveConf conf = LensServerConf.getHiveConf();
+    conf.setVar(HiveConf.ConfVars.HIVE_SESSION_IMPL_CLASSNAME, LensSessionImpl.class.getName());
+    conf.setLong(LensConfConstants.SESSION_TIMEOUT_SECONDS, 1L);
+    conf.setInt(LensConfConstants.SESSION_EXPIRY_SERVICE_INTERVAL, 1);
+    CLIService cliService = new CLIService();
+    cliService.init(conf);
+    HiveSessionService lensService = new HiveSessionService(cliService);
+    lensService.init(conf);
+    lensService.start();
+    MetricsService metricSvc = (MetricsService) LensServices.get().getService(MetricsService.NAME);
+
+    try {
+      LensSessionHandle sessionHandle = lensService.openSession("foo", "bar", new HashMap<String, String>());
+      LensSessionImpl session = lensService.getSession(sessionHandle);
+      assertTrue(session.isActive());
+      session.setLastAccessTime(session.getLastAccessTime() - 2000
+        * conf.getLong(LensConfConstants.SESSION_TIMEOUT_SECONDS, LensConfConstants.SESSION_TIMEOUT_SECONDS_DEFAULT));
+      assertFalse(session.isActive());
+      Thread.sleep(conf.getInt(LensConfConstants.SESSION_EXPIRY_SERVICE_INTERVAL, 5) * 60 * 1000 * 2);
+      assertTrue(metricSvc.getTotalExpiredSessions() >= 1);
+      assertTrue(metricSvc.getTotalClosedSessions() >= 1);
+
+      try {
+        lensService.getSession(sessionHandle);
+        // should throw exception since session should be expired by now
+        fail("Expected get session to fail for session " + sessionHandle.getPublicId());
+      } catch (Exception e) {
+        // pass
+      }
+    } finally {
+      lensService.stop();
+    }
+  }*/
 }
