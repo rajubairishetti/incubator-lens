@@ -79,7 +79,7 @@ public class TestSessionExpiry {
     }
   }
 
- /* public void testSessionExpiryInterval() throws Exception {
+  public void testSessionExpiryInterval() throws Exception {
     HiveConf conf = LensServerConf.getHiveConf();
     conf.setVar(HiveConf.ConfVars.HIVE_SESSION_IMPL_CLASSNAME, LensSessionImpl.class.getName());
     conf.setLong(LensConfConstants.SESSION_TIMEOUT_SECONDS, 1L);
@@ -97,8 +97,8 @@ public class TestSessionExpiry {
       assertTrue(session.isActive());
       session.setLastAccessTime(session.getLastAccessTime() - 2000
         * conf.getLong(LensConfConstants.SESSION_TIMEOUT_SECONDS, LensConfConstants.SESSION_TIMEOUT_SECONDS_DEFAULT));
+      Thread.sleep(conf.getInt(LensConfConstants.SESSION_EXPIRY_SERVICE_INTERVAL, 1) * 60 * 1000 * 2);
       assertFalse(session.isActive());
-      Thread.sleep(conf.getInt(LensConfConstants.SESSION_EXPIRY_SERVICE_INTERVAL, 5) * 60 * 1000 * 2);
       assertTrue(metricSvc.getTotalExpiredSessions() >= 1);
       assertTrue(metricSvc.getTotalClosedSessions() >= 1);
 
@@ -112,5 +112,5 @@ public class TestSessionExpiry {
     } finally {
       lensService.stop();
     }
-  }*/
+  }
 }
