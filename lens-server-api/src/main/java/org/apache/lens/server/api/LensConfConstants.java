@@ -712,6 +712,10 @@ public final class LensConfConstants {
    */
   public static final String AUX_JARS = SESSION_PFX + "aux.jars";
 
+  public static final String SESSION_EXPIRY_SERVICE_INTERVAL_IN_MINS = SERVER_PFX + "session.expiry.interval.mins";
+
+  public static final int DEFAULT_SESSION_EXPIRY_SERVICE_INTERVAL_IN_MINS = 60;
+
   // Statistics Store configuration keys
   /**
    * The Constant STATS_STORE_CLASS.
