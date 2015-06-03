@@ -355,7 +355,7 @@ public class HiveSessionService extends LensService implements SessionService {
     sessionExpiryThread = Executors.newSingleThreadScheduledExecutor();
     int sessionExpiryInterval = getSessionExpiryInterval();
     sessionExpiryThread.scheduleWithFixedDelay(sessionExpiryRunnable, sessionExpiryInterval,
-        sessionExpiryInterval, TimeUnit.MINUTES);
+        sessionExpiryInterval, TimeUnit.SECONDS);
 
     // Restore sessions if any
     if (restorableSessions == null || restorableSessions.size() <= 0) {
