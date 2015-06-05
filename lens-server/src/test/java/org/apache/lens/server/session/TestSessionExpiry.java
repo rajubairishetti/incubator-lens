@@ -68,6 +68,9 @@ public class TestSessionExpiry {
       assertFalse(session.isActive());
       // run the expiry thread
       lensService.getSessionExpiryRunnable().run();
+      log.info("Keeping a sleep of 3 seconds to make sure SessionExpiryService gets enough time to close"
+          + " inactive sessions");
+      Thread.sleep(3000);
       assertTrue(metricSvc.getTotalExpiredSessions() >= 1);
       assertTrue(metricSvc.getTotalClosedSessions() >= 1);
 
@@ -101,8 +104,9 @@ public class TestSessionExpiry {
       session.setLastAccessTime(session.getLastAccessTime() - 2000
         * conf.getLong(LensConfConstants.SESSION_TIMEOUT_SECONDS, LensConfConstants.SESSION_TIMEOUT_SECONDS_DEFAULT));
       assertFalse(session.isActive());
-      log.info("Keeping a sleep of 1 seconds to make sure sessione expiry service is running ");
-      Thread.sleep(1000);
+      log.info("Keeping a sleep of 3 seconds to make sure SessionExpiryService is running and gets enough time to"
+          + "close inactive sessions");
+      Thread.sleep(3000);
       assertTrue(metricSvc.getTotalExpiredSessions() >= 1);
       assertTrue(metricSvc.getTotalClosedSessions() >= 1);
 
