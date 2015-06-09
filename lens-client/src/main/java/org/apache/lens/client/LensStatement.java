@@ -35,8 +35,6 @@ import org.apache.lens.api.response.NoErrorPayload;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.log4j.Logger;
-
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -47,7 +45,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
  */
 public class LensStatement {
 
-  public static final Logger CLILOGGER =  Logger.getLogger("cliLogger");
 
   /** The connection. */
   private final LensConnection connection;
@@ -224,13 +221,13 @@ public class LensStatement {
   private void waitForQueryToComplete(QueryHandle handle, boolean verbose) {
     query = getQuery(handle);
     if (verbose) {
-      CLILOGGER.info("Query was submitted to " + gerDriverNameFromClassName(
-          query.getSelectedDriverClassName()));
+      LensClient.getLooger().info("Query was submitted to " + gerDriverNameFromClassName(
+              query.getSelectedDriverClassName()));
     }
     while (!query.getStatus().finished()) {
       query = getQuery(handle);
       if (verbose) {
-        CLILOGGER.info(query.getStatus());
+        LensClient.getLooger().info(query.getStatus());
       }
       try {
         Thread.sleep(connection.getLensConnectionParams().getQueryPollInterval());

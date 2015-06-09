@@ -34,6 +34,8 @@ import com.google.common.collect.Maps;
 
 public class LensClient {
   private static final Log LOG = LogFactory.getLog(LensClient.class);
+  public static final Log CLILOGGER =  LogFactory.getLog("cliLogger");
+
   private static final String DEFAULT_PASSWORD = "";
   private final LensClientConfig conf;
   private final LensMetadataClient mc;
@@ -42,6 +44,10 @@ public class LensClient {
   private final HashMap<QueryHandle, LensStatement> statementMap =
     Maps.newHashMap();
   private final LensStatement statement;
+
+  public static Log getLooger() {
+    return CLILOGGER;
+  }
 
   public LensClient() {
     this(new LensClientConfig());
