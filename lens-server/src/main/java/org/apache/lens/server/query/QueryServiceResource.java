@@ -184,16 +184,20 @@ public class QueryServiceResource {
    * @param sessionid     The session in which user is submitting the query. Any configuration set in the session will
    *                      be picked up.
    * @param query         The query to run
-   * @param operation     The operation on the query. Supported operations are values: {@value SubmitOp#ESTIMATE},
-   *                      {@value SubmitOp#EXPLAIN},{@value SubmitOp#EXECUTE} and {@value SubmitOp#EXECUTE_WITH_TIMEOUT}
+   * @param operation     The operation on the query. Supported operations are values:
+   *                      {@link org.apache.lens.api.query.SubmitOp#ESTIMATE},
+   *                      {@link org.apache.lens.api.query.SubmitOp#EXPLAIN},
+   *                      {@link org.apache.lens.api.query.SubmitOp#EXECUTE} and
+   *                      {@link org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
    * @param conf          The configuration for the query
-   * @param timeoutmillis The timeout for the query, honored only in case of value {@value
-   *                      SubmitOp#EXECUTE_WITH_TIMEOUT} operation
+   * @param timeoutmillis The timeout for the query, honored only in case of value {@link
+   *                      org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
    * @param queryName     human readable query name set by user (optional parameter)
-   * @return {@link LensResponse} with DATA as {@link QueryHandle} in case of {@value SubmitOp#EXECUTE} operation.
-   * {@link QueryPlan} in case of {@value SubmitOp#EXPLAIN} operation. {@link QueryHandleWithResultSet} in case
-   * {@value SubmitOp#EXECUTE_WITH_TIMEOUT} operation. {@link QueryCost} in case of
-   * {@value SubmitOp#ESTIMATE} operation.
+   * @return {@link LensResponse} with DATA as {@link QueryHandle} in case of
+   * \{@link org.apache.lens.api.query.SubmitOp#EXECUTE} operation.
+   * {@link QueryPlan} in case of {@value org.apache.lens.api.query.SubmitOp#EXPLAIN} operation.
+   * {@link QueryHandleWithResultSet} in case {@value org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
+   * operation. {@link QueryCost} in case of {@link org.apache.lens.api.query.SubmitOp#ESTIMATE} operation.
    */
   @POST
   @Path("queries")
@@ -252,10 +256,10 @@ public class QueryServiceResource {
    * @param queryName Cancel queries matching the query name
    * @param fromDate  the from date, inclusive(submitTime&gt;=fromDate)
    * @param toDate    the to date, inclusive(toDate&gt;=submitTime)
-   * @return APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#SUCCEEDED} in case of successful
-   *                   cancellation. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED}
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   *                   cancellation. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED}
    *                   in case of cancellation failure. APIResult with state
-   *                    {@link org.apache.lens.api.query.QueryStatus.Status#PARTIAL} in case of partial cancellation.
+   *                    {@link org.apache.lens.api.APIResult.Status#PARTIAL} in case of partial cancellation.
    */
   @DELETE
   @Path("queries")
@@ -378,9 +382,9 @@ public class QueryServiceResource {
    * @param queryName destroys queries matching the query name
    * @param fromDate  the from date
    * @param toDate    the to date
-   * @return APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#SUCCEEDED} in case of successful
-   *         destroy. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED} in case of destroy
-   *         failure. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#PARTIAL} in case of
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   *         destroy. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of destroy
+   *         failure. APIResult with state {@link org.apache.lens.api.APIResult.Status#PARTIAL} in case of
    *         partial destroy.
    */
   @DELETE
@@ -470,8 +474,8 @@ public class QueryServiceResource {
    *
    * @param sessionid     The user session handle
    * @param prepareHandle The prepare handle
-   * @return APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#SUCCEEDED} in case of successful
-   *         destroy. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED} in case of
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   *         destroy. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of
    *         destroy failure.
    */
   @DELETE
@@ -513,8 +517,8 @@ public class QueryServiceResource {
    *
    * @param sessionid   The user session handle
    * @param queryHandle The query handle
-   * @return APIResult with state {@link org.apache.lens.api.query..QueryStatus.Status#SUCCEEDED} in case of successful
-   *         cancellation. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED} in case of
+   * @return APIResult with state {@link org.apache.lens.api.query..APIResult.Status#SUCCEEDED} in case of successful
+   *         cancellation. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of
    *         cancellation failure.
    */
   @DELETE
@@ -567,8 +571,8 @@ public class QueryServiceResource {
    * @param sessionid   The user session handle
    * @param queryHandle The query handle
    * @param conf        The new configuration, will be on top of old one
-   * @return APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#SUCCEEDED} in case of successful
-   * update. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED} in case of udpate failure.
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   * update. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of udpate failure.
    */
   @PUT
   @Path("queries/{queryHandle}")
@@ -596,8 +600,8 @@ public class QueryServiceResource {
    * @param sessionid     The user session handle
    * @param prepareHandle The prepare handle
    * @param conf          The new configuration, will be on top of old one
-   * @return APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#SUCCEEDED} in case of successful
-   * update. APIResult with state {@link org.apache.lens.api.query.QueryStatus.Status#FAILED} in case of udpate failure.
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   * update. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of udpate failure.
    */
   @PUT
   @Path("preparedqueries/{prepareHandle}")
@@ -625,15 +629,15 @@ public class QueryServiceResource {
    *                      be picked up.
    * @param prepareHandle The Query to run
    * @param operation     The operation on the query. Supported operations are
-   *                      {@link org.apache.lens.api.query.QueryStatus..SubmitOp#EXECUTE} and {@link
-   *                      org.apache.lens.api.query.QueryStatus.SubmitOp#EXECUTE_WITH_TIMEOUT}
+   *                      {@link org.apache.lens.api.query.SubmitOp#EXECUTE} and {@link
+   *                      org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
    * @param conf          The configuration for the execution of query
    * @param timeoutmillis The timeout for the query, honored only in case of
-   *  {@link org.apache.lens.api.query.QueryStatus.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
+   * {@link org.apache.lens.api.query.QueryStatus.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
    * @param queryName     human readable query name set by user (optional parameter)
-   * @return {@link QueryHandle} in case of {link org.apache.lens.api.query.QueryStatus.SubmitOp#EXECUTE} operation.
-   *  {@link QueryHandleWithResultSet} in
-   * case {link SubmitOp#EXECUTE_WITH_TIMEOUT} operation.
+   * @return {@link QueryHandle} in case of {link org.apache.lens.api.query.SubmitOp#EXECUTE} operation.
+   * {@link QueryHandleWithResultSet} in case {@link org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT
+   * } operation.
    */
   @POST
   @Path("preparedqueries/{prepareHandle}")
@@ -736,8 +740,8 @@ public class QueryServiceResource {
    *
    * @param sessionid   The user session handle
    * @param queryHandle The query handle
-   * @return APIResult with state {@value Status#SUCCEEDED} in case of successful close. APIResult with state {@value
-   * Status#FAILED} in case of close failure.
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
+   * close. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of close failure.
    */
   @DELETE
   @Path("queries/{queryHandle}/resultset")
