@@ -269,7 +269,6 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * Gets the join cond.
    *
    * @param node the node
-   * @return the join cond
    */
   public void getJoinCond(ASTNode node) {
     if (node == null) {
@@ -341,7 +340,6 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * Gets the filter in join cond.
    *
    * @param node the node
-   * @return the filter in join cond
    */
   public void getFilterInJoinCond(ASTNode node) {
 
@@ -666,7 +664,6 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * Gets the all filters.
    *
    * @param node the node
-   * @return the all filters
    */
   public void getAllFilters(ASTNode node) {
     if (node == null) {
@@ -784,7 +781,6 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   /**
    * Replace alias in AST trees
    *
-   * @throws HiveException
    */
 
   public void replaceAliasInAST() {

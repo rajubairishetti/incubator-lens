@@ -548,7 +548,7 @@ public interface CubeMetastoreService {
    * @param timeDimension time dimension name
    * @param cubeName      The base cube name
    * @return Date
-   * @throws LensException,HiveException
+   * @throws LensException, HiveException
    */
   Date getLatestDateOfCube(LensSessionHandle sessionid, String cubeName, String timeDimension)
     throws LensException, HiveException;

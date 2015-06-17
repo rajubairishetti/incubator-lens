@@ -85,7 +85,7 @@
     <test.tmp.dir>${basedir}/target/tmp</test.tmp.dir>
 
     <!-- maven plugins -->
-    <jaxb2.plugin.version>0.8.0</jaxb2.plugin.version>
+    <jaxb2.plugin.version>0.12.3</jaxb2.plugin.version>
     <jaxb2.basics.plugin.version>0.6.3</jaxb2.basics.plugin.version>
     <jetty.plugin.version>${jetty.version}</jetty.plugin.version>
     <exec.plugin.version>1.2.1</exec.plugin.version>

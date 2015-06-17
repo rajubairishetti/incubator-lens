@@ -95,7 +95,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   public int addResourceToAllServices(LensSessionHandle sessionid, String type, String path) {
     int numAdded = 0;
@@ -136,7 +136,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public void addResource(LensSessionHandle sessionid, String type, String path) {
@@ -152,7 +152,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public void deleteResource(LensSessionHandle sessionid, String type, String path) {
@@ -200,7 +200,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public LensSessionHandle openSession(String username, String password, String database,
@@ -255,7 +255,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public List<String> getAllSessionParameters(LensSessionHandle sessionid, boolean verbose, String key)
@@ -287,7 +287,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public void setSessionParameter(LensSessionHandle sessionid, String key, String value) {
@@ -454,7 +454,7 @@ public class HiveSessionService extends LensService implements SessionService {
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   @Override
   public void closeSession(LensSessionHandle sessionHandle) throws LensException {
