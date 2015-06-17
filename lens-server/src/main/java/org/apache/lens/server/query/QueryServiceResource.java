@@ -194,9 +194,9 @@ public class QueryServiceResource {
    *                      org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
    * @param queryName     human readable query name set by user (optional parameter)
    * @return {@link LensResponse} with DATA as {@link QueryHandle} in case of
-   * \{@link org.apache.lens.api.query.SubmitOp#EXECUTE} operation.
-   * {@link QueryPlan} in case of {@value org.apache.lens.api.query.SubmitOp#EXPLAIN} operation.
-   * {@link QueryHandleWithResultSet} in case {@value org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
+   * {@link org.apache.lens.api.query.SubmitOp#EXECUTE} operation.
+   * {@link QueryPlan} in case of {@link org.apache.lens.api.query.SubmitOp#EXPLAIN} operation.
+   * {@link QueryHandleWithResultSet} in case {@link org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
    * operation. {@link QueryCost} in case of {@link org.apache.lens.api.query.SubmitOp#ESTIMATE} operation.
    */
   @POST
@@ -517,7 +517,7 @@ public class QueryServiceResource {
    *
    * @param sessionid   The user session handle
    * @param queryHandle The query handle
-   * @return APIResult with state {@link org.apache.lens.api.query..APIResult.Status#SUCCEEDED} in case of successful
+   * @return APIResult with state {@link org.apache.lens.api.APIResult.Status#SUCCEEDED} in case of successful
    *         cancellation. APIResult with state {@link org.apache.lens.api.APIResult.Status#FAILED} in case of
    *         cancellation failure.
    */
@@ -633,7 +633,7 @@ public class QueryServiceResource {
    *                      org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT}
    * @param conf          The configuration for the execution of query
    * @param timeoutmillis The timeout for the query, honored only in case of
-   * {@link org.apache.lens.api.query.QueryStatus.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
+   * {@link org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT} operation
    * @param queryName     human readable query name set by user (optional parameter)
    * @return {@link QueryHandle} in case of {link org.apache.lens.api.query.SubmitOp#EXECUTE} operation.
    * {@link QueryHandleWithResultSet} in case {@link org.apache.lens.api.query.SubmitOp#EXECUTE_WITH_TIMEOUT
