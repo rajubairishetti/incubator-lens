@@ -97,6 +97,7 @@ public class HiveSessionService extends LensService implements SessionService {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int addResourceToAllServices(LensSessionHandle sessionid, String type, String path) {
     int numAdded = 0;
     boolean error = false;
