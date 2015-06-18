@@ -402,8 +402,10 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <configuration>
+	  <artifactId>maven-site-plugin</artifactId>
+	  <version>3.4</version>
+	  <inherited>false</inherited>
+	  <configuration>
             <generateReports>true</generateReports>
           </configuration>
         </plugin>
@@ -1163,6 +1165,11 @@
       <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-mllib_2.10</artifactId>
+        <version>${spark.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-yarn_2.10</artifactId>
         <version>${spark.version}</version>
       </dependency>
 
