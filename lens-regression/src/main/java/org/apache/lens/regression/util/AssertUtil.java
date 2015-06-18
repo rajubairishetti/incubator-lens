@@ -20,7 +20,6 @@
 package org.apache.lens.regression.util;
 
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
 
 import org.apache.lens.api.APIResult;
 import org.apache.lens.server.api.error.LensException;
