@@ -407,12 +407,8 @@
             </xs:annotation>
             <xs:complexType>
               <xs:choice maxOccurs="1" minOccurs="1">
-                <xs:element type="x_table_references" name="table_references" maxOccurs="1" minOccurs="1">
-
-                </xs:element>
-                <xs:element type="x_chain_column" name="chain_ref_column" maxOccurs="1" minOccurs="1">
-
-                </xs:element>
+                <xs:element type="x_table_references" name="table_references" maxOccurs="1" minOccurs="1"/>
+                <xs:element type="x_chain_column" name="chain_ref_column" maxOccurs="1" minOccurs="1"/>
               </xs:choice>
             </xs:complexType>
           </xs:element>
@@ -534,13 +530,13 @@
         Join chain represents the paths to reach a dimension.
         For example, to reach Country from
         SalesCube, there can be the following equivalent paths:
-        SalesCube.deliveryStateid -> State.id, State.countryid -> Country.id
+        SalesCube.deliveryStateid -> State.id, State.countryid ->Country.id
         SalesCube.deliveryCityid -> City.id, City.stateid -> State.id, State.countryid ->Country.id
         Both the above paths will be associated with same
         join chain i.e with same name, if they are equivalent and at
         runtime, LENS will choose the path to use. If the
         paths are not equivalent, they should be named differently.
-        SalesCube.productionStateid -> State.id, State.countryid --> Country.id will be named differently.
+        SalesCube.productionStateid -> State.id, State.countryid ->Country.id will be named differently.
       </xs:documentation>
     </xs:annotation>
     <xs:complexContent>
