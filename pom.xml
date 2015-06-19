@@ -404,7 +404,6 @@
           <groupId>org.apache.maven.plugins</groupId>
 	  <artifactId>maven-site-plugin</artifactId>
 	  <version>3.3</version>
-	  <inherited>false</inherited>
 	  <configuration>
             <generateReports>true</generateReports>
           </configuration>
@@ -648,13 +647,13 @@
         <updatePolicy>never</updatePolicy>
       </snapshots>
     </repository>
-    <repository>
+    <!--<repository>
       <id>Codehaus repository</id>
       <url>http://repository.codehaus.org/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
+    </repository>-->
     <repository>
       <id>apache.snapshots.repo</id>
       <url>https://repository.apache.org/content/groups/snapshots</url>
