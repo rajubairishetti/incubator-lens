@@ -111,6 +111,10 @@ public class LensClient {
     return mc.getPartitionTimelines(factName, storageName, updatePeriod, timeDimension);
   }
 
+  public String printLogDetails(String logFileName) {
+    return "";
+  }
+
   public static class LensClientResultSetWithStats {
     private final LensClientResultSet resultSet;
     private final LensQuery query;
