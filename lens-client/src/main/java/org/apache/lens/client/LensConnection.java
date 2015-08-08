@@ -233,9 +233,9 @@ public class LensConnection {
     return result;
   }
 
-  public Response showLogsForRequestId(String requestId) {
+  public Response getLogs(String logFile) {
     WebTarget target = getLogWebTarget();
-    Response result = target.path(requestId).request(MediaType.APPLICATION_OCTET_STREAM).get();
+    Response result = target.path(logFile).request(MediaType.APPLICATION_OCTET_STREAM).get();
     return result;
   }
 

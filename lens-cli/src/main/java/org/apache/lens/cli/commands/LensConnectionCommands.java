@@ -29,6 +29,7 @@ import ch.qos.logback.core.Context;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lens.api.APIResult;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.cli.commands.annotations.UserDocumentation;
@@ -41,10 +42,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -299,35 +297,31 @@ public class LensConnectionCommands extends BaseLensCommand {
   }
 
   @CliCommand(value = "show logs", help = "show logs for a given log file")
-  public String printLogs(@CliOption(key = {"", "requestId"}, mandatory = true, help = "<requestId|queryhadnle>")
+  public String getLogs(@CliOption(key = {"", "requestId"}, mandatory = true, help = "<requestId|queryhadnle>")
     String logFile, @CliOption(key = {"save_location"}, mandatory = false, help = "<save_location>") String location) {
     try {
-      Response response = getClient().printLogDetails(logFile);
-      System.out.println("AAAAAAAAAAAAAAAAAAABefore response: " + response);
+      Response response = getClient().getLogs(logFile);
       if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-        System.out.println("AAAAAAAAAAAAAAA response " + response);
-        //String disposition = (String) response.getHeaders().get("content-disposition").get(0);
-        if (location == null) {
+        if (StringUtils.isBlank(location)) {
+          PrintStream outStream = new PrintStream(System.out);
           try (InputStream stream = response.readEntity(InputStream.class);) {
-            PrintStream outStream = new PrintStream(System.out);
             IOUtils.copy(stream, outStream);
           }
-          return "Done";
+          return "printed complete log content";
+        } else {
+          location = getValidPath(location, true, true);
+          String fileName = logFile;
+          location = getValidPath(location + File.separator + fileName, false, false);
+          try (InputStream stream = response.readEntity(InputStream.class);
+               FileOutputStream outStream = new FileOutputStream(new File(location))) {
+            IOUtils.copy(stream, outStream);
+          }
+          return "Saved to " + location;
         }
-        location = getValidPath(location, true, true);
-        String fileName = logFile;
-        location = getValidPath(location + File.separator + fileName, false, false);
-        try (InputStream stream = response.readEntity(InputStream.class);
-             FileOutputStream outStream = new FileOutputStream(new File(location))) {
-          IOUtils.copy(stream, outStream);
-        }
-        return "Saved to " + location;
       } else {
-        System.out.println("AAAAAAAAAAAAAAAAAAAB response: " + response.toString());
+        return response.toString();
       }
-      return response.toString();
     } catch (Throwable t) {
-      System.out.println("AAAAAAAAAAAAAAAAAAAAAAA response: " + t);
       return t.getMessage();
     }
   }

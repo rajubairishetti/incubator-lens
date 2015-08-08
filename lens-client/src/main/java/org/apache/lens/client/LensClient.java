@@ -597,7 +597,7 @@ public class LensClient {
   }
 
 
-  public Response printLogDetails(String requestId) {
-    return this.connection.showLogsForRequestId(requestId);
+  public Response getLogs(String logFile) {
+    return this.connection.getLogs(logFile);
   }
 }

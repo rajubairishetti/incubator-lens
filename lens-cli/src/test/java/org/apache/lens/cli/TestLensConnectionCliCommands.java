@@ -18,6 +18,7 @@
  */
 package org.apache.lens.cli;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.cli.commands.LensConnectionCommands;
 import org.apache.lens.client.LensClient;
@@ -345,22 +346,37 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
 
   @Test
   public void testLogsCommand() throws IOException {
-    System.setProperty("lens.log.dir", "target/");
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();
     commands.setClient(client);
-    System.out.println("AAAAAAAAAAAA property: " + System.getProperty("lens.log.dir"));
-    File dir = new File("target/sample-logs");
-    System.out.println("AAAAAAAAAAAAAA directory creation " + dir.mkdirs());
-    String fileName = "target/sample.log";
-    File file = createNewPath(fileName);
-    System.out.println("AAAAAAAAAAAAAAAAAAA abs file name " + file.getAbsoluteFile());
+
+    String request = "testId";
+    File file = createFileWithContent(request, "test log resource");
+
+    // create output directory to store the resulted log file
+    String outputDirName = "target/sample-logs/";
+    File dir = new File(outputDirName);
+    dir.mkdirs();
+
+    String response = commands.getLogs(request, outputDirName);
+    File outputFile = new File(outputDirName + request);
+    Assert.assertTrue(FileUtils.contentEquals(file, outputFile));
+    Assert.assertTrue(response.contains("Saved to"));
+
+    response = commands.getLogs(request, null);
+    Assert.assertTrue(response.contains("printed complete log content"));
+
+    // check 404 response
+    response = commands.getLogs("random", null);
+    Assert.assertTrue(response.contains("404"));
+  }
+
+  private File createFileWithContent(String filename, String content) throws IOException {
+    File file = createNewPath("target/" + filename + ".log");
     FileWriter fw = new FileWriter(file.getAbsoluteFile());
     BufferedWriter bw = new BufferedWriter(fw);
-    bw.write("sample logs are threre");
+    bw.write(content);
     bw.close();
-    System.out.println("Done");
-    String response = commands.printLogs("sample", "target/sample-logs");
-    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA resposne in test : " + response);
+    return file;
   }
 }
