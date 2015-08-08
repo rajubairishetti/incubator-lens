@@ -18,11 +18,11 @@
  */
 package org.apache.lens.client;
 
+import org.apache.lens.api.LensConf;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.lens.api.LensConf;
 
 /**
  * Top level class which encapsulates connections parameters required for lens connection.
@@ -104,6 +104,10 @@ public class LensConnectionParams {
 
   public String getMetastoreResourcePath() {
     return this.conf.getMetastoreResourcePath();
+  }
+
+  public String getLogResourcePath() {
+    return this.conf.getLogResourcePath();
   }
 
   public long getQueryPollInterval() {

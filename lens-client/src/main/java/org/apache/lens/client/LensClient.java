@@ -18,12 +18,9 @@
  */
 package org.apache.lens.client;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.ws.rs.core.Response;
-
+import com.google.common.collect.Maps;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lens.api.APIResult;
 import org.apache.lens.api.metastore.*;
 import org.apache.lens.api.query.*;
@@ -33,14 +30,13 @@ import org.apache.lens.client.exceptions.LensBriefErrorException;
 import org.apache.lens.client.model.BriefError;
 import org.apache.lens.client.model.IdBriefErrorTemplate;
 import org.apache.lens.client.model.IdBriefErrorTemplateKey;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import javax.ws.rs.core.Response;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 
 @Slf4j
@@ -109,10 +105,6 @@ public class LensClient {
   public List<String> getPartitionTimelines(String factName, String storageName, String updatePeriod,
     String timeDimension) {
     return mc.getPartitionTimelines(factName, storageName, updatePeriod, timeDimension);
-  }
-
-  public String printLogDetails(String logFileName) {
-    return "";
   }
 
   public static class LensClientResultSetWithStats {
@@ -604,4 +596,8 @@ public class LensClient {
     return this.connection.listResourcesFromConnection(type);
   }
 
+
+  public Response printLogDetails(String requestId) {
+    return this.connection.showLogsForRequestId(requestId);
+  }
 }

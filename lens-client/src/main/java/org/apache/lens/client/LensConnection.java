@@ -18,9 +18,16 @@
  */
 package org.apache.lens.client;
 
-import java.net.ConnectException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.lens.api.APIResult;
+import org.apache.lens.api.LensSessionHandle;
+import org.apache.lens.api.StringList;
+import org.apache.lens.client.exceptions.LensClientServerConnectionException;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -29,19 +36,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.apache.lens.api.APIResult;
-import org.apache.lens.api.LensSessionHandle;
-import org.apache.lens.api.StringList;
-import org.apache.lens.client.exceptions.LensClientServerConnectionException;
-
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.net.ConnectException;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Top level client connection class which is used to connect to a lens server.
@@ -116,6 +113,15 @@ public class LensConnection {
   private WebTarget getMetastoreWebTarget() {
     Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
     return getMetastoreWebTarget(client);
+  }
+
+  public WebTarget getLogWebTarget() {
+    Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
+    return getLogWebTarget(client);
+  }
+
+  public WebTarget getLogWebTarget(Client client) {
+    return client.target(params.getBaseConnectionUrl()).path(params.getLogResourcePath());
   }
 
   /**
@@ -224,6 +230,12 @@ public class LensConnection {
     mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("path").build(), resourcePath));
     APIResult result = target.path("resources/delete").request()
       .put(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE), APIResult.class);
+    return result;
+  }
+
+  public Response showLogsForRequestId(String requestId) {
+    WebTarget target = getLogWebTarget();
+    Response result = target.path(requestId).request(MediaType.APPLICATION_OCTET_STREAM).get();
     return result;
   }
 
