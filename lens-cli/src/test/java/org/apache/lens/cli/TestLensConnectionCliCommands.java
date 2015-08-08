@@ -18,20 +18,20 @@
  */
 package org.apache.lens.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-
-import javax.ws.rs.BadRequestException;
-
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.cli.commands.LensConnectionCommands;
 import org.apache.lens.client.LensClient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import javax.ws.rs.BadRequestException;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * The Class TestLensConnectionCliCommands.
@@ -341,5 +341,26 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     Assert.assertNotNull(sessionHandle);
     String output = commands.getSessionHandle();
     Assert.assertTrue(output.contains(sessionHandle.getPublicId().toString()), "session handle output: " + output);
+  }
+
+  @Test
+  public void testLogsCommand() throws IOException {
+    System.setProperty("lens.log.dir", "target/");
+    LensClient client = new LensClient();
+    LensConnectionCommands commands = new LensConnectionCommands();
+    commands.setClient(client);
+    System.out.println("AAAAAAAAAAAA property: " + System.getProperty("lens.log.dir"));
+    File dir = new File("target/sample-logs");
+    System.out.println("AAAAAAAAAAAAAA directory creation " + dir.mkdirs());
+    String fileName = "target/sample.log";
+    File file = createNewPath(fileName);
+    System.out.println("AAAAAAAAAAAAAAAAAAA abs file name " + file.getAbsoluteFile());
+    FileWriter fw = new FileWriter(file.getAbsoluteFile());
+    BufferedWriter bw = new BufferedWriter(fw);
+    bw.write("sample logs are threre");
+    bw.close();
+    System.out.println("Done");
+    String response = commands.printLogs("sample", "target/sample-logs");
+    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA resposne in test : " + response);
   }
 }

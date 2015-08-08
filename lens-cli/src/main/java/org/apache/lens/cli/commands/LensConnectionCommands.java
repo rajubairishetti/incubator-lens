@@ -312,7 +312,7 @@ public class LensConnectionCommands extends BaseLensCommand {
             PrintStream outStream = new PrintStream(System.out);
             IOUtils.copy(stream, outStream);
           }
-          return "printing output ";
+          return "Done";
         }
         location = getValidPath(location, true, true);
         String fileName = logFile;
