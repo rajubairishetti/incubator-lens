@@ -18,23 +18,23 @@
  */
 package org.apache.lens.cli.doc;
 
-import java.io.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.*;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lens.cli.commands.*;
 import org.apache.lens.cli.commands.annotations.UserDocumentation;
-
-import org.apache.commons.lang.StringUtils;
-
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import lombok.extern.slf4j.Slf4j;
+import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TreeSet;
 
 @Slf4j
 public class TestGenerateCLIUserDoc {
@@ -54,7 +54,8 @@ public class TestGenerateCLIUserDoc {
       LensFactCommands.class,
       LensDimensionTableCommands.class,
       LensNativeTableCommands.class,
-      LensQueryCommands.class
+      LensQueryCommands.class,
+      LensLogCommands.class
     );
     for (Class claz : classes) {
       UserDocumentation doc = (UserDocumentation) claz.getAnnotation(UserDocumentation.class);

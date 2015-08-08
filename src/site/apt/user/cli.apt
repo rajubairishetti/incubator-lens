@@ -106,6 +106,8 @@ User CLI Commands
 *--+--+
 |set \<key\>=\<value\>|Assign <<<value>>> to session parameter specified with <<<key>>> on lens server|
 *--+--+
+|show logs [--requestId] \<requestId|queryhadnle\> [--save_location \<save_location\>]|show logs for a given log file|
+*--+--+
 |show params|Fetches and prints all session parameter from lens server|
 *--+--+
 |verbose [[--enable] Print the clilogger logs on cli]|Show cliLogger logs on cli. 'verbose false'  turns off the cliLogger logs on console|
@@ -351,6 +353,15 @@ User CLI Commands
 |query status [--query_handle] \<query_handle\>|Fetch status of executed query having query handle <<<query_handle>>>|
 *--+--+
   <<Lens Query Commands>>
+
+===
+
+*--+--+
+|<<Command>>|<<Description>>|
+*--+--+
+|show logs [--requestId] \<requestId|queryhadnle\> [--save_location \<save_location\>]|show logs for a given log file|
+*--+--+
+  <<Lens Log Commands>>
 
 ===
 
