@@ -1,7 +1,7 @@
 package org.apache.lens.cli;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.lens.cli.commands.LensConnectionCommands;
+import org.apache.lens.cli.commands.LensLogCommands;
 import org.apache.lens.client.LensClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -11,12 +11,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class TestLensLogCommands {
+public class TestLensLogCommands extends LensCliApplicationTest {
 
   @Test
   public void testLogsCommand() throws IOException {
     LensClient client = new LensClient();
-    LensConnectionCommands commands = new LensConnectionCommands();
+    LensLogCommands commands = new LensLogCommands();
     commands.setClient(client);
 
     String request = "testId";
