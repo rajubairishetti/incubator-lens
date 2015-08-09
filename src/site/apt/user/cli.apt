@@ -354,3 +354,16 @@ User CLI Commands
 
 ===
 
+** Access to Log Resouces
+
+  This section provides commands for fetching logs under LENS_LOG_DIR.
+
+*--+--+
+|<<Command>>|<<Description>>|
+*--+--+
+|show logs [--request_id] \<query_handle or request_id \> [--save_location \<save_location\>]|show logs for a given query handle or lgo file|
+*--+--+
+  <<Lens Log Resource Commands>>
+
+===
+
