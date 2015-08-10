@@ -361,7 +361,7 @@ User CLI Commands
 *--+--+
 |<<Command>>|<<Description>>|
 *--+--+
-|show logs [--request_id] \<query_handle or request_id \> [--save_location \<save_location\>]|show logs for a given query handle or lgo file|
+|show logs [--log_handle] log handle can be be query_handle for queries [--save_location \<save_location\>]|show logs for a given query handle or log file|
 *--+--+
   <<Lens Log Resource Commands>>
 

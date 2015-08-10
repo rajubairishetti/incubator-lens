@@ -44,10 +44,10 @@ import org.springframework.stereotype.Component;
   description = "This section provides commands for fetching logs under LENS_LOG_DIR.")
 public class LensLogResourceCommands extends BaseLensCommand {
 
-  @CliCommand(value = "show logs", help = "show logs for a given query handle or lgo file")
+  @CliCommand(value = "show logs", help = "show logs for a given query handle or log file")
   public String getLogs(
-    @CliOption(key = {"", "request_id"}, mandatory = true, help = "<query_handle or request_id >") String logFile,
-    @CliOption(key = {"save_location"}, mandatory = false, help = "<save_location>") String location) {
+    @CliOption(key = {"", "log_handle"}, mandatory = true, help = "log handle can be be query_handle for queries")
+    String logFile, @CliOption(key = {"save_location"}, mandatory = false, help = "<save_location>") String location) {
     try {
       Response response = getClient().getLogs(logFile);
       if (response.getStatus() == Response.Status.OK.getStatusCode()) {
