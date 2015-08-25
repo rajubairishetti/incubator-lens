@@ -1158,12 +1158,17 @@ public class CubeTestSetup {
     StorageTableDesc s0 = new StorageTableDesc();
     s0.setInputFormat(TextInputFormat.class.getCanonicalName());
     s0.setOutputFormat(HiveIgnoreKeyTextOutputFormat.class.getCanonicalName());
+    /*    ArrayList<FieldSchema> s0PartCols = new ArrayList<FieldSchema>();
+    s0PartCols.add(new FieldSchema("ttd", serdeConstants.STRING_TYPE_NAME, "test date partition"));
+    s0PartCols.add(new FieldSchema("ttd2", serdeConstants.STRING_TYPE_NAME, "test date partition"));
+    s0.setPartCols(s2PartCols);
+    s0.setTimePartCols(Arrays.asList("ttd", "ttd2"));*/
     storageTables.put(c0, s0);
 
     // create cube fact
     client.createCubeFactTable(TEST_CUBE_NAME, factName, factColumns, storageAggregatePeriods, 5L,
       factValidityProperties, storageTables);
-    client.getTimelines(factName, c1, null, null);
+    client.getTimelines(factName, null, null, null);
     client.getTimelines(factName, c4, null, null);
     client.clearHiveTableCache();
     CubeFactTable fact = client.getFactTable(factName);

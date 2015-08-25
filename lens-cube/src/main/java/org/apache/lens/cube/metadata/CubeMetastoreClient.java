@@ -159,12 +159,15 @@ public class CubeMetastoreClient {
       partCol = baseCube.getPartitionColumnOfTimeDim(timeDimension);
     }
     for (String key : keys) {
-      for (Map.Entry<UpdatePeriod, CaseInsensitiveStringHashMap<PartitionTimeline>> entry : partitionTimelineCache
-        .get(factName, key).entrySet()) {
-        if (updatePeriod == null || entry.getKey().equals(updatePeriod)) {
-          for (Map.Entry<String, PartitionTimeline> entry1 : entry.getValue().entrySet()) {
-            if (partCol == null || partCol.equals(entry1.getKey())) {
-              ret.add(entry1.getValue());
+      if (partitionTimelineCache.get(factName, key) != null) {
+        //TODO Loading timelines twice?
+        for (Map.Entry<UpdatePeriod, CaseInsensitiveStringHashMap<PartitionTimeline>> entry : partitionTimelineCache
+          .get(factName, key).entrySet()) {
+          if (updatePeriod == null || entry.getKey().equals(updatePeriod)) {
+            for (Map.Entry<String, PartitionTimeline> entry1 : entry.getValue().entrySet()) {
+              if (partCol == null || partCol.equals(entry1.getKey())) {
+                ret.add(entry1.getValue());
+              }
             }
           }
         }
@@ -283,6 +286,7 @@ public class CubeMetastoreClient {
       throws HiveException, LensException {
       // SUSPEND CHECKSTYLE CHECK DoubleCheckedLockingCheck
       String storageTableName = MetastoreUtil.getStorageTableName(fact, Storage.getPrefix(storage));
+      // TODO multiple times calling get(storageTableName).... coverting to lower case everytime
       if (get(storageTableName) == null) {
         synchronized (this) {
           if (get(storageTableName) == null) {
@@ -316,6 +320,10 @@ public class CubeMetastoreClient {
       String storageTableName = MetastoreUtil.getStorageTableName(fact, Storage.getPrefix(storage));
       log.info("loading from all partitions: {}", storageTableName);
       Table storageTable = getTable(storageTableName);
+      if (!storageTable.isPartitioned()) {
+        log.info("Not loading timelines as Table {} is not partitioned ", storageTable);
+        return;
+      }
       if (getCubeFact(fact).getUpdatePeriods() != null && getCubeFact(fact).getUpdatePeriods().get(
         storage) != null) {
         for (UpdatePeriod updatePeriod : getCubeFact(fact).getUpdatePeriods().get(storage)) {

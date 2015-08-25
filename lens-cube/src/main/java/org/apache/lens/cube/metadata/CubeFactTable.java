@@ -174,6 +174,7 @@ public final class CubeFactTable extends AbstractCubeTable {
     UpdatePeriod max = null;
 
     long diff = to.getTime() - from.getTime();
+    //TODO
     if (diff < UpdatePeriod.MIN_INTERVAL) {
       return null;
     }
