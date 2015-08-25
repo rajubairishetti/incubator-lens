@@ -610,7 +610,8 @@ public class CubeTestSetup {
     locationHierarchy.add(new ReferencedDimAtrribute(new FieldSchema("countryid", "int", "country"), "Country refer",
       new TableReference("countrydim", "id")));
     List<String> regions = Arrays.asList("APAC", "EMEA", "USA");
-    locationHierarchy.add(new InlineDimAttribute(new FieldSchema("regionname", "string", "region"), regions));
+    locationHierarchy.add(new BaseDimAttribute(new FieldSchema("regionname", "string", "region"), "regionname", null,
+      null, null, null, regions));
 
     cubeDimensions.add(new HierarchicalDimAttribute("location", "Location hierarchy", locationHierarchy));
     cubeDimensions.add(new BaseDimAttribute(new FieldSchema("dim1", "string", "basedim")));
@@ -746,7 +747,8 @@ public class CubeTestSetup {
       .createDerivedCube(TEST_CUBE_NAME, DERIVED_CUBE_NAME, measures, dimensions, new HashMap<String, String>(), 5L);
   }
 
-  private void createBaseAndDerivedCubes(CubeMetastoreClient client) throws HiveException, ParseException {
+  private void createBaseAndDerivedCubes(CubeMetastoreClient client)
+    throws HiveException, ParseException, LensException {
     Set<CubeMeasure> cubeMeasures2 = new HashSet<CubeMeasure>(cubeMeasures);
     Set<CubeDimAttribute> cubeDimensions2 = new HashSet<CubeDimAttribute>(cubeDimensions);
     cubeMeasures2.add(new ColumnMeasure(new FieldSchema("msr11", "int", "first measure")));
@@ -906,7 +908,7 @@ public class CubeTestSetup {
     createBaseCubeFacts(client);
   }
 
-  private void createBaseCubeFacts(CubeMetastoreClient client) throws HiveException {
+  private void createBaseCubeFacts(CubeMetastoreClient client) throws HiveException, LensException {
 
     Map<String, Set<UpdatePeriod>> storageAggregatePeriods = new HashMap<String, Set<UpdatePeriod>>();
     Set<UpdatePeriod> updates = new HashSet<UpdatePeriod>();

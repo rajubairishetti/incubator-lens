@@ -33,7 +33,7 @@ public class ContinuousPartitionTimeLine extends PartitionTimeline {
 
   @Override
   public TimePartition latest() {
-    return null;
+    return ;
   }
 
   @Override
