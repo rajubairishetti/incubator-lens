@@ -30,6 +30,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lens.cube.error.LensCubeErrorCode;
 import org.apache.lens.cube.metadata.*;
 import org.apache.lens.cube.parse.CandidateTablePruneCause.SkipStorageCause;
@@ -45,6 +48,7 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.ParseException;
 import org.apache.hadoop.hive.ql.processors.CommandProcessorResponse;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -143,7 +147,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
       rewriteCtx("cube select" + " SUM(msr2) from testCube where " + TWO_DAYS_RANGE, getConfWithStorages("C2"));
     String expected =
       getExpectedQuery(cubeName, "select sum(testcube.msr2) FROM ", null, null,
-        getWhereForDailyAndHourly2days(cubeName, "C2_testfact"));
+      getWhereForDailyAndHourly2days(cubeName, "C2_testfact"));
     compareQueries(expected, rewrittenQuery.toHQL());
     System.out.println("Non existing parts:" + rewrittenQuery.getNonExistingParts());
     assertNotNull(rewrittenQuery.getNonExistingParts());
@@ -190,7 +194,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     conf.setBoolean(CubeQueryConfUtil.LIGHTEST_FACT_FIRST, true);
 
     LensException th = getLensExceptionInRewrite(
-      "select SUM(msr2) from testCube" + " where " + TWO_DAYS_RANGE, conf);
+    "select SUM(msr2) from testCube" + " where " + TWO_DAYS_RANGE, conf);
     assertEquals(th.getErrorCode(), LensCubeErrorCode.NO_CANDIDATE_FACT_AVAILABLE.getLensErrorInfo().getErrorCode());
     PruneCauses.BriefAndDetailedError pruneCauses = extractPruneCause(th);
     int endIndex = MISSING_PARTITIONS.errorFormat.length() - 3;
@@ -200,7 +204,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     );
     assertEquals(pruneCauses.getDetails().get("testfact").size(), 1);
     assertEquals(pruneCauses.getDetails().get("testfact").iterator().next().getCause(),
-      MISSING_PARTITIONS);
+    MISSING_PARTITIONS);
   }
 
   @Test
@@ -215,7 +219,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     assertNotNull(rewrittenQuery.getNonExistingParts());
 
     LensException th = getLensExceptionInRewrite(
-      "select SUM(msr4) from derivedCube" + " where " + TWO_DAYS_RANGE, getConf());
+    "select SUM(msr4) from derivedCube" + " where " + TWO_DAYS_RANGE, getConf());
     assertEquals(th.getErrorCode(), LensCubeErrorCode.COLUMN_NOT_FOUND.getLensErrorInfo().getErrorCode());
 
     // test join
@@ -280,21 +284,38 @@ public class TestCubeRewriter extends TestQueryRewrite {
     compareQueries(expected, hqlQuery);
 
     hqlQuery = rewrite("insert overwrite table temp" + " cube select SUM(msr2) from testCube where " + TWO_DAYS_RANGE,
-      conf);
+    conf);
     compareQueries(expected, hqlQuery);
   }
 
-  static void compareQueries(String actual, String expected) {
-    if (expected == null && actual == null) {
-      return;
-    } else if (expected == null) {
-      fail();
-    } else if (actual == null) {
-      fail("Rewritten query is null");
-    }
-    String expectedTrimmed = expected.replaceAll("\\W", "");
-    String actualTrimmed = actual.replaceAll("\\W", "");
+  private static String extractJoinStringFromQuery(String query) {
+    String queryTrimmed = query.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "");
+    int joinStartIndex = StringUtils.indexOf(queryTrimmed, "join");
+    int joinEndIndex = StringUtils.indexOf(queryTrimmed, "where");
+    return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
+  }
 
+  private static void compareJoinStrings(String actualJoinString, String expectedJoinString) {
+    List<String> actualQueryParts =
+      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
+    List<String> expectedJoinList =
+      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
+    Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
+    //System.out.println("AAAAAAAAAAAAAAAAAA actualqueryparts:::::::::: " + actualQueryParts);
+    //System.out.println("AAAAAAAAAAAAAAAAAA expectedqueryparts:::::::: " + expectedJoinList);
+    for (String joinStr :actualQueryParts ) {
+      Assert.assertTrue(expectedJoinList.contains(joinStr));
+    }
+  }
+
+  static void compareJoinQueries(String actual, String expected) {
+    String actualJoinString = extractJoinStringFromQuery(actual);
+    String expectedJoinString = extractJoinStringFromQuery(expected);
+    System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
+      + expectedJoinString);
+    compareJoinStrings(actualJoinString, expectedJoinString);
+    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
+    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
     if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
       String method = null;
       for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
@@ -308,6 +329,17 @@ public class TestCubeRewriter extends TestQueryRewrite {
     log.info("expectedTrimmed " + expectedTrimmed);
     log.info("actualTrimmed " + actualTrimmed);
     assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
+  }
+
+  static void compareQueries(String actual, String expected) {
+    if (expected == null && actual == null) {
+      return;
+    } else if (expected == null) {
+      fail();
+    } else if (actual == null) {
+      fail("Rewritten query is null");
+    }
+    compareJoinQueries(actual, expected);
   }
 
   static void compareContains(String expected, String actual) {
@@ -721,7 +753,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
 
     hqlQuery =
       rewrite("select round(cityid), SUM(msr2) from" + " testCube where " + TWO_DAYS_RANGE + " group by zipcode",
-        conf);
+      conf);
     expected =
       getExpectedQuery(cubeName, "select " + " round(testcube.cityid), sum(testcube.msr2) FROM ", null,
         " group by testcube.zipcode", getWhereForDailyAndHourly2days(cubeName, "C2_testfact"));
@@ -735,7 +767,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
 
     hqlQuery =
       rewrite("select cityid, SUM(msr2) from testCube" + " where " + TWO_DAYS_RANGE + " group by round(zipcode)",
-        conf);
+      conf);
     expected =
       getExpectedQuery(cubeName, "select " + " testcube.cityid, sum(testcube.msr2) FROM ", null,
         " group by round(testcube.zipcode)", getWhereForDailyAndHourly2days(cubeName, "C2_testfact"));
@@ -757,7 +789,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
 
     hqlQuery =
       rewrite("select round(zipcode) rzc," + " msr2 from testCube where " + TWO_DAYS_RANGE + " group by zipcode"
-        + " order by rzc", conf);
+      + " order by rzc", conf);
     expected =
       getExpectedQuery(cubeName, "select round(testcube.zipcode) rzc," + " sum(testcube.msr2) FROM ", null,
         " group by testcube.zipcode  order by rzc asc", getWhereForDailyAndHourly2days(cubeName, "C2_testfact"));
@@ -1338,7 +1370,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     conf.set(CubeQueryConfUtil.PROCESS_TIME_PART_COL, "pt");
     conf.setClass(CubeQueryConfUtil.TIME_RANGE_WRITER_CLASS, AbridgedTimeRangeWriter.class, TimeRangeWriter.class);
     CubeQueryContext ctx = rewriteCtx("select dim1, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange,
-      conf);
+    conf);
     assertEquals(ctx.candidateFacts.size(), 1);
     CandidateFact candidateFact = ctx.candidateFacts.iterator().next();
     Set<FactPartition> partsQueried = new TreeSet<>(candidateFact.getPartsQueried());
@@ -1367,7 +1399,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     assertEquals(partsQueried, expectedPartsQueried);
     conf.setInt(CubeQueryConfUtil.LOOK_AHEAD_PT_PARTS_PFX, 3);
     ctx = rewriteCtx("select dim1, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange,
-      conf);
+    conf);
     partsQueried = new TreeSet<>(ctx.candidateFacts.iterator().next().getPartsQueried());
     // pt does not exist beyond 1 day. So in this test, max look ahead possible is 3
     assertEquals(partsQueried, expectedPartsQueried);
