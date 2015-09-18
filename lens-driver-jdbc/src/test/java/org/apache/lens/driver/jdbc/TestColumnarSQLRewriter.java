@@ -25,6 +25,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import org.apache.lens.cube.parse.HQLParser;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.error.LensException;
@@ -84,6 +86,49 @@ public class TestColumnarSQLRewriter {
     return result;
   }
 
+  private static String extractJoinStringFromQuery(String query) {
+    String queryTrimmed = query.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "");
+    int joinStartIndex = StringUtils.indexOf(queryTrimmed, "join");
+    int joinEndIndex = StringUtils.indexOf(queryTrimmed, "where");
+    return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
+  }
+
+  private static void compareJoinStrings(String actualJoinString, String expectedJoinString) {
+    List<String> actualQueryParts =
+    Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
+    List<String> expectedJoinList =
+    Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
+    Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
+    //System.out.println("AAAAAAAAAAAAAAAAAA actualqueryparts:::::::::: " + actualQueryParts);
+    //System.out.println("AAAAAAAAAAAAAAAAAA expectedqueryparts:::::::: " + expectedJoinList);
+    for (String joinStr :actualQueryParts ) {
+      Assert.assertTrue(expectedJoinList.contains(joinStr));
+    }
+  }
+
+  static void compareJoinQueries(String actual, String expected) {
+    String actualJoinString = extractJoinStringFromQuery(actual);
+    String expectedJoinString = extractJoinStringFromQuery(expected);
+    System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
+      + expectedJoinString);
+    compareJoinStrings(actualJoinString, expectedJoinString);
+    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
+    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
+    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
+      String method = null;
+      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
+        if (trace.getMethodName().startsWith("test")) {
+          method = trace.getMethodName() + ":" + trace.getLineNumber();
+        }
+      }
+
+      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
+    }
+    System.out.println("expectedTrimmed " + expectedTrimmed);
+    System.out.println("actualTrimmed " + actualTrimmed);
+    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
+  }
+
   /**
    * Compare queries.
    *
@@ -98,20 +143,7 @@ public class TestColumnarSQLRewriter {
     } else if (actual == null) {
       Assert.fail("Rewritten query is null");
     }
-    String expectedTrimmed = expected.replaceAll("\\W", "");
-    String actualTrimmed = actual.replaceAll("\\W", "");
-
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
-      }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
-    }
-    Assert.assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
+    compareJoinQueries(actual, expected);
   }
 
   /*
