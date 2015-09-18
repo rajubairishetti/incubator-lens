@@ -106,13 +106,13 @@ public class TestColumnarSQLRewriter {
   }
 
   static void compareJoinQueries(String actual, String expected) {
-    String actualJoinString = extractJoinStringFromQuery(actual);
-    String expectedJoinString = extractJoinStringFromQuery(expected);
-    System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
-      + expectedJoinString);
-    compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
+    //String actualJoinString = extractJoinStringFromQuery(actual);
+    //String expectedJoinString = extractJoinStringFromQuery(expected);
+    //System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
+    //  + expectedJoinString);
+    //compareJoinStrings(actualJoinString, expectedJoinString);
+    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");//replaceAll("inner", "").replace(actualJoinString, "");
+    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");//.replaceAll("inner", "").replace(expectedJoinString, "");
     if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
       String method = null;
       for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
@@ -468,12 +468,12 @@ public class TestColumnarSQLRewriter {
         + "format(avg(( sales_fact___fact . dollars_sold )),  '##################.###' ), "
         + "min(( sales_fact___fact . dollars_sold )), max(( sales_fact___fact . dollars_sold )) "
         + "from sales_fact sales_fact___fact  inner join "
-        + "(select day_of_week, day, time_key from time_dim) time_dim___time_dim on "
+        + "(select time_key, day_of_week, day from time_dim) time_dim___time_dim on "
         + "(( sales_fact___fact . time_key ) = ( time_dim___time_dim . time_key ))  inner join "
-        + "(select location_name, location_key from location_dim) location_dim___location_dim "
+        + "(select location_key, location_name from location_dim) location_dim___location_dim "
         + "on (( sales_fact___fact . location_key ) = "
-        + "( location_dim___location_dim . location_key ))  inner join (select item_name, "
-        + "item_key from item_dim) item_dim___item_dim "
+        + "( location_dim___location_dim . location_key ))  inner join (select item_key, "
+        + "item_name from item_dim) item_dim___item_dim "
         + "on ((( sales_fact___fact . item_key ) = ( item_dim___item_dim . item_key )) and "
         + "(( location_dim___location_dim . location_name ) =  'test123' ))  where "
         + "(( time_dim___time_dim . time_key ) between date_add( '2013-01-01' , interval 1  day) "
@@ -522,9 +522,9 @@ public class TestColumnarSQLRewriter {
     String expected = "select ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ),  case  when (sum(( sales_fact___fact . dollars_sold )) =  0 ) "
         + "then  0.0  else sum(( sales_fact___fact . dollars_sold )) end  dollars_sold  from sales_fact s"
-        + "ales_fact___fact  inner join (select day_of_week, day, time_key from time_dim) "
+        + "ales_fact___fact  inner join (select time_key, day_of_week, day from time_dim) "
         + "time_dim___time_dim on (( sales_fact___fact . time_key ) "
-        + "= ( time_dim___time_dim . time_key ))  inner join (select location_name, location_key from location_dim) "
+        + "= ( time_dim___time_dim . time_key ))  inner join (select location_key, location_name from location_dim) "
         + "location_dim___location_dim on "
         + "((( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key )) and "
         + "(( location_dim___location_dim . location_name ) =  'test123' ))  where ( time_dim___time_dim . time_key ) "
@@ -533,10 +533,10 @@ public class TestColumnarSQLRewriter {
         + "asc  union all select ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ),  case  when (sum(( sales_fact___fact . dollars_sold )) =  0 ) then  0.0  "
         + "else sum(( sales_fact___fact . dollars_sold )) end  dollars_sold  from sales_fact sales_fact___fact  "
-        + "inner join (select day_of_week, day, time_key from time_dim) time_dim___time_dim "
+        + "inner join (select time_key, day_of_week, day from time_dim) time_dim___time_dim "
         + "on (( sales_fact___fact . time_key ) = "
-        + "( time_dim___time_dim . time_key ))  inner join (select location_name, "
-        + "location_key from location_dim) location_dim___location_dim on "
+        + "( time_dim___time_dim . time_key ))  inner join (select location_key, "
+        + "location_name from location_dim) location_dim___location_dim on "
         + "((( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key )) and "
         + "(( location_dim___location_dim . location_name ) =  'test123' ))  where ( time_dim___time_dim . time_key ) "
         + "between  '2013-02-01'  and  '2013-02-05'  group by ( sales_fact___fact . time_key ), "
@@ -544,9 +544,9 @@ public class TestColumnarSQLRewriter {
         + "select ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ),  case  when (sum(( sales_fact___fact . dollars_sold )) =  0 ) then  0.0  "
         + "else sum(( sales_fact___fact . dollars_sold )) end  dollars_sold  from sales_fact sales_fact___fact  "
-        + "inner join (select day_of_week, day, time_key from time_dim) "
+        + "inner join (select time_key, day_of_week, day from time_dim) "
         + "time_dim___time_dim on (( sales_fact___fact . time_key ) = "
-        + "( time_dim___time_dim . time_key ))  inner join (select location_name, location_key from location_dim) "
+        + "( time_dim___time_dim . time_key ))  inner join (select location_key, location_name from location_dim) "
         + "location_dim___location_dim on "
         + "((( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key )) and "
         + "(( location_dim___location_dim . location_name ) =  'test123' ))  where "
@@ -598,13 +598,13 @@ public class TestColumnarSQLRewriter {
         + "dollars_sold , round(sum(( sales_fact___fact . units_sold )),  2 ), "
         + "avg(( sales_fact___fact . dollars_sold )), "
         + "min(( sales_fact___fact . dollars_sold )), max(( sales_fact___fact . dollars_sold )),  location_name , "
-        + " from sales_fact sales_fact___fact  inner join (select day_of_week, day, time_key "
+        + " from sales_fact sales_fact___fact  inner join (select time_key, day_of_week, day"
         + "from time_dim) time_dim___time_dim "
         + "on (( sales_fact___fact . time_key ) = ( time_dim___time_dim . time_key ))  "
-        + "inner join (select location_name, location_key from location_dim) "
+        + "inner join (select location_key, location_name from location_dim) "
         + "location_dim___location_dim on (( sales_fact___fact . location_key ) = "
-        + "( location_dim___location_dim . location_key ))  inner join (select item_name, "
-        + "item_key from item_dim) item_dim___item_dim on "
+        + "( location_dim___location_dim . location_key ))  inner join (select item_key, "
+        + "item_name from item_dim) item_dim___item_dim on "
         + "((( sales_fact___fact . item_key ) = ( item_dim___item_dim . item_key )) and "
         + "(( location_dim___location_dim . location_name ) =  'test123' ))  where (( time_dim___time_dim . time_key ) "
         + "between  '2013-01-01'  and  '2013-01-31'  and (( item_dim___item_dim . item_name ) =  'item_1' )) "
@@ -652,14 +652,14 @@ public class TestColumnarSQLRewriter {
         + "and sales_fact___fact.location_key in  (  select location_dim .location_key from "
         + "location_dim where (( location_dim. location_name ) =  'test123' ) ) and sales_fact___fact.item_key in  "
         + "(  select item_dim .item_key from item_dim where (( item_dim. item_name ) =  'item_1' ) )  "
-        + "group by sales_fact___fact.time_key, sales_fact___fact.dollars_sold, "
-        + "sales_fact___fact.location_key, sales_fact___fact.item_key) sales_fact___fact  "
+        + "group by sales_fact___fact.time_key, sales_fact___fact.location_key, "
+        + "sales_fact___fact.item_key, sales_fact___fact.dollars_sold) sales_fact___fact  "
         + "inner join (select time_key, day_of_week, day from time_dim) "
         + "time_dim___time_dim on (( sales_fact___fact . time_key ) = "
-        + "( time_dim___time_dim . time_key ))  inner join (select location_name, "
-        + "location_key from location_dim) location_dim___location_dim "
+        + "( time_dim___time_dim . time_key ))  inner join (select location_key, "
+        + "location_name from location_dim) location_dim___location_dim "
         + "on (( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key ))  "
-        + "inner join (select item_name, item_key from item_dim) item_dim___item_dim "
+        + "inner join (select item_key, item_name from item_dim) item_dim___item_dim "
         + "on ((( sales_fact___fact . item_key ) = "
         + "( item_dim___item_dim . item_key )) and (( location_dim___location_dim . location_name ) =  'test123' ))  "
         + "where (( time_dim___time_dim . time_key ) between  '2013-01-01'  and  '2013-01-31'  "
@@ -697,9 +697,9 @@ public class TestColumnarSQLRewriter {
         + "sales_fact___fact.location_key, sales_fact___fact.item_key) sales_fact___fact  inner "
         + "join (select time_key from time_dim) time_dim___time_dim on (( sales_fact___fact . time_key ) = "
         + "( time_dim___time_dim . time_key ))  inner join "
-        + "(select location_name, location_key from location_dim) location_dim___location_dim on "
+        + "(select location_key, location_name from location_dim) location_dim___location_dim on "
         + "(( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key ))  "
-        + "inner join (select item_name, item_key from item_dim) item_dim___item_dim "
+        + "inner join (select item_key, item_name from item_dim) item_dim___item_dim "
         + "on ((( sales_fact___fact . item_key ) = "
         + "( item_dim___item_dim . item_key )) and  inner )  inner join "
         + "(select branch_key from branch_dim) branch_dim___branch_dim on "
@@ -750,9 +750,9 @@ public class TestColumnarSQLRewriter {
         + "( time_dim___time_dim . day ),  case  when (sum(( sales_fact__db_sales_fact_fact . dollars_sold )) =  0 ) "
         + "then  0.0  else sum(( sales_fact__db_sales_fact_fact . dollars_sold )) end  dollars_sold  "
         + "from db.sales_fact sales_fact__db_sales_fact_fact  inner join "
-        + "(select day_of_week, day, time_key from time_dim) time_dim___time_dim "
+        + "(select time_key, day_of_week, day from time_dim) time_dim___time_dim "
         + "on (( sales_fact__db_sales_fact_fact . time_key ) = ( time_dim___time_dim . time_key ))  "
-        + "inner join (select location_name, location_key from db.location_dim) location_dim__db_location_dim_ld on "
+        + "inner join (select location_key, location_name from db.location_dim) location_dim__db_location_dim_ld on "
         + "((( sales_fact__db_sales_fact_fact . location_key ) = ( location_dim__db_location_dim_ld . location_key )) "
         + "and (( location_dim__db_location_dim_ld . location_name ) =  'test123' ))  where "
         + "( time_dim___time_dim . time_key ) between  '2013-01-01'  and  '2013-01-31'  "
@@ -778,10 +778,10 @@ public class TestColumnarSQLRewriter {
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( dim1___dim1 . date ) date , sum(alias1) msr1 , ( dim2___dim2 . name ) dim2_name , "
         + "( dim3___dim3 . name ) dim3_name , ( dim4___dim4 . name ) dim4_name  "
-        + "from  (select fact___f.dim2_id, fact___f.dim1_id, fact___f.dim3_id,sum(( fact___f . msr1 )) "
+        + "from  (select fact___f.dim1_id, fact___f.dim2_id, fact___f.dim3_id,sum(( fact___f . msr1 )) "
         + "as alias1 from fact fact___f where fact___f.dim1_id in  (  select dim1 .id from dim1 where "
         + "(( dim1. date ) =  '2014-11-25 00:00:00' ) )  "
-        + "group by fact___f.dim2_id, fact___f.dim1_id, fact___f.dim3_id) "
+        + "group by fact___f.dim1_id, fact___f.dim2_id, fact___f.dim3_id) "
         + "fact___f  inner join (select id, date from dim1) "
         + "dim1___dim1 on (( fact___f . dim1_id ) = ( dim1___dim1 . id ))  "
         + "inner join (select id, id_2, name from dim2) dim2___dim2 "
@@ -806,13 +806,14 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
+    //select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( dim1___dim1 . date ) date , sum(alias1) msr1 , ( dim2___dim2 . name ) "
-        + "dim2_name  from  (select fact___f.dim2_id, fact___f.dim1_id, fact___f.m4, fact___f.m3, "
-        + "fact___f.m2,sum(( fact___f . msr1 )) as alias1 from fact fact___f where ( fact___f . m4 ) "
+        + "dim2_name  from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4, "
+        + "sum(( fact___f . msr1 )) as alias1 from fact fact___f where ( fact___f . m4 ) "
         + "is not null  and (( fact___f . m2 ) =  '1234' ) and (( fact___f . m3 ) >  3000 ) and "
         + "fact___f.dim1_id in  (  select dim1 .id from dim1 where (( dim1. date ) =  '2014-11-25 00:00:00' ) )  "
-        + "group by fact___f.dim2_id, fact___f.dim1_id, fact___f.m4, fact___f.m3, fact___f.m2) fact___f  "
+        + "group by fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4) fact___f  "
         + "inner join (select id, date from dim1) dim1___dim1 on ((( fact___f . dim1_id ) = ( dim1___dim1 . id )) and "
         + "(( fact___f . m2 ) =  '1234' ))  inner join (select id, name from dim2) "
         + "dim2___dim2 on ((( fact___f . dim2_id ) = "
@@ -838,11 +839,11 @@ public class TestColumnarSQLRewriter {
     //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4) fact___f
     String expected = "select ( dim1___dim1 . date ) dim1_date , sum(alias1) msr1 , "
         + "( dim2___dim2 . name ) dim2_name  "
-        + "from  (select fact___f.dim2_id, fact___f.dim1_id, fact___f.m4, fact___f.m3, fact___f.m2,"
+        + "from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4"
         + "sum(( fact___f . msr1 )) as alias1 from fact fact___f where ( fact___f . m4 ) "
         + "is not null  and (( fact___f . m2 ) =  '1234' ) and (( fact___f . m3 ) >  3000 ) "
         + "and fact___f.dim1_id in  (  select dim1 .id from dim1 where (( dim1. date ) =  '2014-11-25 00:00:00' ) )  "
-        + "group by fact___f.dim2_id, fact___f.dim1_id, fact___f.m4, fact___f.m3, fact___f.m2) fact___f  "
+        + "group by fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4) fact___f  "
         + "inner join (select id, date from dim1) dim1___dim1 on ((( fact___f . dim1_id ) = ( dim1___dim1 . id )) "
         + "and (( fact___f . m2 ) =  '1234' ))  inner join (select id, name from dim2) "
         + "dim2___dim2 on ((( fact___f . dim2_id ) "
