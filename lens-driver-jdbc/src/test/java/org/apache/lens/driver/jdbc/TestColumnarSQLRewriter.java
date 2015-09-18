@@ -99,9 +99,8 @@ public class TestColumnarSQLRewriter {
     List<String> expectedJoinList =
     Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
     Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    //System.out.println("AAAAAAAAAAAAAAAAAA actualqueryparts:::::::::: " + actualQueryParts);
-    //System.out.println("AAAAAAAAAAAAAAAAAA expectedqueryparts:::::::: " + expectedJoinList);
     for (String joinStr :actualQueryParts ) {
+      System.out.println("AAAAAAAAAAAAAAAA query join part : " + joinStr);
       Assert.assertTrue(expectedJoinList.contains(joinStr));
     }
   }
@@ -169,7 +168,7 @@ public class TestColumnarSQLRewriter {
    * @param columns the columns
    * @throws Exception the exception
    */
-  void createHiveTable(String db, String table, List<FieldSchema> columns) throws Exception {
+  void createHiveTable(String db, String table, LinkedList<FieldSchema> columns) throws Exception {
     Table tbl1 = new Table(db, table);
     tbl1.setFields(columns);
 
@@ -186,29 +185,29 @@ public class TestColumnarSQLRewriter {
   public void setup() throws Exception {
     qtest.init(conf);
 
-    List<FieldSchema> factColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> factColumns = new LinkedList<>();
     factColumns.add(new FieldSchema("item_key", "int", ""));
     factColumns.add(new FieldSchema("branch_key", "int", ""));
     factColumns.add(new FieldSchema("location_key", "int", ""));
     factColumns.add(new FieldSchema("dollars_sold", "double", ""));
     factColumns.add(new FieldSchema("units_sold", "int", ""));
 
-    List<FieldSchema> factPartColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> factPartColumns = new LinkedList<FieldSchema>();
     factPartColumns.add(new FieldSchema("time_key", "int", ""));
 
-    List<FieldSchema> timedimColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> timedimColumns = new LinkedList<FieldSchema>();
     timedimColumns.add(new FieldSchema("time_key", "int", ""));
     timedimColumns.add(new FieldSchema("day", "date", ""));
 
-    List<FieldSchema> itemdimColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> itemdimColumns = new LinkedList<FieldSchema>();
     itemdimColumns.add(new FieldSchema("item_key", "int", ""));
     itemdimColumns.add(new FieldSchema("item_name", "string", ""));
 
-    List<FieldSchema> branchdimColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> branchdimColumns = new LinkedList<FieldSchema>();
     branchdimColumns.add(new FieldSchema("branch_key", "int", ""));
     branchdimColumns.add(new FieldSchema("branch_name", "string", ""));
 
-    List<FieldSchema> locationdimColumns = new ArrayList<FieldSchema>();
+    LinkedList<FieldSchema> locationdimColumns = new LinkedList<FieldSchema>();
     locationdimColumns.add(new FieldSchema("location_key", "int", ""));
     locationdimColumns.add(new FieldSchema("location_name", "string", ""));
 
@@ -302,9 +301,9 @@ public class TestColumnarSQLRewriter {
     SessionState.start(hconf);
 
     String rwq = qtest.rewrite(query, conf, hconf);
-    String expected = "inner join (select day_of_week, day, time_key from time_dim) time_dim___time_dim "
+    String expected = "inner join (select time_key, day_of_week, day from time_dim) time_dim___time_dim "
       + "on (( sales_fact___fact . time_key ) = "
-      + "( time_dim___time_dim . time_key ))  inner join (select location_name, location_key from location_dim) "
+      + "( time_dim___time_dim . time_key ))  inner join (select location_key, location_name from location_dim) "
       + "location_dim___location_dim on "
       + "((( sales_fact___fact . location_key ) = ( location_dim___location_dim . location_key )) "
       + "and (( location_dim___location_dim . location_name ) =  'test123' ))";
@@ -611,6 +610,8 @@ public class TestColumnarSQLRewriter {
         + "between  '2013-01-01'  and  '2013-01-31'  and (( item_dim___item_dim . item_name ) =  'item_1' )) "
         + "group by ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ), ( item_dim___item_dim . item_key ) order by dollars_sold  desc";
+    System.out.println("AAAAAAAAAAAAAA::::::::::: actual :::::::: " + actual);
+    System.out.println("AAAAAAAAAAAAAA::::::::::: expected :::::: " + expected);
     compareQueries(expected, actual);
 
   }
@@ -633,13 +634,15 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
+    //sales_fact___fact.time_key, sales_fact___fact.location_key,
+    // sales_fact___fact.item_key, sales_fact___fact.dollars_sold
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ), ( item_dim___item_dim . item_key ), sum(alias1) dollars_sold , "
         + "round(sum(alias2),  2 ), avg(alias6) avg_dollars_sold, min(alias4), max(alias5) max_dollars_sold,  "
         + "location_name , (avg(alias6) /  1.0 ) "
-        + "from  (select sales_fact___fact.time_key, sales_fact___fact.dollars_sold, sales_fact___fact.location_key, "
-        + "sales_fact___fact.item_key,sum( case  when (( sales_fact___fact . dollars_sold ) =  0 ) then  0.0  end ) "
+        + "from  (select sales_fact___fact.time_key, sales_fact___fact.location_key, sales_fact___fact.item_key,"
+        + "sales_fact___fact.dollars_sold, sum( case  when (( sales_fact___fact . dollars_sold ) =  0 ) then 0.0  end )"
         + "as alias1, sum(( sales_fact___fact . units_sold )) as alias2, avg(( sales_fact___fact . dollars_sold )) "
         + "as alias3, min(( sales_fact___fact . dollars_sold )) as alias4, "
         + "max(( sales_fact___fact . dollars_sold )) as alias5, "
@@ -651,7 +654,7 @@ public class TestColumnarSQLRewriter {
         + "(  select item_dim .item_key from item_dim where (( item_dim. item_name ) =  'item_1' ) )  "
         + "group by sales_fact___fact.time_key, sales_fact___fact.dollars_sold, "
         + "sales_fact___fact.location_key, sales_fact___fact.item_key) sales_fact___fact  "
-        + "inner join (select day_of_week, day, time_key from time_dim) "
+        + "inner join (select time_key, day_of_week, day from time_dim) "
         + "time_dim___time_dim on (( sales_fact___fact . time_key ) = "
         + "( time_dim___time_dim . time_key ))  inner join (select location_name, "
         + "location_key from location_dim) location_dim___location_dim "
@@ -832,6 +835,7 @@ public class TestColumnarSQLRewriter {
     SessionState.start(hconf);
 
     String actual = qtest.rewrite(query, conf, hconf);
+    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4) fact___f
     String expected = "select ( dim1___dim1 . date ) dim1_date , sum(alias1) msr1 , "
         + "( dim2___dim2 . name ) dim2_name  "
         + "from  (select fact___f.dim2_id, fact___f.dim1_id, fact___f.m4, fact___f.m3, fact___f.m2,"
@@ -860,13 +864,16 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
+    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4
+    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4) fact___f
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( dim1___dim1 . date ) dim1_date , sum(alias1) msr1 , "
-        + "( dim2___dim2 . name ) dim2_name  from  (select fact___f.dim2_id, fact___f.dim1_id, fact___f.dim3_id, "
-        + "fact___f.m4, fact___f.m2,sum(( fact___f . msr1 )) as alias1 from fact fact___f where ( fact___f . m4 ) "
+        + "( dim2___dim2 . name ) dim2_name  from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id,"
+        + "fact___f.dim3_id, "
+        + "fact___f.m4, sum(( fact___f . msr1 )) as alias1 from fact fact___f where ( fact___f . m4 ) "
         + "is not null  and (( fact___f . m2 ) =  '1234' ) and fact___f.dim1_id in  (  select dim1 .id from dim1 "
-        + "where (( dim1. date ) =  '2014-11-25 00:00:00' ) )  group by fact___f.dim2_id, fact___f.dim1_id, "
-        + "fact___f.dim3_id, fact___f.m4, fact___f.m2) fact___f  inner join (select id, date from dim1) dim1___dim1 on "
+        + "where (( dim1. date ) =  '2014-11-25 00:00:00' ) ) group by fact___f.dim1_id, fact___f.m2, fact___f.dim2_id,"
+        + "fact___f.dim3_id, fact___f.m4) fact___f  inner join (select id, date from dim1) dim1___dim1 on "
         + "((( fact___f . dim1_id ) = ( dim1___dim1 . id )) and (( fact___f . m2 ) =  '1234' ))  "
         + "inner join (select id, name from dim2) dim2___dim2 on ((( fact___f . dim2_id ) = ( dim2___dim2 . id )) "
         + "and (( fact___f . dim3_id ) = ( dim2___dim2 . id )))  where ((( dim1___dim1 . date ) =  "
