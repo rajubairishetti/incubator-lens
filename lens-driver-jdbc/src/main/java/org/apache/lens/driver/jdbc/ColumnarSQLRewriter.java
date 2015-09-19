@@ -92,22 +92,22 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   protected StringBuilder factFilterPush = new StringBuilder();
 
   /** The join list. */
-  protected LinkedList<String> joinList = new LinkedList<String>();
+  protected List<String> joinList = new LinkedList<String>();
 
   /** The join condition. */
   protected StringBuilder joinCondition = new StringBuilder();
 
   /** The allkeys. */
-  protected LinkedList<String> allkeys = new LinkedList<String>();
+  protected List<String> allkeys = new LinkedList<String>();
 
   /** The agg column. */
-  protected LinkedList<String> aggColumn = new LinkedList<String>();
+  protected List<String> aggColumn = new LinkedList<String>();
 
   /** The filter in join cond. */
   protected LinkedList<String> filterInJoinCond = new LinkedList<String>();
 
   /** The right filter. */
-  protected LinkedList<String> rightFilter = new LinkedList<String>();
+  protected List<String> rightFilter = new LinkedList<String>();
 
   /** The left filter. */
   private String leftFilter;
