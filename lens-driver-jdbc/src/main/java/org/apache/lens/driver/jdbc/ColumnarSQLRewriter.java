@@ -92,22 +92,22 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   protected StringBuilder factFilterPush = new StringBuilder();
 
   /** The join list. */
-  protected List<String> joinList = new LinkedList<String>();
+  protected List<String> joinList = new ArrayList<String>();
 
   /** The join condition. */
   protected StringBuilder joinCondition = new StringBuilder();
 
   /** The allkeys. */
-  protected List<String> allkeys = new LinkedList<String>();
+  protected List<String> allkeys = new ArrayList<String>();
 
   /** The agg column. */
-  protected List<String> aggColumn = new LinkedList<String>();
+  protected List<String> aggColumn = new ArrayList<String>();
 
   /** The filter in join cond. */
-  protected List<String> filterInJoinCond = new LinkedList<String>();
+  protected List<String> filterInJoinCond = new ArrayList<String>();
 
   /** The right filter. */
-  protected List<String> rightFilter = new LinkedList<String>();
+  protected List<String> rightFilter = new ArrayList<String>();
 
   /** The left filter. */
   private String leftFilter;
@@ -707,7 +707,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * @param node the node
    * @return the aggregate columns
    */
-  public LinkedList<String> getAggregateColumns(ASTNode node, MutableInt count) {
+  public ArrayList<String> getAggregateColumns(ASTNode node, MutableInt count) {
 
     StringBuilder aggmeasures = new StringBuilder();
     if (HQLParser.isAggregateAST(node)) {
@@ -734,7 +734,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
       ASTNode child = (ASTNode) node.getChild(i);
       getAggregateColumns(child, count);
     }
-    return (LinkedList<String>) aggColumn;
+    return (ArrayList<String>) aggColumn;
   }
 
   /*
@@ -747,7 +747,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * @param node the node
    * @return the tables and columns
    */
-  public LinkedList<String> getTablesAndColumns(ASTNode node) {
+  public ArrayList<String> getTablesAndColumns(ASTNode node) {
 
     if (node.getToken().getType() == HiveParser.DOT) {
       String table = HQLParser.findNodeByPath(node, TOK_TABLE_OR_COL, Identifier).toString();
@@ -759,7 +759,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
       ASTNode child = (ASTNode) node.getChild(i);
       getTablesAndColumns(child);
     }
-    return (LinkedList<String>) allkeys;
+    return (ArrayList<String>) allkeys;
   }
 
   /*
@@ -828,7 +828,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   public String getFactNameAlias(ASTNode fromAST) {
     String factTable;
     String factAlias;
-    LinkedList<String> allTables = new LinkedList<String>();
+    ArrayList<String> allTables = new ArrayList<>();
     getAllTablesfromFromAST(fromAST, allTables);
 
     String[] keys = allTables.get(0).trim().split(" +");
@@ -1036,7 +1036,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
    * @param fromTables the from tables
    * @return the all tablesfrom from ast
    */
-  private void getAllTablesfromFromAST(ASTNode from, LinkedList<String> fromTables) {
+  private void getAllTablesfromFromAST(ASTNode from, ArrayList<String> fromTables) {
     String table;
     if (TOK_TABREF == from.getToken().getType()) {
       ASTNode tabName = (ASTNode) from.getChild(0);
