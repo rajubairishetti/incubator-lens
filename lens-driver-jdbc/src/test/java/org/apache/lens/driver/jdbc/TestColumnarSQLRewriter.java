@@ -27,6 +27,7 @@ import java.util.*;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+
 import org.apache.lens.cube.parse.HQLParser;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.error.LensException;
@@ -86,33 +87,9 @@ public class TestColumnarSQLRewriter {
     return result;
   }
 
-  private static String extractJoinStringFromQuery(String query) {
-    String queryTrimmed = query.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "");
-    int joinStartIndex = StringUtils.indexOf(queryTrimmed, "join");
-    int joinEndIndex = StringUtils.indexOf(queryTrimmed, "where");
-    return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
-  }
-
-  private static void compareJoinStrings(String actualJoinString, String expectedJoinString) {
-    List<String> actualQueryParts =
-    Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
-    List<String> expectedJoinList =
-    Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
-    Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    for (String joinStr :actualQueryParts ) {
-      System.out.println("AAAAAAAAAAAAAAAA query join part : " + joinStr);
-      Assert.assertTrue(expectedJoinList.contains(joinStr));
-    }
-  }
-
   static void compareJoinQueries(String actual, String expected) {
-    //String actualJoinString = extractJoinStringFromQuery(actual);
-    //String expectedJoinString = extractJoinStringFromQuery(expected);
-    //System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
-    //  + expectedJoinString);
-    //compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");//replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");//.replaceAll("inner", "").replace(expectedJoinString, "");
+    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");
+    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");
     if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
       String method = null;
       for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
@@ -610,8 +587,6 @@ public class TestColumnarSQLRewriter {
         + "between  '2013-01-01'  and  '2013-01-31'  and (( item_dim___item_dim . item_name ) =  'item_1' )) "
         + "group by ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ), ( item_dim___item_dim . item_key ) order by dollars_sold  desc";
-    System.out.println("AAAAAAAAAAAAAA::::::::::: actual :::::::: " + actual);
-    System.out.println("AAAAAAAAAAAAAA::::::::::: expected :::::: " + expected);
     compareQueries(expected, actual);
 
   }
@@ -634,8 +609,6 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
-    //sales_fact___fact.time_key, sales_fact___fact.location_key,
-    // sales_fact___fact.item_key, sales_fact___fact.dollars_sold
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( sales_fact___fact . time_key ), ( time_dim___time_dim . day_of_week ), "
         + "( time_dim___time_dim . day ), ( item_dim___item_dim . item_key ), sum(alias1) dollars_sold , "
@@ -806,7 +779,6 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
-    //select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( dim1___dim1 . date ) date , sum(alias1) msr1 , ( dim2___dim2 . name ) "
         + "dim2_name  from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4, "
@@ -836,7 +808,7 @@ public class TestColumnarSQLRewriter {
     SessionState.start(hconf);
 
     String actual = qtest.rewrite(query, conf, hconf);
-    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4) fact___f
+
     String expected = "select ( dim1___dim1 . date ) dim1_date , sum(alias1) msr1 , "
         + "( dim2___dim2 . name ) dim2_name  "
         + "from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.m3, fact___f.m4"
@@ -865,8 +837,6 @@ public class TestColumnarSQLRewriter {
 
     SessionState.start(hconf);
 
-    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4
-    //fact___f.dim1_id, fact___f.m2, fact___f.dim2_id, fact___f.dim3_id, fact___f.m4) fact___f
     String actual = qtest.rewrite(query, conf, hconf);
     String expected = "select ( dim1___dim1 . date ) dim1_date , sum(alias1) msr1 , "
         + "( dim2___dim2 . name ) dim2_name  from  (select fact___f.dim1_id, fact___f.m2, fact___f.dim2_id,"

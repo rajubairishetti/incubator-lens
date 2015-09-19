@@ -104,7 +104,7 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   protected List<String> aggColumn = new LinkedList<String>();
 
   /** The filter in join cond. */
-  protected LinkedList<String> filterInJoinCond = new LinkedList<String>();
+  protected List<String> filterInJoinCond = new LinkedList<String>();
 
   /** The right filter. */
   protected List<String> rightFilter = new LinkedList<String>();
