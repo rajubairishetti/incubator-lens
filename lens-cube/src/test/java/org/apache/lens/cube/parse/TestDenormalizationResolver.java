@@ -23,8 +23,6 @@ import static org.apache.lens.cube.parse.CubeTestSetup.*;
 
 import java.util.*;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import org.apache.lens.cube.parse.CandidateTablePruneCause.CandidateTablePruneCode;
 import org.apache.lens.server.api.error.LensException;
 
@@ -35,6 +33,9 @@ import org.apache.hadoop.hive.ql.parse.ParseException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 
 public class TestDenormalizationResolver extends TestQueryRewrite {
 
@@ -176,12 +177,12 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
 
       if (entry.getKey().equals("summary4")) {
         List<CandidateTablePruneCause> expectedPruneCauses = Arrays.asList(CandidateTablePruneCause.noCandidateStorages(
-        new HashMap<String, CandidateTablePruneCause.SkipStorageCause>() {
-          {
-            put("C2", new CandidateTablePruneCause.SkipStorageCause(
-            CandidateTablePruneCause.SkipStorageCode.UNSUPPORTED));
-          }
-        }));
+          new HashMap<String, CandidateTablePruneCause.SkipStorageCause>() {
+            {
+              put("C2", new CandidateTablePruneCause.SkipStorageCause(
+                CandidateTablePruneCause.SkipStorageCode.UNSUPPORTED));
+            }
+          }));
         Assert.assertTrue(entry.getValue().equals(expectedPruneCauses));
       }
     }

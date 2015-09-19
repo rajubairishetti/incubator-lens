@@ -21,7 +21,6 @@ package org.apache.lens.cube.parse;
 
 import java.util.*;
 
-import com.google.common.collect.Sets;
 import org.apache.lens.cube.metadata.FactPartition;
 import org.apache.lens.cube.metadata.UpdatePeriod;
 

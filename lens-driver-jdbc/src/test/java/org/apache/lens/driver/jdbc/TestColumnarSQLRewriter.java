@@ -25,14 +25,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-
 import org.apache.lens.cube.parse.HQLParser;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.error.LensException;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.Database;

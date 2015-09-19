@@ -26,7 +26,9 @@ import static org.apache.lens.cube.parse.CubeTestSetup.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.lens.server.api.error.LensException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,8 +38,7 @@ import org.apache.hadoop.hive.ql.parse.ParseException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.util.List;
-import java.util.Set;
+import com.google.common.collect.Sets;
 
 public class TestTimeRangeResolver extends TestQueryRewrite {
 

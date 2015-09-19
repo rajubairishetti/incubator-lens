@@ -122,7 +122,8 @@ public class ColumnarSQLRewriter implements QueryRewriter {
   private final Map<String, String> tableToAliasMap = new LinkedHashMap<String, String>();
 
   /** The tables to accessed column map. */
-  private final Map<String, LinkedHashSet<String>> tableToAccessedColMap = new LinkedHashMap<String, LinkedHashSet<String>>();
+  private final Map<String, LinkedHashSet<String>> tableToAccessedColMap =
+    new LinkedHashMap<String, LinkedHashSet<String>>();
 
   /** The dimension table to subquery map. */
   private final Map<String, String> dimTableToSubqueryMap = new LinkedHashMap<String, String>();

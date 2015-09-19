@@ -30,9 +30,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lens.cube.error.LensCubeErrorCode;
 import org.apache.lens.cube.metadata.*;
 import org.apache.lens.cube.parse.CandidateTablePruneCause.SkipStorageCause;
@@ -40,6 +37,8 @@ import org.apache.lens.cube.parse.CandidateTablePruneCause.SkipStorageCode;
 import org.apache.lens.server.api.error.LensException;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -52,8 +51,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -301,7 +303,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     List<String> expectedJoinList =
       Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
     Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    for (String joinStr : actualQueryParts ) {
+    for (String joinStr : actualQueryParts) {
       Assert.assertTrue(expectedJoinList.contains(joinStr));
     }
   }
@@ -310,8 +312,10 @@ public class TestCubeRewriter extends TestQueryRewrite {
     String actualJoinString = extractJoinStringFromQuery(actual);
     String expectedJoinString = extractJoinStringFromQuery(expected);
     compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
+    String actualTrimmed =
+      actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
+    String expectedTrimmed =
+      expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
     if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
       String method = null;
       for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
@@ -1020,7 +1024,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
         MISSING_PARTITIONS.errorFormat.length() - 3));
 
     Set<String> expectedSet =
-      Sets.newTreeSet(Arrays.asList("summary1","summary2","testfact2_raw","summary3","testfact"));
+      Sets.newTreeSet(Arrays.asList("summary1", "summary2", "testfact2_raw", "summary3", "testfact"));
     boolean missingPartitionCause = false;
     for (String key : pruneCauses.getDetails().keySet()) {
       Set<String> actualKeySet = Sets.newTreeSet(Splitter.on(',').split(key));
@@ -1030,7 +1034,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
         missingPartitionCause = true;
       }
     }
-    assertTrue(missingPartitionCause, MISSING_PARTITIONS + " error does not occur for facttables set " +expectedSet);
+    assertTrue(missingPartitionCause, MISSING_PARTITIONS + " error does not occur for facttables set " + expectedSet);
     assertEquals(pruneCauses.getDetails().get("testfactmonthly").iterator().next().getCause(),
       NO_FACT_UPDATE_PERIODS_FOR_GIVEN_RANGE);
     assertEquals(pruneCauses.getDetails().get("testfact2").iterator().next().getCause(),
