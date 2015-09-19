@@ -125,9 +125,8 @@ public class TestLensCubeCommands extends LensCliApplicationTest {
     XJoinChains chainsInDiffOrder = new XJoinChains();
     chainsInDiffOrder.getJoinChain().add(chain2);
     chainsInDiffOrder.getJoinChain().add(chain1);
-    System.out.println("AAAAAAAAAAA :" + joinChains + "::::::: " + (new XJoinChainTable(chainsInDiffOrder).toString()));
     assertTrue(joinChains.equals(new XJoinChainTable(chains).toString())
-    || joinChains.equals(new XJoinChainTable(chainsInDiffOrder).toString()));
+      || joinChains.equals(new XJoinChainTable(chainsInDiffOrder).toString()));
   }
 
   private void testFields(LensCubeCommands command) {

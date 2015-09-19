@@ -85,7 +85,7 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
     String columnSetsStr = matcher.group(1);
     assertNotEquals(columnSetsStr.indexOf("test_time_dim"), -1, columnSetsStr);
     assertNotEquals(columnSetsStr.indexOf("msr3, msr13"), -1);
-    //TODO write comments
+    // TODO write comments
     boolean columnNotFound = false;
     List<String> testTimeDimFactTables = Arrays.asList("testfact3_base", "testfact1_raw_base", "testfact3_raw_base");
     List<String> factTablesForMeasures = Arrays.asList("testfact_deprecated", "testfact2_raw_base", "testfact2_base");

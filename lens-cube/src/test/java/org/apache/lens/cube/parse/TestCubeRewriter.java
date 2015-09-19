@@ -301,9 +301,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     List<String> expectedJoinList =
       Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
     Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    //System.out.println("AAAAAAAAAAAAAAAAAA actualqueryparts:::::::::: " + actualQueryParts);
-    //System.out.println("AAAAAAAAAAAAAAAAAA expectedqueryparts:::::::: " + expectedJoinList);
-    for (String joinStr :actualQueryParts ) {
+    for (String joinStr : actualQueryParts ) {
       Assert.assertTrue(expectedJoinList.contains(joinStr));
     }
   }
@@ -311,8 +309,6 @@ public class TestCubeRewriter extends TestQueryRewrite {
   static void compareJoinQueries(String actual, String expected) {
     String actualJoinString = extractJoinStringFromQuery(actual);
     String expectedJoinString = extractJoinStringFromQuery(expected);
-    System.out.println("AAAAAAAAAAAAAAAAAA actual joinstring: " + actualJoinString + ":   expectedJoinStr: "
-      + expectedJoinString);
     compareJoinStrings(actualJoinString, expectedJoinString);
     String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
     String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
@@ -1025,15 +1021,16 @@ public class TestCubeRewriter extends TestQueryRewrite {
 
     Set<String> expectedSet =
       Sets.newTreeSet(Arrays.asList("summary1","summary2","testfact2_raw","summary3","testfact"));
+    boolean missingPartitionCause = false;
     for (String key : pruneCauses.getDetails().keySet()) {
       Set<String> actualKeySet = Sets.newTreeSet(Splitter.on(',').split(key));
       if (expectedSet.equals(actualKeySet)) {
         assertEquals(pruneCauses.getDetails().get(key).iterator()
           .next().getCause(), MISSING_PARTITIONS);
+        missingPartitionCause = true;
       }
     }
-    //assertEquals(pruneCauses.getDetails().get("summary1,summary2,testfact2_raw,summary3,testfact").iterator()
-    //  .next().getCause(), MISSING_PARTITIONS);
+    assertTrue(missingPartitionCause, MISSING_PARTITIONS + " error does not occur for facttables set " +expectedSet);
     assertEquals(pruneCauses.getDetails().get("testfactmonthly").iterator().next().getCause(),
       NO_FACT_UPDATE_PERIODS_FOR_GIVEN_RANGE);
     assertEquals(pruneCauses.getDetails().get("testfact2").iterator().next().getCause(),

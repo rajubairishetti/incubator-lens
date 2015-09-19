@@ -84,8 +84,7 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
     Configuration conf2 = new Configuration(conf);
     conf2.set(CubeQueryConfUtil.DRIVER_SUPPORTED_STORAGES, "C2");
     hqlQuery =
-      rewrite("select testdim3.name, dim2big1, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange,
-      conf2);
+      rewrite("select testdim3.name, dim2big1, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange, conf2);
     String expected =
       getExpectedQuery(cubeName,
         "select testdim3.name, testcube.dim2big1, max(testcube.msr3), sum(testcube.msr2) FROM ", " JOIN "
@@ -94,12 +93,8 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
         " group by testdim3.name, (testcube.dim2big1)", null,
         getWhereForDailyAndHourly2daysWithTimeDim(cubeName, "it", "C2_summary4"),
         null);
-    System.out.println("Actual Query: " + hqlQuery);
-    System.out.println("Expected query: " + expected);
     TestCubeRewriter.compareQueries(expected, hqlQuery);
 
-    //Configuration conf2 = new Configuration(conf);
-    //conf2.set(CubeQueryConfUtil.DRIVER_SUPPORTED_STORAGES, "C2");
     hqlQuery = rewrite("select dim2big1, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange, conf2);
     TestCubeRewriter.compareQueries(expecteddim2big1, hqlQuery);
     hqlQuery = rewrite("select dim2big2, max(msr3)," + " msr2 from testCube" + " where " + twoDaysITRange, conf2);
@@ -132,7 +127,7 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
 
     hqlQuery =
       rewrite("select testdim2.name, dim2big1, max(msr3)," + " msr2 from testCube left outer join testdim2"
-      + " where " + TWO_DAYS_RANGE, tconf);
+        + " where " + TWO_DAYS_RANGE, tconf);
     expected =
       getExpectedQuery(cubeName,
         "select testdim2.name, testdim2.bigid1, max(testcube.msr3), sum(testcube.msr2) FROM ", " left outer JOIN "
@@ -156,30 +151,30 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
       "select dim2big2, max(msr3)," + " msr2 from testCube" + " where " + TWO_DAYS_RANGE, tconf);
     PruneCauses.BriefAndDetailedError error = extractPruneCause(e);
     Assert.assertEquals(error.getBrief(), CandidateTablePruneCode.NO_CANDIDATE_STORAGES.errorFormat);
+
     HashMap<String, List<CandidateTablePruneCause>> details = error.getDetails();
+
     for (Map.Entry<String, List<CandidateTablePruneCause>> entry : details.entrySet()) {
-      String key = entry.getKey();
       if (entry.getValue().equals(Arrays.asList(CandidateTablePruneCause.columnNotFound("dim2big2")))) {
-        //System.out.println("AAAAAAAAAAAAAAAA in dim2big2");
         Set<String> expectedKeySet =
           Sets.newTreeSet(Splitter.on(',').split("summary1,cheapfact,testfactmonthly,testfact2,testfact"));
         Assert.assertTrue(expectedKeySet.equals(Sets.newTreeSet(Splitter.on(',').split(entry.getKey()))));
       }
+
       if (entry.getValue().equals(
         Arrays.asList(new CandidateTablePruneCause(CandidateTablePruneCode.INVALID_DENORM_TABLE)))) {
-        //System.out.println("AAAAAAAAAAAAAAAA in INVALID_DENORM_TABLE");
         Set<String> expectedKeySet =
           Sets.newTreeSet(Splitter.on(',').split("summary2,testfact2_raw,summary3"));
         Assert.assertTrue(expectedKeySet.equals(Sets.newTreeSet(Splitter.on(',').split(entry.getKey()))));
       }
+
       if (entry.getKey().equals("testfact_continuous")) {
-        //System.out.println("AAAAAAAAAAAAAAAA in testfact_continuous" + entry.getValue());
         Assert.assertTrue(entry.getValue().equals(
           Arrays.asList(CandidateTablePruneCause.columnNotFound("msr2", "msr3")))
           || entry.getValue().equals(Arrays.asList(CandidateTablePruneCause.columnNotFound("msr3", "msr2"))));
       }
+
       if (entry.getKey().equals("summary4")) {
-        //System.out.println("AAAAAAAAAAAAAAAA in summary4");
         List<CandidateTablePruneCause> expectedPruneCauses = Arrays.asList(CandidateTablePruneCause.noCandidateStorages(
         new HashMap<String, CandidateTablePruneCause.SkipStorageCause>() {
           {
@@ -190,28 +185,8 @@ public class TestDenormalizationResolver extends TestQueryRewrite {
         Assert.assertTrue(entry.getValue().equals(expectedPruneCauses));
       }
     }
-    /*Assert.assertEquals(extractPruneCause(e), new PruneCauses.BriefAndDetailedError(
-    CandidateTablePruneCode.NO_CANDIDATE_STORAGES.errorFormat,
-    new HashMap<String, List<CandidateTablePruneCause>>() {
-      {
-        put("summary2,testfact2_raw,summary3",
-        Arrays.asList(new CandidateTablePruneCause(CandidateTablePruneCode.INVALID_DENORM_TABLE)));
-        put("testfact_continuous",
-        Arrays.asList(CandidateTablePruneCause.columnNotFound("msr2", "msr3")));
-        put("summary4", Arrays.asList(CandidateTablePruneCause.noCandidateStorages(
-        new HashMap<String, CandidateTablePruneCause.SkipStorageCause>() {
-          {
-            put("C2", new CandidateTablePruneCause.SkipStorageCause(
-            CandidateTablePruneCause.SkipStorageCode.UNSUPPORTED));
-          }
-        }))
-        );
-        put("summary1,cheapfact,testfactmonthly,testfact2,testfact",
-        Arrays.asList(CandidateTablePruneCause.columnNotFound("dim2big2")));
-      }
-    }
-    ));*/
   }
+
   @Test
   public void testCubeQueryWithExpressionHavingDenormColumnComingAsDirectColumn() throws Exception {
     String twoDaysITRange =
