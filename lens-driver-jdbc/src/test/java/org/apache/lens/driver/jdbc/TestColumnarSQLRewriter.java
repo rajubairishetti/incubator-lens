@@ -143,7 +143,7 @@ public class TestColumnarSQLRewriter {
    * @param columns the columns
    * @throws Exception the exception
    */
-  void createHiveTable(String db, String table, LinkedList<FieldSchema> columns) throws Exception {
+  void createHiveTable(String db, String table, List<FieldSchema> columns) throws Exception {
     Table tbl1 = new Table(db, table);
     tbl1.setFields(columns);
 
@@ -160,29 +160,29 @@ public class TestColumnarSQLRewriter {
   public void setup() throws Exception {
     qtest.init(conf);
 
-    LinkedList<FieldSchema> factColumns = new LinkedList<>();
+    List<FieldSchema> factColumns = new ArrayList<>();
     factColumns.add(new FieldSchema("item_key", "int", ""));
     factColumns.add(new FieldSchema("branch_key", "int", ""));
     factColumns.add(new FieldSchema("location_key", "int", ""));
     factColumns.add(new FieldSchema("dollars_sold", "double", ""));
     factColumns.add(new FieldSchema("units_sold", "int", ""));
 
-    LinkedList<FieldSchema> factPartColumns = new LinkedList<FieldSchema>();
+    List<FieldSchema> factPartColumns = new ArrayList<FieldSchema>();
     factPartColumns.add(new FieldSchema("time_key", "int", ""));
 
-    LinkedList<FieldSchema> timedimColumns = new LinkedList<FieldSchema>();
+    List<FieldSchema> timedimColumns = new ArrayList<FieldSchema>();
     timedimColumns.add(new FieldSchema("time_key", "int", ""));
     timedimColumns.add(new FieldSchema("day", "date", ""));
 
-    LinkedList<FieldSchema> itemdimColumns = new LinkedList<FieldSchema>();
+    List<FieldSchema> itemdimColumns = new ArrayList<FieldSchema>();
     itemdimColumns.add(new FieldSchema("item_key", "int", ""));
     itemdimColumns.add(new FieldSchema("item_name", "string", ""));
 
-    LinkedList<FieldSchema> branchdimColumns = new LinkedList<FieldSchema>();
+    List<FieldSchema> branchdimColumns = new ArrayList<FieldSchema>();
     branchdimColumns.add(new FieldSchema("branch_key", "int", ""));
     branchdimColumns.add(new FieldSchema("branch_name", "string", ""));
 
-    LinkedList<FieldSchema> locationdimColumns = new LinkedList<FieldSchema>();
+    List<FieldSchema> locationdimColumns = new ArrayList<FieldSchema>();
     locationdimColumns.add(new FieldSchema("location_key", "int", ""));
     locationdimColumns.add(new FieldSchema("location_name", "string", ""));
 
