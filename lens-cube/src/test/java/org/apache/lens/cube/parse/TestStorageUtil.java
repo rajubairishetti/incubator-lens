@@ -199,7 +199,7 @@ public class TestStorageUtil {
       || actualSet.contains("S1") && actualSet.contains("S3")
       || actualSet.contains("S1") && actualSet.contains("S4"));
     /**
-     * Commenting the follwing asserts as there are mutliple sets can cover the the given partitions
+     * Commenting the following asserts as there are multiple sets can cover the the given partitions
      */
     //Assert.assertTrue(result.keySet().contains("S3"));
     /* coveredParts = result.get("S2");

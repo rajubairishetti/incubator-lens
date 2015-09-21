@@ -86,7 +86,14 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
     String columnSetsStr = matcher.group(1);
     assertNotEquals(columnSetsStr.indexOf("test_time_dim"), -1, columnSetsStr);
     assertNotEquals(columnSetsStr.indexOf("msr3, msr13"), -1);
-    // TODO write comments
+
+    /**
+     * Verifying the BriefAndDetailedError:
+     * 1. Check for missing columns(COLUMN_NOT_FOUND)
+     *    and check the respective tables for each COLUMN_NOT_FOUND
+     * 2. check for ELEMENT_IN_SET_PRUNED
+     *
+     */
     boolean columnNotFound = false;
     List<String> testTimeDimFactTables = Arrays.asList("testfact3_base", "testfact1_raw_base", "testfact3_raw_base");
     List<String> factTablesForMeasures = Arrays.asList("testfact_deprecated", "testfact2_raw_base", "testfact2_base");
