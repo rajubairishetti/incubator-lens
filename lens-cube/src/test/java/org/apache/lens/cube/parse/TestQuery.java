@@ -1,5 +1,6 @@
 package org.apache.lens.cube.parse;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
@@ -7,30 +8,32 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
+
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 import org.testng.Assert;
 
-import javax.jdo.annotations.Join;
-
 @Slf4j
 public class TestQuery {
 
-  String actualQuery;
+  private String actualQuery;
   @Getter
   @Setter
-  String joinQueryPart = null;
+  private String joinQueryPart = null;
 
-  String trimmedQuery = null;
+  private String trimmedQuery = null;
 
-  Map<JoinType, List<String>> joinTypeStrings;
+  private String trimmedQueryWitoutJoinString = null;
 
-  private static Map<JoinType, String> joinTypeToJoinString = Maps.newHashMap();
+  private Map<JoinType, List<String>> joinTypeStrings = Maps.newTreeMap();
+
+  private static Map<JoinType, String> joinTypeToJoinString = Maps.newTreeMap();
 
   public enum JoinType {
     INNER,
@@ -66,6 +69,9 @@ public class TestQuery {
     this.actualQuery = query;
     this.trimmedQuery = getTrimmedQuery(query);
     this.joinQueryPart = extractJoinStringFromQuery(query);
+    System.out.println("AAAAAAAAAAAAA joinquery part : " + joinQueryPart);
+    this.trimmedQueryWitoutJoinString = StringUtils.removeStartIgnoreCase(trimmedQuery, joinQueryPart);
+    prepareJoinStrings(trimmedQuery);
   }
 
   /**
@@ -81,27 +87,20 @@ public class TestQuery {
     return query.toLowerCase().replaceAll("\\W", "");
   }
 
-  void compareJoinQueries(String actual, String expected) {
-    String actualJoinString = extractJoinStringFromQuery(actual);
-    String expectedJoinString = extractJoinStringFromQuery(expected);
-    compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed =
-      actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed =
-      expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
+  private void prepareJoinStrings(String query) {
+    int index = 0;
+    for (JoinType joinType : JoinType.values()) {
+      int nextJoinIndex = getNextJoinTypeIndex(query, index);
+      if (nextJoinIndex == Integer.MAX_VALUE) {
+        log.info("Parsing joinQuery completed");
+        return;
       }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
+      List<String> joinStrings = joinTypeStrings.get(joinType);
+      if (joinStrings == null) {
+        joinStrings = Sets.newTreeSet();
+      }
+      joinStrings.add(query.substring(index, nextJoinIndex));
     }
-    log.info("expectedTrimmed " + expectedTrimmed);
-    log.info("actualTrimmed " + actualTrimmed);
-    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
   }
 
   private int getNextJoinTypeIndex(String query, int index) {
@@ -146,25 +145,61 @@ public class TestQuery {
     return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
   }
 
+/*
   private void compareJoinStrings(String actualJoinString, String expectedJoinString) {
     List<String> actualQueryParts =
-      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
+            Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
     List<String> expectedJoinList =
-      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
+            Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
     Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
     for (String joinStr : actualQueryParts) {
       Assert.assertTrue(expectedJoinList.contains(joinStr));
     }
   }
+*/
+/*
+  void compareJoinQueries(String actual, String expected) {
+    String expectedJoinString = extractJoinStringFromQuery(expected);
+    compareJoinStrings(actualJoinString, expectedJoinString);
+    String actualTrimmed =
+            actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
+    String expectedTrimmed =
+            expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
+    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
+      String method = null;
+      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
+        if (trace.getMethodName().startsWith("test")) {
+          method = trace.getMethodName() + ":" + trace.getLineNumber();
+        }
+      }
 
-  public void equals(TestQuery other) {
-    if (this.trimmedQuery == null && other.trimmedQuery == null) {
-      return;
-    } /*else if (expected == null) {
+      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
+    }
+    log.info("expectedTrimmed " + expectedTrimmed);
+    log.info("actualTrimmed " + actualTrimmed);
+    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
+  }
+*/
+
+  public boolean equals(TestQuery other) {
+    if (this.actualQuery == null && other.actualQuery == null) {
+      return true;
+    } else if (this.actualQuery == null) {
       fail();
-    } else if (actual == null) {
+    } else if (other.actualQuery == null) {
       fail("Rewritten query is null");
-    }*/
-    //compareJoinQueries(actual, expected);
+    }
+    System.out.println("this query: " + this.toString());
+    System.out.println("Other query: " + other.toString());
+    assertEquals(trimmedQueryWitoutJoinString, other.trimmedQueryWitoutJoinString);
+    assertEquals(this.joinTypeStrings, other.joinTypeStrings);
+    return true;
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Actual Query: " + actualQuery).append("\n");
+    sb.append("JoinQueryString: " + joinTypeStrings);
+    return sb.toString();
   }
 }

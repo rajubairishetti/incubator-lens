@@ -339,7 +339,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     } else if (actual == null) {
       fail("Rewritten query is null");
     }
-    compareJoinQueries(actual, expected);
+    assertTrue((new TestQuery(actual)).equals(new TestQuery(expected)));
   }
 
   static void compareContains(String expected, String actual) {
