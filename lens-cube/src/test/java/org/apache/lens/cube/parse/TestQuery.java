@@ -1,31 +1,41 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.lens.cube.parse;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Lists;
-
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
-import org.testng.Assert;
 
 @Slf4j
 public class TestQuery {
 
   private String actualQuery;
-  @Getter
-  @Setter
   private String joinQueryPart = null;
 
   private String trimmedQuery = null;
@@ -75,15 +85,6 @@ public class TestQuery {
     prepareJoinStrings(trimmedQuery);
   }
 
-  /**
-   * 1. Convert the characters of query into lower case characters
-   * 2. remove all non characters
-   * 3. replace innerjoin with join
-   * 4. remove joinQueryPart from query
-   *
-   * @param query
-   * @return
-   */
   private String getTrimmedQuery(String query) {
     return query.toLowerCase().replaceAll("\\W", "");
   }
@@ -106,7 +107,7 @@ public class TestQuery {
 
   private int getNextJoinTypeIndex(String query, int index) {
     int nextJoinIndex = Integer.MAX_VALUE;
-    for ( JoinType joinType : JoinType.values()) {
+    for (JoinType joinType : JoinType.values()) {
       int joinIndex = StringUtils.indexOf(query, joinTypeToJoinString.get(joinType));
       nextJoinIndex = joinIndex < nextJoinIndex ? joinIndex : nextJoinIndex;
     }
@@ -148,53 +149,24 @@ public class TestQuery {
     return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
   }
 
-/*
-  private void compareJoinStrings(String actualJoinString, String expectedJoinString) {
-    List<String> actualQueryParts =
-            Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
-    List<String> expectedJoinList =
-            Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
-    Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    for (String joinStr : actualQueryParts) {
-      Assert.assertTrue(expectedJoinList.contains(joinStr));
+  public boolean equals(TestQuery expected) {
+    if (this == expected) {
+      return true;
     }
-  }
-*/
-/*
-  void compareJoinQueries(String actual, String expected) {
-    String expectedJoinString = extractJoinStringFromQuery(expected);
-    compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed =
-            actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed =
-            expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
-      }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
-    }
-    log.info("expectedTrimmed " + expectedTrimmed);
-    log.info("actualTrimmed " + actualTrimmed);
-    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
-  }
-*/
-
-  public boolean equals(TestQuery other) {
-    if (this.actualQuery == null && other.actualQuery == null) {
+    if (this.actualQuery == null && expected.actualQuery == null) {
       return true;
     } else if (this.actualQuery == null) {
       fail();
-    } else if (other.actualQuery == null) {
+    } else if (expected.actualQuery == null) {
       fail("Rewritten query is null");
     }
-    assertEquals(trimmedQueryWitoutJoinString, other.trimmedQueryWitoutJoinString);
-    assertEquals(this.joinTypeStrings, other.joinTypeStrings);
-    return true;
+    return Objects.equal(this.trimmedQueryWitoutJoinString, expected.trimmedQueryWitoutJoinString)
+            && Objects.equal(this.joinTypeStrings, expected.joinTypeStrings);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(actualQuery, joinQueryPart, trimmedQuery, trimmedQueryWitoutJoinString, joinTypeStrings);
   }
 
   public String toString() {
