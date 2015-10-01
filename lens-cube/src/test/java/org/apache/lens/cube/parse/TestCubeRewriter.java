@@ -290,55 +290,7 @@ public class TestCubeRewriter extends TestQueryRewrite {
     compareQueries(expected, hqlQuery);
   }
 
-  private static String extractJoinStringFromQuery(String query) {
-    String queryTrimmed = query.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "");
-    int joinStartIndex = StringUtils.indexOf(queryTrimmed, "join");
-    int joinEndIndex = StringUtils.indexOf(queryTrimmed, "where");
-    return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
-  }
-
-  private static void compareJoinStrings(String actualJoinString, String expectedJoinString) {
-    List<String> actualQueryParts =
-      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(actualJoinString));
-    List<String> expectedJoinList =
-      Lists.newArrayList(Splitter.on("join").trimResults().omitEmptyStrings().split(expectedJoinString));
-    Assert.assertEquals(actualQueryParts.size(), expectedJoinList.size());
-    for (String joinStr : actualQueryParts) {
-      Assert.assertTrue(expectedJoinList.contains(joinStr));
-    }
-  }
-
-  static void compareJoinQueries(String actual, String expected) {
-    String actualJoinString = extractJoinStringFromQuery(actual);
-    String expectedJoinString = extractJoinStringFromQuery(expected);
-    compareJoinStrings(actualJoinString, expectedJoinString);
-    String actualTrimmed =
-      actual.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(actualJoinString, "");
-    String expectedTrimmed =
-      expected.toLowerCase().replaceAll("\\W", "").replaceAll("inner", "").replace(expectedJoinString, "");
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
-      }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
-    }
-    log.info("expectedTrimmed " + expectedTrimmed);
-    log.info("actualTrimmed " + actualTrimmed);
-    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
-  }
-
   static void compareQueries(String actual, String expected) {
-    if (expected == null && actual == null) {
-      return;
-    } else if (expected == null) {
-      fail();
-    } else if (actual == null) {
-      fail("Rewritten query is null");
-    }
     assertTrue((new TestQuery(actual)).equals(new TestQuery(expected)));
   }
 

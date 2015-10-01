@@ -6,6 +6,7 @@ import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
@@ -31,7 +32,7 @@ public class TestQuery {
 
   private String trimmedQueryWitoutJoinString = null;
 
-  private Map<JoinType, List<String>> joinTypeStrings = Maps.newTreeMap();
+  private Map<JoinType, Set<String>> joinTypeStrings = Maps.newTreeMap();
 
   private static Map<JoinType, String> joinTypeToJoinString = Maps.newTreeMap();
 
@@ -68,9 +69,9 @@ public class TestQuery {
   public TestQuery(String query) {
     this.actualQuery = query;
     this.trimmedQuery = getTrimmedQuery(query);
-    this.joinQueryPart = extractJoinStringFromQuery(query);
-    System.out.println("AAAAAAAAAAAAA joinquery part : " + joinQueryPart);
-    this.trimmedQueryWitoutJoinString = StringUtils.removeStartIgnoreCase(trimmedQuery, joinQueryPart);
+    this.joinQueryPart = extractJoinStringFromQuery(trimmedQuery);
+    // remove join string part from the query
+    this.trimmedQueryWitoutJoinString = trimmedQuery.replace(joinQueryPart, "");
     prepareJoinStrings(trimmedQuery);
   }
 
@@ -95,7 +96,7 @@ public class TestQuery {
         log.info("Parsing joinQuery completed");
         return;
       }
-      List<String> joinStrings = joinTypeStrings.get(joinType);
+      Set<String> joinStrings = joinTypeStrings.get(joinType);
       if (joinStrings == null) {
         joinStrings = Sets.newTreeSet();
       }
@@ -113,7 +114,7 @@ public class TestQuery {
   }
 
   private int getMinIndexOfClause() {
-    String query = actualQuery.toLowerCase().replaceAll("\\W", "");
+    String query = trimmedQuery;
     int minClauseIndex = Integer.MAX_VALUE;
     for (Clause clause : Clause.values()) {
       int clauseIndex = StringUtils.indexOf(query, clause.toString().toLowerCase());
@@ -138,10 +139,12 @@ public class TestQuery {
     return minJoinTypeIndex == Integer.MAX_VALUE ? -1 : minJoinTypeIndex;
   }
 
-  private String extractJoinStringFromQuery(String query) {
-    String queryTrimmed = query.toLowerCase().replaceAll("\\W", "");
+  private String extractJoinStringFromQuery(String queryTrimmed) {
     int joinStartIndex = getMinIndexOfJoinType();
     int joinEndIndex = getMinIndexOfClause();
+    if (joinStartIndex == -1 && joinEndIndex == -1) {
+      return queryTrimmed;
+    }
     return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
   }
 
@@ -189,8 +192,6 @@ public class TestQuery {
     } else if (other.actualQuery == null) {
       fail("Rewritten query is null");
     }
-    System.out.println("this query: " + this.toString());
-    System.out.println("Other query: " + other.toString());
     assertEquals(trimmedQueryWitoutJoinString, other.trimmedQueryWitoutJoinString);
     assertEquals(this.joinTypeStrings, other.joinTypeStrings);
     return true;
