@@ -30,7 +30,9 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 @Slf4j
 public class TestQuery {
@@ -91,27 +93,48 @@ public class TestQuery {
 
   private void prepareJoinStrings(String query) {
     int index = 0;
-    for (JoinType joinType : JoinType.values()) {
-      int nextJoinIndex = getNextJoinTypeIndex(query, index);
-      if (nextJoinIndex == Integer.MAX_VALUE) {
+    while (true) {
+      //for (JoinType joinType : JoinType.values()) {
+      JoinDetails joinDetails = getNextJoinTypeIndex(query.substring(0), index);
+      int nextJoinIndex = joinDetails.getIndex();
+      if (nextJoinIndex == Integer.MAX_VALUE || nextJoinIndex == index) {
         log.info("Parsing joinQuery completed");
         return;
       }
-      Set<String> joinStrings = joinTypeStrings.get(joinType);
+      Set<String> joinStrings = joinTypeStrings.get(joinDetails.getJoinType());
       if (joinStrings == null) {
         joinStrings = Sets.newTreeSet();
       }
-      joinStrings.add(query.substring(index, nextJoinIndex));
+      joinStrings.add(joinDetails.getJoinString());
+      index = nextJoinIndex;
+      //}
     }
   }
 
-  private int getNextJoinTypeIndex(String query, int index) {
+  private class JoinDetails {
+    @Setter @Getter private JoinType joinType;
+    @Setter @Getter private int index;
+    @Setter @Getter private String joinString;
+  }
+
+  private JoinDetails getNextJoinTypeIndex(String query, int index) {
     int nextJoinIndex = Integer.MAX_VALUE;
+    JoinType nextJoinTypePart = null;
     for (JoinType joinType : JoinType.values()) {
       int joinIndex = StringUtils.indexOf(query, joinTypeToJoinString.get(joinType));
-      nextJoinIndex = joinIndex < nextJoinIndex ? joinIndex : nextJoinIndex;
+      if (joinIndex < nextJoinIndex && joinIndex > index) {//&& joinIndex != index) {
+        nextJoinIndex = joinIndex;
+        nextJoinTypePart = joinType;
+      }
     }
-    return nextJoinIndex > index ? nextJoinIndex : index;
+    JoinDetails joinDetails = new JoinDetails();
+    joinDetails.setIndex(nextJoinIndex);
+    if (nextJoinIndex != Integer.MAX_VALUE) {
+      joinDetails.setJoinString(query.substring(index, nextJoinIndex));
+    }
+    joinDetails.setJoinType(nextJoinTypePart);
+    return joinDetails;
+    //return nextJoinIndex > index ? nextJoinIndex : index;
   }
 
   private int getMinIndexOfClause() {
