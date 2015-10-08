@@ -31,8 +31,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TestQuery {
@@ -94,7 +95,6 @@ public class TestQuery {
   private void prepareJoinStrings(String query) {
     int index = 0;
     while (true) {
-      //for (JoinType joinType : JoinType.values()) {
       JoinDetails joinDetails = getNextJoinTypeIndex(query.substring(0), index);
       int nextJoinIndex = joinDetails.getIndex();
       if (nextJoinIndex == Integer.MAX_VALUE || nextJoinIndex == index) {
@@ -107,7 +107,6 @@ public class TestQuery {
       }
       joinStrings.add(joinDetails.getJoinString());
       index = nextJoinIndex;
-      //}
     }
   }
 
@@ -122,7 +121,7 @@ public class TestQuery {
     JoinType nextJoinTypePart = null;
     for (JoinType joinType : JoinType.values()) {
       int joinIndex = StringUtils.indexOf(query, joinTypeToJoinString.get(joinType));
-      if (joinIndex < nextJoinIndex && joinIndex > index) {//&& joinIndex != index) {
+      if (joinIndex < nextJoinIndex && joinIndex > index) {
         nextJoinIndex = joinIndex;
         nextJoinTypePart = joinType;
       }
@@ -134,7 +133,6 @@ public class TestQuery {
     }
     joinDetails.setJoinType(nextJoinTypePart);
     return joinDetails;
-    //return nextJoinIndex > index ? nextJoinIndex : index;
   }
 
   private int getMinIndexOfClause() {
