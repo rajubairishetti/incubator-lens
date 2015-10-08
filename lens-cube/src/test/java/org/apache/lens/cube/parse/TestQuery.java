@@ -49,6 +49,8 @@ public class TestQuery {
 
   private static Map<JoinType, String> joinTypeToJoinString = Maps.newTreeMap();
 
+  private String preJoinQueryPart = null;
+  private String postJoinQueryPart = null;
   public enum JoinType {
     INNER,
     LEFTOUTER,
@@ -85,7 +87,13 @@ public class TestQuery {
     this.joinQueryPart = extractJoinStringFromQuery(trimmedQuery);
     // remove join string part from the query
     this.trimmedQueryWitoutJoinString = trimmedQuery.replace(joinQueryPart, "");
-    prepareJoinStrings(trimmedQuery);
+    if (trimmedQuery.indexOf(joinQueryPart) != -1) {
+      this.preJoinQueryPart = trimmedQuery.substring(0, trimmedQuery.indexOf(joinQueryPart));
+      if (getMinIndexOfClause() != -1) {
+        this.postJoinQueryPart = trimmedQuery.substring(getMinIndexOfClause(), trimmedQuery.length() - 1);
+      }
+      prepareJoinStrings(trimmedQuery);
+    }
   }
 
   private String getTrimmedQuery(String query) {
@@ -95,7 +103,7 @@ public class TestQuery {
   private void prepareJoinStrings(String query) {
     int index = 0;
     while (true) {
-      JoinDetails joinDetails = getNextJoinTypeIndex(query.substring(0), index);
+      JoinDetails joinDetails = getJoinTypeDetails(query.substring(0), index);
       int nextJoinIndex = joinDetails.getIndex();
       if (nextJoinIndex == Integer.MAX_VALUE || nextJoinIndex == index) {
         log.info("Parsing joinQuery completed");
@@ -116,7 +124,7 @@ public class TestQuery {
     @Setter @Getter private String joinString;
   }
 
-  private JoinDetails getNextJoinTypeIndex(String query, int index) {
+  private JoinDetails getJoinTypeDetails(String query, int index) {
     int nextJoinIndex = Integer.MAX_VALUE;
     JoinType nextJoinTypePart = null;
     for (JoinType joinType : JoinType.values()) {
@@ -136,10 +144,9 @@ public class TestQuery {
   }
 
   private int getMinIndexOfClause() {
-    String query = trimmedQuery;
     int minClauseIndex = Integer.MAX_VALUE;
     for (Clause clause : Clause.values()) {
-      int clauseIndex = StringUtils.indexOf(query, clause.toString().toLowerCase());
+      int clauseIndex = StringUtils.indexOf(trimmedQuery, clause.toString().toLowerCase());
       if (clauseIndex == -1) {
         continue;
       }
@@ -149,10 +156,9 @@ public class TestQuery {
   }
 
   private int getMinIndexOfJoinType() {
-    String query = actualQuery.toLowerCase().replaceAll("\\W", "");
     int minJoinTypeIndex = Integer.MAX_VALUE;
     for (JoinType joinType : JoinType.values()) {
-      int joinIndex = StringUtils.indexOf(query, joinTypeToJoinString.get(joinType));
+      int joinIndex = StringUtils.indexOf(trimmedQuery, joinTypeToJoinString.get(joinType));
       if (joinIndex == -1) {
         continue;
       }
@@ -182,7 +188,9 @@ public class TestQuery {
       fail("Rewritten query is null");
     }
     return Objects.equal(this.trimmedQueryWitoutJoinString, expected.trimmedQueryWitoutJoinString)
-            && Objects.equal(this.joinTypeStrings, expected.joinTypeStrings);
+            && Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
+            && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
+            && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
   }
 
   @Override
