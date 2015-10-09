@@ -43,14 +43,14 @@ public class TestQuery {
 
   private String trimmedQuery = null;
 
-  private String trimmedQueryWitoutJoinString = null;
-
   private Map<JoinType, Set<String>> joinTypeStrings = Maps.newTreeMap();
 
   private static Map<JoinType, String> joinTypeToJoinString = Maps.newTreeMap();
 
   private String preJoinQueryPart = null;
+
   private String postJoinQueryPart = null;
+
   public enum JoinType {
     INNER,
     LEFTOUTER,
@@ -85,8 +85,10 @@ public class TestQuery {
     this.actualQuery = query;
     this.trimmedQuery = getTrimmedQuery(query);
     this.joinQueryPart = extractJoinStringFromQuery(trimmedQuery);
-    // remove join string part from the query
-    this.trimmedQueryWitoutJoinString = trimmedQuery.replace(joinQueryPart, "");
+    /**
+     * Get the join query part, pre-join query and post-join query part from the trimmed query.
+     *
+     */
     if (trimmedQuery.indexOf(joinQueryPart) != -1) {
       this.preJoinQueryPart = trimmedQuery.substring(0, trimmedQuery.indexOf(joinQueryPart));
       if (getMinIndexOfClause() != -1) {
@@ -103,9 +105,9 @@ public class TestQuery {
   private void prepareJoinStrings(String query) {
     int index = 0;
     while (true) {
-      JoinDetails joinDetails = getJoinTypeDetails(query.substring(0), index);
+      JoinDetails joinDetails = getNextJoinTypeDetails(query.substring(0), index);
       int nextJoinIndex = joinDetails.getIndex();
-      if (nextJoinIndex == Integer.MAX_VALUE || nextJoinIndex == index) {
+      if (isQueryParsingCompleted(index, nextJoinIndex)) {
         log.info("Parsing joinQuery completed");
         return;
       }
@@ -118,13 +120,17 @@ public class TestQuery {
     }
   }
 
+  private boolean isQueryParsingCompleted(int index, int nextJoinIndex) {
+    return nextJoinIndex == Integer.MAX_VALUE || nextJoinIndex == index;
+  }
+
   private class JoinDetails {
     @Setter @Getter private JoinType joinType;
     @Setter @Getter private int index;
     @Setter @Getter private String joinString;
   }
 
-  private JoinDetails getJoinTypeDetails(String query, int index) {
+  private JoinDetails getNextJoinTypeDetails(String query, int index) {
     int nextJoinIndex = Integer.MAX_VALUE;
     JoinType nextJoinTypePart = null;
     for (JoinType joinType : JoinType.values()) {
@@ -187,15 +193,14 @@ public class TestQuery {
     } else if (expected.actualQuery == null) {
       fail("Rewritten query is null");
     }
-    return Objects.equal(this.trimmedQueryWitoutJoinString, expected.trimmedQueryWitoutJoinString)
-            && Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
+    return Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
             && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
             && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(actualQuery, joinQueryPart, trimmedQuery, trimmedQueryWitoutJoinString, joinTypeStrings);
+    return Objects.hashCode(actualQuery, joinQueryPart, trimmedQuery, joinTypeStrings);
   }
 
   public String toString() {
