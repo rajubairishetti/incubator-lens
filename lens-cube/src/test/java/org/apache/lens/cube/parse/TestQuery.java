@@ -141,7 +141,7 @@ public class TestQuery {
   private int getMinIndexOfClause() {
     int minClauseIndex = Integer.MAX_VALUE;
     for (Clause clause : Clause.values()) {
-      int clauseIndex = StringUtils.indexOf(trimmedQuery, clause.toString().toLowerCase());
+      int clauseIndex = StringUtils.indexOf(trimmedQuery, clause.name());
       if (clauseIndex == -1) {
         continue;
       }
