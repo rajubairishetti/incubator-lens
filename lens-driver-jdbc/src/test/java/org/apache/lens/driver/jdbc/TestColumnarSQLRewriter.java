@@ -85,24 +85,6 @@ public class TestColumnarSQLRewriter {
     return result;
   }
 
-  static void compareJoinQueries(String actual, String expected) {
-    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");
-    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
-      }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
-    }
-    System.out.println("expectedTrimmed " + expectedTrimmed);
-    System.out.println("actualTrimmed " + actualTrimmed);
-    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
-  }
-
   /**
    * Compare queries.
    *
@@ -117,7 +99,19 @@ public class TestColumnarSQLRewriter {
     } else if (actual == null) {
       Assert.fail("Rewritten query is null");
     }
-    compareJoinQueries(actual, expected);
+    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");
+    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");
+    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
+      String method = null;
+      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
+        if (trace.getMethodName().startsWith("test")) {
+          method = trace.getMethodName() + ":" + trace.getLineNumber();
+        }
+      }
+
+      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
+    }
+    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
   }
 
   /*
