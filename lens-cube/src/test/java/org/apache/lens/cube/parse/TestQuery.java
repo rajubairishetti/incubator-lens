@@ -97,7 +97,7 @@ public class TestQuery {
   private void prepareJoinStrings(String query) {
     int index = 0;
     while (true) {
-      JoinDetails joinDetails = getNextJoinTypeDetails(query.substring(0), index);
+      JoinDetails joinDetails = getNextJoinTypeDetails(query, index);
       int nextJoinIndex = joinDetails.getIndex();
       if (joinDetails.getJoinType() == null) {
         log.info("Parsing joinQuery completed");
@@ -132,10 +132,25 @@ public class TestQuery {
     JoinDetails joinDetails = new JoinDetails();
     joinDetails.setIndex(nextJoinIndex);
     if (nextJoinIndex != Integer.MAX_VALUE) {
-      joinDetails.setJoinString(query.substring(index, nextJoinIndex));
+      joinDetails.setJoinString(getJoinString(query, nextJoinIndex));
     }
     joinDetails.setJoinType(nextJoinTypePart);
     return joinDetails;
+  }
+
+  private String getJoinString(String query, int index) {
+    String subQuery = query.substring(index);
+    int nextJoinIndex = Integer.MAX_VALUE;
+    for (JoinType joinType : JoinType.values()) {
+      int joinIndex = StringUtils.indexOf(subQuery, joinType.name());
+      if (joinIndex < nextJoinIndex && joinIndex > 0) {
+        nextJoinIndex = joinIndex;
+      }
+    }
+    if (nextJoinIndex == Integer.MAX_VALUE) {
+       return  getMinIndexOfClause() == -1 ? query.substring(index) : query.substring(getMinIndexOfClause());
+    }
+    return query.substring(index, nextJoinIndex);
   }
 
   private int getMinIndexOfClause() {
