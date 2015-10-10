@@ -78,7 +78,7 @@ public class TestTimeRangeResolver extends TestQueryRewrite {
       assertEquals(cause.size(), 1);
       actualPruneCodes.add(cause.iterator().next().getCause());
     }
-    assertTrue(expectedPruneCodes.equals(actualPruneCodes));
+    assertEquals(actualPruneCodes, expectedPruneCodes);
   }
 
   @Test
