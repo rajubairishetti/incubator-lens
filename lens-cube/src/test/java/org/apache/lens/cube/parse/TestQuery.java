@@ -57,9 +57,6 @@ public class TestQuery {
     UNIQUE,
     LEFTSEMIJOIN,
     JOIN;
-
-    private JoinType() {
-    }
   }
 
   public enum Clause {
@@ -67,10 +64,6 @@ public class TestQuery {
     GROUPBY,
     HAVING,
     ORDEREDBY;
-
-    private Clause() {
-
-    }
   }
 
   public TestQuery(String query) {
