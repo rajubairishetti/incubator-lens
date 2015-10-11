@@ -110,6 +110,7 @@ public class TestQuery {
       }
       joinStrings.add(joinDetails.getJoinString());
       index = nextJoinIndex;
+      query = query.substring(nextJoinIndex+joinDetails.getJoinType().name().length());
     }
   }
 
@@ -119,12 +120,15 @@ public class TestQuery {
     @Setter @Getter private String joinString;
   }
 
-  private JoinDetails getNextJoinTypeDetails(String query, int index) {
+  /**
+   * Get the next join query details from a given query
+   */
+  private JoinDetails getNextJoinTypeDetails(String query) {
     int nextJoinIndex = Integer.MAX_VALUE;
     JoinType nextJoinTypePart = null;
     for (JoinType joinType : JoinType.values()) {
-      int joinIndex = StringUtils.indexOf(query, joinType.name());
-      if (joinIndex < nextJoinIndex && joinIndex > index) {
+      int joinIndex = StringUtils.indexOf(query, joinType.name(), 1);
+      if (joinIndex < nextJoinIndex && joinIndex > 0) {
         nextJoinIndex = joinIndex;
         nextJoinTypePart = joinType;
       }
@@ -132,31 +136,37 @@ public class TestQuery {
     JoinDetails joinDetails = new JoinDetails();
     joinDetails.setIndex(nextJoinIndex);
     if (nextJoinIndex != Integer.MAX_VALUE) {
-      joinDetails.setJoinString(getJoinString(query, nextJoinIndex));
+      joinDetails.setJoinString(getJoinString(query.substring(nextJoinIndex + nextJoinTypePart.name().length()), nextJoinIndex + nextJoinTypePart.name().length()));
     }
     joinDetails.setJoinType(nextJoinTypePart);
     return joinDetails;
   }
 
   private String getJoinString(String query, int index) {
-    String subQuery = query.substring(index);
+    String joinQueryStr = query.substring(index);
     int nextJoinIndex = Integer.MAX_VALUE;
     for (JoinType joinType : JoinType.values()) {
-      int joinIndex = StringUtils.indexOf(subQuery, joinType.name(), 1);
-      if (joinIndex < nextJoinIndex && index+joinIndex > index) {
+      int joinIndex = StringUtils.indexOf(joinQueryStr, joinType.name(), 1);
+      if (joinIndex < nextJoinIndex && joinIndex > 0) {
         nextJoinIndex = joinIndex;
       }
     }
     if (nextJoinIndex == Integer.MAX_VALUE) {
-       return  getMinIndexOfClause() == -1 ? query.substring(index) : query.substring(index, getMinIndexOfClause());
+      int minClauseIndex = getMinIndexOfClause(joinQueryStr);
+      // return join query completely if there is no Clause in the query
+      return minClauseIndex == -1 ? joinQueryStr : joinQueryStr.substring(0, minClauseIndex);
     }
-    return query.substring(index, index + nextJoinIndex);
+    return joinQueryStr.substring(0, nextJoinIndex);
   }
 
   private int getMinIndexOfClause() {
+    return getMinIndexOfClause(trimmedQuery);
+  }
+
+  private int getMinIndexOfClause(String query) {
     int minClauseIndex = Integer.MAX_VALUE;
     for (Clause clause : Clause.values()) {
-      int clauseIndex = StringUtils.indexOf(trimmedQuery, clause.name());
+      int clauseIndex = StringUtils.indexOf(query, clause.name());
       if (clauseIndex == -1) {
         continue;
       }
@@ -201,7 +211,11 @@ public class TestQuery {
         && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
         && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
     if (!isEquals) {
-      System.err.println("__FAILED__ " + "\n\tExpected: " + expected.toString() + "\n\t---------\n\tActual: " + this.toString());
+      System.err.println("__FAILED__ " + "\n\tExpected: " + expected.toString()
+          + "\n\t---------\n\tActual: " + this.toString());
+    } else {
+      System.err.println("SUCCEEDED " + "\n\tExpected: " + expected.toString()
+          + "\n\t---------\n\tActual: " + this.toString());
     }
     return isEquals;
   }
