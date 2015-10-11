@@ -95,7 +95,6 @@ public class TestQuery {
   }
 
   private void prepareJoinStrings(String query) {
-    int index = 0;
     while (true) {
       JoinDetails joinDetails = getNextJoinTypeDetails(query);
       int nextJoinIndex = joinDetails.getIndex();
@@ -109,8 +108,8 @@ public class TestQuery {
         joinTypeStrings.put(joinDetails.getJoinType(), joinStrings);
       }
       joinStrings.add(joinDetails.getJoinString());
-      index = nextJoinIndex;
-      query = query.substring(nextJoinIndex+joinDetails.getJoinType().name().length());
+      // Pass the remaining query for finding next join query
+      query = query.substring(nextJoinIndex + joinDetails.getJoinType().name().length());
     }
   }
 
