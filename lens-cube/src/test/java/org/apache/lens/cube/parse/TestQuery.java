@@ -205,9 +205,6 @@ public class TestQuery {
     if (!isEquals) {
       System.err.println("__FAILED__ " + "\n\tExpected: " + expected.toString()
           + "\n\t---------\n\tActual: " + this.toString());
-    } else {
-      System.err.println("SUCCEEDED " + "\n\tExpected: " + expected.toString()
-          + "\n\t---------\n\tActual: " + this.toString());
     }
     return isEquals;
   }
