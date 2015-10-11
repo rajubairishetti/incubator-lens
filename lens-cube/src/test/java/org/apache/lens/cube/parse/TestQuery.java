@@ -50,12 +50,12 @@ public class TestQuery {
   private String postJoinQueryPart = null;
 
   public enum JoinType {
-    INNER,
-    LEFTOUTER,
-    RIGHTOUTER,
-    FULLOUTER,
+    INNERJOIN,
+    LEFTOUTERJOIN,
+    RIGHTOUTERJOIN,
+    FULLOUTERJOIN,
     UNIQUE,
-    LEFTSEMI,
+    LEFTSEMIJOIN,
     JOIN;
 
     private JoinType() {
@@ -142,15 +142,15 @@ public class TestQuery {
     String subQuery = query.substring(index);
     int nextJoinIndex = Integer.MAX_VALUE;
     for (JoinType joinType : JoinType.values()) {
-      int joinIndex = StringUtils.indexOf(subQuery, joinType.name());
-      if (joinIndex < nextJoinIndex && joinIndex > 0) {
+      int joinIndex = StringUtils.indexOf(subQuery, joinType.name(), 1);
+      if (joinIndex < nextJoinIndex && index+joinIndex > index) {
         nextJoinIndex = joinIndex;
       }
     }
     if (nextJoinIndex == Integer.MAX_VALUE) {
-       return  getMinIndexOfClause() == -1 ? query.substring(index) : query.substring(getMinIndexOfClause());
+       return  getMinIndexOfClause() == -1 ? query.substring(index) : query.substring(index, getMinIndexOfClause());
     }
-    return query.substring(index, nextJoinIndex);
+    return query.substring(index, index + nextJoinIndex);
   }
 
   private int getMinIndexOfClause() {
@@ -197,9 +197,13 @@ public class TestQuery {
     } else if (expected.actualQuery == null) {
       fail("Rewritten query is null");
     }
-    return Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
-            && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
-            && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
+    boolean isEquals = Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
+        && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
+        && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
+    if (!isEquals) {
+      System.err.println("__FAILED__ " + "\n\tExpected: " + expected.toString() + "\n\t---------\n\tActual: " + this.toString());
+    }
+    return isEquals;
   }
 
   @Override
