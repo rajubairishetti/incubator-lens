@@ -97,7 +97,7 @@ public class TestQuery {
   private void prepareJoinStrings(String query) {
     int index = 0;
     while (true) {
-      JoinDetails joinDetails = getNextJoinTypeDetails(query, index);
+      JoinDetails joinDetails = getNextJoinTypeDetails(query);
       int nextJoinIndex = joinDetails.getIndex();
       if (joinDetails.getJoinType() == null) {
         log.info("Parsing joinQuery completed");
@@ -136,17 +136,17 @@ public class TestQuery {
     JoinDetails joinDetails = new JoinDetails();
     joinDetails.setIndex(nextJoinIndex);
     if (nextJoinIndex != Integer.MAX_VALUE) {
-      joinDetails.setJoinString(getJoinString(query.substring(nextJoinIndex + nextJoinTypePart.name().length()), nextJoinIndex + nextJoinTypePart.name().length()));
+      joinDetails.setJoinString(
+          getJoinString(query.substring(nextJoinIndex + nextJoinTypePart.name().length())));
     }
     joinDetails.setJoinType(nextJoinTypePart);
     return joinDetails;
   }
 
-  private String getJoinString(String query, int index) {
-    String joinQueryStr = query.substring(index);
+  private String getJoinString(String joinQueryStr) {
     int nextJoinIndex = Integer.MAX_VALUE;
     for (JoinType joinType : JoinType.values()) {
-      int joinIndex = StringUtils.indexOf(joinQueryStr, joinType.name(), 1);
+      int joinIndex = StringUtils.indexOf(joinQueryStr, joinType.name());
       if (joinIndex < nextJoinIndex && joinIndex > 0) {
         nextJoinIndex = joinIndex;
       }
