@@ -104,7 +104,6 @@ public class TestLensCubeCommands extends LensCliApplicationTest {
     chain1.setName("testdetailchain");
     chain1.getPaths().getPath().add(path);
     chain1.setDestTable("test_detail");
-    chains.getJoinChain().add(chain1);
     XJoinChain chain2 = new XJoinChain();
     chain2.setPaths(new XJoinPaths());
     XJoinPath path2 = new XJoinPath();
