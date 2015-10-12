@@ -19,8 +19,6 @@
 
 package org.apache.lens.cube.parse;
 
-import static org.testng.Assert.fail;
-
 import java.util.Map;
 import java.util.Set;
 
