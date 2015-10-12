@@ -188,7 +188,9 @@ public class TestQuery {
     return StringUtils.substring(queryTrimmed, joinStartIndex, joinEndIndex);
   }
 
-  public boolean equals(TestQuery expected) {
+  @Override
+  public boolean equals(Object query) {
+    TestQuery expected = (TestQuery) query;
     if (this == expected) {
       return true;
     }

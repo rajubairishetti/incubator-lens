@@ -26,6 +26,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 import org.apache.lens.cube.parse.HQLParser;
+import org.apache.lens.cube.parse.TestQuery;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.error.LensException;
 
@@ -91,27 +92,8 @@ public class TestColumnarSQLRewriter {
    * @param expected the expected
    * @param actual   the actual
    */
-  private void compareQueries(String expected, String actual) {
-    if (expected == null && actual == null) {
-      return;
-    } else if (expected == null) {
-      Assert.fail();
-    } else if (actual == null) {
-      Assert.fail("Rewritten query is null");
-    }
-    String actualTrimmed = actual.toLowerCase().replaceAll("\\W", "");
-    String expectedTrimmed = expected.toLowerCase().replaceAll("\\W", "");
-    if (!expectedTrimmed.equalsIgnoreCase(actualTrimmed)) {
-      String method = null;
-      for (StackTraceElement trace : Thread.currentThread().getStackTrace()) {
-        if (trace.getMethodName().startsWith("test")) {
-          method = trace.getMethodName() + ":" + trace.getLineNumber();
-        }
-      }
-
-      System.err.println("__FAILED__ " + method + "\n\tExpected: " + expected + "\n\t---------\n\tActual: " + actual);
-    }
-    assertTrue(expectedTrimmed.equalsIgnoreCase(actualTrimmed));
+  private void compareQueries(String actual, String expected) {
+    assertEquals(new TestQuery(actual), new TestQuery(expected));
   }
 
   /*
