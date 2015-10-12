@@ -77,7 +77,7 @@ public class TestQuery {
     if (trimmedQuery.indexOf(joinQueryPart) != -1) {
       this.preJoinQueryPart = trimmedQuery.substring(0, trimmedQuery.indexOf(joinQueryPart));
       if (getMinIndexOfClause() != -1) {
-        this.postJoinQueryPart = trimmedQuery.substring(getMinIndexOfClause(), trimmedQuery.length() - 1);
+        this.postJoinQueryPart = trimmedQuery.substring(getMinIndexOfClause());
       }
       prepareJoinStrings(trimmedQuery);
     }
