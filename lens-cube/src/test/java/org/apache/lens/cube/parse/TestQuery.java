@@ -197,18 +197,13 @@ public class TestQuery {
     if (this.actualQuery == null && expected.actualQuery == null) {
       return true;
     } else if (this.actualQuery == null) {
-      fail();
+      return false;
     } else if (expected.actualQuery == null) {
-      fail("Rewritten query is null");
+      return false;
     }
-    boolean isEquals = Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
+    return Objects.equal(this.joinTypeStrings, expected.joinTypeStrings)
         && Objects.equal(this.preJoinQueryPart, expected.preJoinQueryPart)
         && Objects.equal(this.postJoinQueryPart, expected.postJoinQueryPart);
-    if (!isEquals) {
-      System.err.println("__FAILED__ " + "\n\tExpected: " + expected.toString()
-          + "\n\t---------\n\tActual: " + this.toString());
-    }
-    return isEquals;
   }
 
   @Override
