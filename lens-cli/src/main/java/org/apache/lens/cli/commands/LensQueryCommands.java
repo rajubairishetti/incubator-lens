@@ -49,7 +49,7 @@ import com.google.common.base.Joiner;
  * SUSPEND CHECKSTYLE CHECK InnerAssignmentCheck
  */
 @Component
-@UserDocumentation(title = "Query Management",
+@UserDocumentation(title = "Commands for Query Management",
   description = "This section provides commands for query life cycle - "
     + "submit, check status,\n"
     + "  fetch results, kill or list all the queries. Also provides commands for\n"
@@ -120,14 +120,7 @@ public class LensQueryCommands extends BaseLensCommand {
       QueryResult r = rs.getResultSet().getResult();
       if (r instanceof InMemoryQueryResult) {
         InMemoryQueryResult temp = (InMemoryQueryResult) r;
-        for (ResultRow row : temp.getRows()) {
-          for (Object col : row.getValues()) {
-            b.append(col).append("\t");
-          }
-          numRows++;
-          b.append("\n");
-        }
-        b.append(numRows + " rows ");
+        b.append(temp.toPrettyString());
       } else {
         PersistentQueryResult temp = (PersistentQueryResult) r;
         b.append("Results of query stored at : ").append(temp.getPersistedURI()).append("  ");

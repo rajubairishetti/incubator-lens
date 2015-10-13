@@ -19,12 +19,12 @@
 package org.apache.lens.server.api.query;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.query.QueryHandle;
 import org.apache.lens.api.query.QueryStatus;
 import org.apache.lens.server.api.driver.LensDriver;
-import org.apache.lens.server.api.error.LensException;
 import org.apache.lens.server.api.query.collect.WaitingQueriesSelectionPolicy;
 
 import org.apache.hadoop.conf.Configuration;
@@ -44,7 +44,7 @@ import lombok.ToString;
  *
  * @see java.lang.Object#hashCode()
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "selectedDriver")
 /*
  * (non-Javadoc)
  *
@@ -165,6 +165,13 @@ public class FinishedLensQuery {
   @Setter
   private String queryName;
 
+  /**
+   * The selected driver class name.
+   */
+  @Getter
+  @Setter
+  private String driverClass;
+
   @Getter
   private LensDriver selectedDriver;
 
@@ -196,11 +203,21 @@ public class FinishedLensQuery {
       this.queryName = ctx.getQueryName().toLowerCase();
     }
     this.selectedDriver = ctx.getSelectedDriver();
+    if (null != ctx.getSelectedDriver()) {
+      this.driverClass = ctx.getSelectedDriver().getClass().getName();
+    }
   }
 
-  public QueryContext toQueryContext(Configuration conf, Collection<LensDriver> drivers) throws LensException {
-    QueryContext qctx = new QueryContext(userQuery, submitter, new LensConf(), conf, drivers, null, submissionTime,
-      false);
+  public QueryContext toQueryContext(Configuration conf, Collection<LensDriver> drivers) {
+
+    if (null == selectedDriver && null != driverClass) {
+      selectedDriver = getDriverFromClassName(drivers);
+    }
+
+    QueryContext qctx =
+      new QueryContext(userQuery, submitter, new LensConf(), conf, drivers, selectedDriver, submissionTime,
+        false);
+
     qctx.setQueryHandle(QueryHandle.fromString(handle));
     qctx.setLaunchTime(this.startTime);
     qctx.setEndTime(getEndTime());
@@ -211,6 +228,18 @@ public class FinishedLensQuery {
     qctx.setResultSetPath(getResult());
     qctx.setQueryName(getQueryName());
     return qctx;
+  }
+
+  private LensDriver getDriverFromClassName(Collection<LensDriver> drivers) {
+    Iterator<LensDriver> iterator = drivers.iterator();
+    while (iterator.hasNext()) {
+      LensDriver driver = iterator.next();
+      if (driverClass.equals(driver.getClass().getName())) {
+        //TODO : LENS-123 - Ability to load different instances of same driver class
+        return driver;
+      }
+    }
+    return null;
   }
 
   public ImmutableSet<WaitingQueriesSelectionPolicy> getDriverSelectionPolicies() {

@@ -107,6 +107,11 @@
     <antrun.plugin.version>1.8</antrun.plugin.version>
     <cobertura.plugin.version>2.7</cobertura.plugin.version>
 
+    <!-- UI -->
+    <nodejs.plugin.version>1.0.0</nodejs.plugin.version>
+    <nodeVersion>0.10.32</nodeVersion>
+    <npmVersion>1.4.9</npmVersion>
+
     <!-- debian -->
     <mvn.deb.build.dir>${project.build.directory}/debian</mvn.deb.build.dir>
 
@@ -520,6 +525,21 @@
           <artifactId>findbugs-maven-plugin</artifactId>
           <version>${findbugs.plugin.version}</version>
         </plugin>
+        <plugin>
+          <groupId>io.wcm.maven.plugins</groupId>
+          <artifactId>nodejs-maven-plugin</artifactId>
+          <version>${nodejs.plugin.version}</version>
+          <configuration>
+            <npmVersion>${npmVersion}</npmVersion>
+            <nodeJsVersion>${nodeVersion}</nodeJsVersion>
+            <nodeJsDirectory>${project.basedir}/node</nodeJsDirectory>
+            <tasks>
+              <npmInstallTask>
+                <workingDirectory>${project.basedir}</workingDirectory>
+              </npmInstallTask>
+            </tasks>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -547,6 +567,8 @@
             <exclude>**/*.iml</exclude>
             <exclude>**/.classpath</exclude>
             <exclude>**/.project</exclude>
+            <exclude>**/node/**</exclude>
+            <exclude>**/node_modules/**</exclude>
             <exclude>**/.checkstyle</exclude>
             <exclude>**/.settings/**</exclude>
             <exclude>**/maven-eclipse.xml</exclude>
@@ -567,6 +589,7 @@
             <exclude>**/codemirror.min.*</exclude>
             <exclude>**/*.js</exclude>
             <exclude>**/*.properties</exclude>
+            <exclude>**/*.json</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -1522,6 +1545,7 @@
     <module>lens-ml-lib</module>
     <module>lens-ml-dist</module>
     <module>lens-regression</module>
+    <module>lens-ui</module>
   </modules>
 
   <profiles>
