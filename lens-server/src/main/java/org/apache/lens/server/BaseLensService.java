@@ -84,6 +84,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
+  private stat
   /**
    * Instantiates a new lens service.
    *
