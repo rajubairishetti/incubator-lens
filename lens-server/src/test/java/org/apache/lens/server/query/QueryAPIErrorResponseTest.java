@@ -131,6 +131,7 @@ public class QueryAPIErrorResponseTest extends LensJerseyTest {
     ErrorResponseExpectedData expectedData = new ErrorResponseExpectedData(BAD_REQUEST, expectedLensErrorTO);
 
     expectedData.verify(response);
+    closeSession(target(), sessionId);
   }
 
   @Test
@@ -150,6 +151,7 @@ public class QueryAPIErrorResponseTest extends LensJerseyTest {
     ErrorResponseExpectedData expectedData = new ErrorResponseExpectedData(BAD_REQUEST, expectedLensErrorTO);
 
     expectedData.verify(response);
+    closeSession(target(), sessionId);
   }
 
   @Test
@@ -174,6 +176,7 @@ public class QueryAPIErrorResponseTest extends LensJerseyTest {
       expectedLensErrorTO);
 
     expectedData.verify(response);
+    closeSession(target(), sessionId);
   }
 
   @Test
@@ -189,6 +192,7 @@ public class QueryAPIErrorResponseTest extends LensJerseyTest {
     ErrorResponseExpectedData expectedData = new ErrorResponseExpectedData(BAD_REQUEST, expectedLensErrorTO);
 
     expectedData.verify(response);
+    closeSession(target(), sessionId);
   }
 
   @Test

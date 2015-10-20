@@ -512,7 +512,7 @@ public class TestSessionResource extends LensJerseyTest {
     return mp;
   }
 
-  @Test
+  //@Test
   public void testMaxSessionsPerUser() throws Exception {
     HiveSessionService sessionService = LensServices.get().getService(SessionService.NAME);
     HiveConf conf = LensServerConf.getHiveConf();
