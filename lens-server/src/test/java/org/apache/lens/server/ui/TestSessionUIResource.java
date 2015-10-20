@@ -24,32 +24,26 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.server.LensJerseyTest;
-
-import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.error.LensException;
-import org.apache.lens.server.api.session.SessionService;
-import org.apache.lens.server.session.HiveSessionService;
+
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.util.Set;
-
 /**
  * The Class TestSessionUIResource.
  */
 @Test(groups = "unit-test")
-@Slf4j
 public class TestSessionUIResource extends LensJerseyTest {
 
   /*
@@ -116,8 +110,6 @@ public class TestSessionUIResource extends LensJerseyTest {
 
     Response deleteResponse = target.path(lensSessionHandle.getPublicId().toString()).request().delete();
     Assert.assertEquals(deleteResponse.getStatus(), 200);
-    HiveSessionService sessionService = LensServices.get().getService(SessionService.NAME);
-    sessionService.closeSession(lensSessionHandle);
   }
 
   @Test
@@ -143,7 +135,7 @@ public class TestSessionUIResource extends LensJerseyTest {
     Assert.assertEquals(response.getMediaType().toString(), "application/xml");
     //closeSessions();
   }
-
+/*
   private void closeSessions() {
     HiveSessionService service = LensServices.get().getService(SessionService.NAME);
     Set<LensSessionHandle> sessionHandleSet = service.getSessionHandleToUserMap().keySet();
@@ -155,4 +147,5 @@ public class TestSessionUIResource extends LensJerseyTest {
       }
     }
   }
+  */
 }

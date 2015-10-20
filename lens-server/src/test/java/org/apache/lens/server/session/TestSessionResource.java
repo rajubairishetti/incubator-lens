@@ -25,7 +25,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.lens.api.APIResult;
 import org.apache.lens.api.APIResult.Status;
 import org.apache.lens.api.LensConf;
@@ -72,7 +70,6 @@ import org.testng.annotations.Test;
  * The Class TestSessionResource.
  */
 @Test(groups = "unit-test")
-@Slf4j
 public class TestSessionResource extends LensJerseyTest {
 
 
@@ -379,6 +376,7 @@ public class TestSessionResource extends LensJerseyTest {
     //closeSessions();
   }
 
+  /*
   private void closeSessions() {
     HiveSessionService service = LensServices.get().getService(SessionService.NAME);
     Set<LensSessionHandle> sessionHandleSet = service.getSessionHandleToUserMap().keySet();
@@ -389,7 +387,7 @@ public class TestSessionResource extends LensJerseyTest {
         log.warn("Got Exception while closing {} session" + session);
       }
     }
-  }
+  }*/
 
   private LensSessionHandle openSession(final String userName, final String passwd, final LensConf conf) {
 

@@ -32,7 +32,6 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.api.util.PathValidator;
@@ -85,17 +84,10 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
-  private static final HashMap<String, Integer> sessionsPerUser = new HashMap<String, Integer>();
+  private final HashMap<String, Integer> sessionsPerUser = new HashMap<String, Integer>();
 
-  private static final HashMap<LensSessionHandle, String> sessionHandleToUserMap
+  private final HashMap<LensSessionHandle, String> sessionHandleToUserMap
     = new HashMap<LensSessionHandle, String>();
-
-  private static final Integer maximumNumberOfSessionPerUser;
-
-  static {
-    maximumNumberOfSessionPerUser = LensServerConf.getHiveConf().getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
-      LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
-  }
 
   /**
    * Instantiates a new lens service.
@@ -123,9 +115,14 @@ public abstract class BaseLensService extends CompositeService implements Extern
     return BaseLensService.SESSION_MAP.size();
   }
 
+  public static int getMaximumNumberOfSessionsPerUser() {
+    return LensServerConf.getHiveConf().getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
+      LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
+  }
+
   private boolean isMaxSessionsLimitReachedPerUser(String userName) {
     Integer numSessions = sessionsPerUser.get(userName);
-    return numSessions != null && numSessions >= maximumNumberOfSessionPerUser;
+    return numSessions != null && numSessions >= getMaximumNumberOfSessionsPerUser();
   }
 
   /**
@@ -146,7 +143,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
     username = UtilityMethods.removeDomain(username);
     if (isMaxSessionsLimitReachedPerUser(username)) {
       log.error("Can not open new session as session limit {} is reached already for {} user",
-        maximumNumberOfSessionPerUser, username);
+        getMaximumNumberOfSessionsPerUser(), username);
       throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
         + username + " user");
     }
@@ -235,7 +232,6 @@ public abstract class BaseLensService extends CompositeService implements Extern
     }
   }
 
-  @VisibleForTesting
   public Map<LensSessionHandle, String> getSessionHandleToUserMap() {
     return sessionHandleToUserMap;
   }
