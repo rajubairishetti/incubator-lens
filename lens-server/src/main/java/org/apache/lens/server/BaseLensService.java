@@ -32,6 +32,7 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.api.util.PathValidator;
@@ -84,7 +85,18 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
-  private stat
+  private static final HashMap<String, Integer> sessionsPerUser = new HashMap<String, Integer>();
+
+  private static final HashMap<LensSessionHandle, String> sessionHandleToUserMap
+    = new HashMap<LensSessionHandle, String>();
+
+  private static final Integer maximumNumberOfSessionPerUser;
+
+  static {
+    maximumNumberOfSessionPerUser = LensServerConf.getHiveConf().getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
+      LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
+  }
+
   /**
    * Instantiates a new lens service.
    *
@@ -111,6 +123,11 @@ public abstract class BaseLensService extends CompositeService implements Extern
     return BaseLensService.SESSION_MAP.size();
   }
 
+  private boolean isMaxSessionsLimitReachedPerUser(String userName) {
+    Integer numSessions = sessionsPerUser.get(userName);
+    return numSessions != null && numSessions >= maximumNumberOfSessionPerUser;
+  }
+
   /**
    * Open session.
    *
@@ -127,6 +144,12 @@ public abstract class BaseLensService extends CompositeService implements Extern
     }
     SessionHandle sessionHandle;
     username = UtilityMethods.removeDomain(username);
+    if (isMaxSessionsLimitReachedPerUser(username)) {
+      log.error("Can not open new session as session limit {} is reached already for {} user",
+        maximumNumberOfSessionPerUser, username);
+      throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
+        + username + " user");
+    }
     doPasswdAuth(username, password);
     try {
       Map<String, String> sessionConf = new HashMap<String, String>();
@@ -160,10 +183,21 @@ public abstract class BaseLensService extends CompositeService implements Extern
     } catch (Exception e) {
       throw new LensException(e);
     }
-    LensSessionHandle lensSession = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
+    LensSessionHandle lensSessionHandle = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
       sessionHandle.getHandleIdentifier().getSecretId());
-    SESSION_MAP.put(lensSession.getPublicId().toString(), lensSession);
-    return lensSession;
+    SESSION_MAP.put(lensSessionHandle.getPublicId().toString(), lensSessionHandle);
+    sessionHandleToUserMap.put(lensSessionHandle, username);
+    updateSessionsPerUser(username);
+    return lensSessionHandle;
+  }
+
+  private void updateSessionsPerUser(String userName) {
+    Integer numOfSessions = sessionsPerUser.get(userName);
+    if (null == numOfSessions) {
+      sessionsPerUser.put(userName, 1);
+    } else {
+      sessionsPerUser.put(userName, ++numOfSessions);
+    }
   }
 
   protected LensEventService getEventService() {
@@ -195,9 +229,15 @@ public abstract class BaseLensService extends CompositeService implements Extern
       LensSessionHandle restoredSession = new LensSessionHandle(restoredHandle.getHandleIdentifier().getPublicId(),
         restoredHandle.getHandleIdentifier().getSecretId());
       SESSION_MAP.put(restoredSession.getPublicId().toString(), restoredSession);
+      updateSessionsPerUser(userName);
     } catch (HiveSQLException e) {
       throw new LensException("Error restoring session " + sessionHandle, e);
     }
+  }
+
+  @VisibleForTesting
+  public Map<LensSessionHandle, String> getSessionHandleToUserMap() {
+    return sessionHandleToUserMap;
   }
 
   /**
@@ -241,6 +281,15 @@ public abstract class BaseLensService extends CompositeService implements Extern
       SESSION_MAP.remove(sessionHandle.getPublicId().toString());
     } catch (Exception e) {
       throw new LensException(e);
+    }
+    decrementSessionCountForUser(sessionHandle);
+  }
+
+  private void decrementSessionCountForUser(LensSessionHandle sessionHandle) {
+    String userName = sessionHandleToUserMap.get(sessionHandle);
+    Integer sessionCount = sessionsPerUser.get(userName);
+    if (sessionCount != null && sessionCount >= 0) {
+      sessionsPerUser.put(userName, --sessionCount);
     }
   }
 

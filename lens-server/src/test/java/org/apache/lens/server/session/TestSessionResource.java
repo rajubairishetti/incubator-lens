@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -32,12 +35,14 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lens.api.APIResult;
 import org.apache.lens.api.APIResult.Status;
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.api.StringList;
 import org.apache.lens.server.LensJerseyTest;
+import org.apache.lens.server.LensServerConf;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.error.LensException;
@@ -67,6 +72,7 @@ import org.testng.annotations.Test;
  * The Class TestSessionResource.
  */
 @Test(groups = "unit-test")
+@Slf4j
 public class TestSessionResource extends LensJerseyTest {
 
 
@@ -186,7 +192,7 @@ public class TestSessionResource extends LensJerseyTest {
     // Create another session
     final LensSessionHandle handle2 = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
       LensSessionHandle.class);
-    Assert.assertNotNull(handle);
+    Assert.assertNotNull(handle2);
 
     // get myvar session params on handle2
     try {
@@ -370,6 +376,19 @@ public class TestSessionResource extends LensJerseyTest {
 
     /* Verification Steps: server should restart without exceptions */
     restartLensServer();
+    //closeSessions();
+  }
+
+  private void closeSessions() {
+    HiveSessionService service = LensServices.get().getService(SessionService.NAME);
+    Set<LensSessionHandle> sessionHandleSet = service.getSessionHandleToUserMap().keySet();
+    for (LensSessionHandle session : sessionHandleSet) {
+      try {
+        service.closeSession(session);
+      } catch (LensException e) {
+        log.warn("Got Exception while closing {} session" + session);
+      }
+    }
   }
 
   private LensSessionHandle openSession(final String userName, final String passwd, final LensConf conf) {
@@ -431,7 +450,8 @@ public class TestSessionResource extends LensJerseyTest {
     HiveSessionService service = LensServices.get().getService(SessionService.NAME);
     LensSessionImpl session = service.getSession(handle);
     Assert.assertEquals(session.getCurrentDatabase(), testDbName, "Expected current DB to be set to " + testDbName);
-
+    APIResult result = target.queryParam("sessionid", handle).request().delete(APIResult.class);
+    Assert.assertEquals(result.getStatus(), APIResult.Status.SUCCEEDED);
 
     // TEST 2 - Try set database with invalid db name
     final String invalidDB = testDbName + "_invalid_db";
@@ -442,16 +462,15 @@ public class TestSessionResource extends LensJerseyTest {
     form2.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("database").build(), invalidDB));
     form2.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
       new LensConf(), MediaType.APPLICATION_XML_TYPE));
-
     try {
       final LensSessionHandle handle2 = target.request().post(Entity.entity(form2, MediaType.MULTIPART_FORM_DATA_TYPE),
         LensSessionHandle.class);
       Assert.fail("Expected above call to fail with not found exception");
     } catch (NotFoundException nfe) {
       // PASS
+      //closeSessions();
     }
   }
-
   /**
    * Test acquire and release behaviour for closed sessions
    */
@@ -493,6 +512,34 @@ public class TestSessionResource extends LensJerseyTest {
     mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
         new LensConf(), MediaType.APPLICATION_XML_TYPE));
     return mp;
+  }
+
+  @Test
+  public void testMaxSessionsPerUser() throws Exception {
+    HiveSessionService sessionService = LensServices.get().getService(SessionService.NAME);
+    HiveConf conf = LensServerConf.getHiveConf();
+    Integer maxSessionsLimitPerUser = conf.getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
+      LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
+    List<LensSessionHandle> sessions = new ArrayList<LensSessionHandle>();
+    try {
+      for (int i = 0; i < maxSessionsLimitPerUser; i++) {
+        LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test1",
+          new HashMap<String, String>());
+        sessions.add(sessionHandle);
+        Assert.assertNotNull(sessionHandle);
+      }
+      try {
+        LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test1",
+          new HashMap<String, String>());
+        Assert.fail("Session should not be created as session limit is already reached");
+      } catch (LensException le) {
+        // Exception expected as max session limit is reached for user
+      }
+    } finally {
+      for (LensSessionHandle sessionHandle : sessions) {
+        sessionService.closeSession(sessionHandle);
+      }
+    }
   }
 
   @Test
