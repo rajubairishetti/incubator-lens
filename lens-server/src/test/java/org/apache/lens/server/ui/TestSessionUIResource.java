@@ -121,7 +121,6 @@ public class TestSessionUIResource extends LensJerseyTest {
         post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
     Assert.assertEquals(response.getStatus(), 200);
     Assert.assertEquals(response.getMediaType().toString(), "application/json");
-    //closeSessions();
   }
 
   @Test
@@ -133,19 +132,5 @@ public class TestSessionUIResource extends LensJerseyTest {
         post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
     Assert.assertEquals(response.getStatus(), 200);
     Assert.assertEquals(response.getMediaType().toString(), "application/xml");
-    //closeSessions();
   }
-/*
-  private void closeSessions() {
-    HiveSessionService service = LensServices.get().getService(SessionService.NAME);
-    Set<LensSessionHandle> sessionHandleSet = service.getSessionHandleToUserMap().keySet();
-    for (LensSessionHandle session : sessionHandleSet) {
-      try {
-        service.closeSession(session);
-      } catch (LensException e) {
-        log.warn("Got Exception while closing {} session" + session);
-      }
-    }
-  }
-  */
 }

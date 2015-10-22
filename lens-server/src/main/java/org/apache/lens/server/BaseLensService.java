@@ -142,8 +142,6 @@ public abstract class BaseLensService extends CompositeService implements Extern
     SessionHandle sessionHandle;
     username = UtilityMethods.removeDomain(username);
     if (isMaxSessionsLimitReachedPerUser(username)) {
-      log.info("AAAAAAAAAAAAAAAAAA print num sessions per user {}", sessionsPerUser);
-      log.info("Print all sessions per user: {} ::::::: {}", username, sessionHandleToUserMap);
       log.error("Can not open new session as session limit {} is reached already for {} user",
         getMaximumNumberOfSessionsPerUser(), username);
       throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
@@ -277,21 +275,22 @@ public abstract class BaseLensService extends CompositeService implements Extern
   public void closeSession(LensSessionHandle sessionHandle) throws LensException {
     try {
       cliService.closeSession(getHiveSessionHandle(sessionHandle));
-      SESSION_MAP.remove(sessionHandle.getPublicId().toString());
-      decrementSessionCountForUser(sessionHandle);
-      log.info("Closed session {} for user", sessionHandle);
+      String publicId = sessionHandle.getPublicId().toString();
+      SESSION_MAP.remove(publicId);
+      decrementSessionCountForUser(publicId);
     } catch (Exception e) {
       throw new LensException(e);
     }
   }
 
-  private void decrementSessionCountForUser(LensSessionHandle sessionHandle) {
-    String userName = sessionHandleToUserMap.get(sessionHandle.getPublicId().toString());
+  private void decrementSessionCountForUser(String publicId) {
+    String userName = sessionHandleToUserMap.get(publicId);
     Integer sessionCount = sessionsPerUser.get(userName);
+    log.info("Closed session {} for {} user", publicId, userName);
     if (sessionCount != null && sessionCount > 0) {
       sessionsPerUser.put(userName, --sessionCount);
     }
-    sessionHandleToUserMap.remove(sessionHandle.getPublicId().toString());
+    sessionHandleToUserMap.remove(publicId);
   }
 
   public SessionManager getSessionManager() {

@@ -376,21 +376,7 @@ public class TestSessionResource extends LensJerseyTest {
     restartLensServer();
     HiveSessionService service = LensServices.get().getService(SessionService.NAME);
     service.closeSession(sessionHandle);
-    //closeSessions();
   }
-
-  /*
-  private void closeSessions() {
-    HiveSessionService service = LensServices.get().getService(SessionService.NAME);
-    Set<LensSessionHandle> sessionHandleSet = service.getSessionHandleToUserMap().keySet();
-    for (LensSessionHandle session : sessionHandleSet) {
-      try {
-        service.closeSession(session);
-      } catch (LensException e) {
-        log.warn("Got Exception while closing {} session" + session);
-      }
-    }
-  }*/
 
   private LensSessionHandle openSession(final String userName, final String passwd, final LensConf conf) {
 
@@ -469,9 +455,9 @@ public class TestSessionResource extends LensJerseyTest {
       Assert.fail("Expected above call to fail with not found exception");
     } catch (NotFoundException nfe) {
       // PASS
-      //closeSessions();
     }
   }
+
   /**
    * Test acquire and release behaviour for closed sessions
    */
@@ -521,7 +507,7 @@ public class TestSessionResource extends LensJerseyTest {
     HiveConf conf = LensServerConf.getHiveConf();
     Integer maxSessionsLimitPerUser = conf.getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
       LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
-    List<LensSessionHandle> sessions = new ArrayList<LensSessionHandle>();
+    List<LensSessionHandle> sessions = new ArrayList<>();
     try {
       for (int i = 0; i < maxSessionsLimitPerUser; i++) {
         LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test",
@@ -535,6 +521,12 @@ public class TestSessionResource extends LensJerseyTest {
       } catch (LensException le) {
         // Exception expected as max session limit is reached for user
       }
+      // User should be able to open a new session by closing the one of the existing opened sessions
+      sessionService.closeSession(sessions.get(0));
+      LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test",
+        new HashMap<String, String>());
+      sessions.add(sessionHandle);
+      Assert.assertNotNull(sessionHandle);
     } finally {
       for (LensSessionHandle sessionHandle : sessions) {
         sessionService.closeSession(sessionHandle);
