@@ -84,10 +84,10 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
-  private final HashMap<String, Integer> sessionsPerUser = new HashMap<String, Integer>();
+  private final Map<String, Integer> sessionsPerUser = new ConcurrentHashMap<String, Integer>();
 
-  private final HashMap<LensSessionHandle, String> sessionHandleToUserMap
-    = new HashMap<LensSessionHandle, String>();
+  private final Map<String, String> sessionHandleToUserMap
+    = new ConcurrentHashMap<String, String>();
 
   /**
    * Instantiates a new lens service.
@@ -142,6 +142,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
     SessionHandle sessionHandle;
     username = UtilityMethods.removeDomain(username);
     if (isMaxSessionsLimitReachedPerUser(username)) {
+      log.info("AAAAAAAAAAAAAAAAAA print num sessions per user {}", sessionsPerUser);
+      log.info("Print all sessions per user: {} ::::::: {}", username, sessionHandleToUserMap);
       log.error("Can not open new session as session limit {} is reached already for {} user",
         getMaximumNumberOfSessionsPerUser(), username);
       throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
@@ -183,7 +185,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
     LensSessionHandle lensSessionHandle = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
       sessionHandle.getHandleIdentifier().getSecretId());
     SESSION_MAP.put(lensSessionHandle.getPublicId().toString(), lensSessionHandle);
-    sessionHandleToUserMap.put(lensSessionHandle, username);
+    sessionHandleToUserMap.put(lensSessionHandle.getPublicId().toString(), username);
     updateSessionsPerUser(username);
     return lensSessionHandle;
   }
@@ -226,13 +228,14 @@ public abstract class BaseLensService extends CompositeService implements Extern
       LensSessionHandle restoredSession = new LensSessionHandle(restoredHandle.getHandleIdentifier().getPublicId(),
         restoredHandle.getHandleIdentifier().getSecretId());
       SESSION_MAP.put(restoredSession.getPublicId().toString(), restoredSession);
+      sessionHandleToUserMap.put(restoredSession.getPublicId().toString(), userName);
       updateSessionsPerUser(userName);
     } catch (HiveSQLException e) {
       throw new LensException("Error restoring session " + sessionHandle, e);
     }
   }
 
-  public Map<LensSessionHandle, String> getSessionHandleToUserMap() {
+  public Map<String, String> getSessionHandleToUserMap() {
     return sessionHandleToUserMap;
   }
 
@@ -275,18 +278,20 @@ public abstract class BaseLensService extends CompositeService implements Extern
     try {
       cliService.closeSession(getHiveSessionHandle(sessionHandle));
       SESSION_MAP.remove(sessionHandle.getPublicId().toString());
+      decrementSessionCountForUser(sessionHandle);
+      log.info("Closed session {} for user", sessionHandle);
     } catch (Exception e) {
       throw new LensException(e);
     }
-    decrementSessionCountForUser(sessionHandle);
   }
 
   private void decrementSessionCountForUser(LensSessionHandle sessionHandle) {
-    String userName = sessionHandleToUserMap.get(sessionHandle);
+    String userName = sessionHandleToUserMap.get(sessionHandle.getPublicId().toString());
     Integer sessionCount = sessionsPerUser.get(userName);
-    if (sessionCount != null && sessionCount >= 0) {
+    if (sessionCount != null && sessionCount > 0) {
       sessionsPerUser.put(userName, --sessionCount);
     }
+    sessionHandleToUserMap.remove(sessionHandle.getPublicId().toString());
   }
 
   public SessionManager getSessionManager() {

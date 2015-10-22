@@ -2412,6 +2412,7 @@ public class TestMetastoreService extends LensJerseyTest {
     try {
       // create hive table
       String tableName = "test_simple_table";
+      System.out.println("AAAAAAAAAAAAAAAAAA  : " + SessionState.get());
       SessionState.get().setCurrentDatabase(DB);
       LensTestUtil.createHiveTable(tableName);
 

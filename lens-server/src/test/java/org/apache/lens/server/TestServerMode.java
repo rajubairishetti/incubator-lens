@@ -53,6 +53,8 @@ import org.testng.annotations.Test;
 @Test(alwaysRun = true, groups = "filter-test", dependsOnGroups = "restart-test")
 public class TestServerMode extends LensAllApplicationJerseyTest {
 
+  private LensSessionHandle lensSessionHandle;
+
   /*
    * (non-Javadoc)
    *
@@ -61,7 +63,8 @@ public class TestServerMode extends LensAllApplicationJerseyTest {
   @BeforeTest
   public void setUp() throws Exception {
     super.setUp();
-    LensTestUtil.createTable("test_table", target(), RestAPITestUtil.openFooBarSession(target()));
+    lensSessionHandle = RestAPITestUtil.openFooBarSession(target());
+    LensTestUtil.createTable("test_table", target(), lensSessionHandle);
   }
 
   /*
@@ -71,6 +74,7 @@ public class TestServerMode extends LensAllApplicationJerseyTest {
    */
   @AfterTest
   public void tearDown() throws Exception {
+    RestAPITestUtil.closeSession(target(), lensSessionHandle);
     super.tearDown();
   }
 

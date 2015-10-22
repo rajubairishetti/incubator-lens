@@ -354,7 +354,8 @@ public class TestSessionResource extends LensJerseyTest {
   }
 
   @Test
-  public void testServerMustRestartOnManualDeletionOfAddedResources() throws IOException, LenServerTestException {
+  public void testServerMustRestartOnManualDeletionOfAddedResources()
+    throws IOException, LenServerTestException, LensException {
 
     /* Begin: Setup */
 
@@ -373,6 +374,8 @@ public class TestSessionResource extends LensJerseyTest {
 
     /* Verification Steps: server should restart without exceptions */
     restartLensServer();
+    HiveSessionService service = LensServices.get().getService(SessionService.NAME);
+    service.closeSession(sessionHandle);
     //closeSessions();
   }
 
@@ -512,7 +515,7 @@ public class TestSessionResource extends LensJerseyTest {
     return mp;
   }
 
-  //@Test
+  @Test
   public void testMaxSessionsPerUser() throws Exception {
     HiveSessionService sessionService = LensServices.get().getService(SessionService.NAME);
     HiveConf conf = LensServerConf.getHiveConf();
@@ -521,14 +524,13 @@ public class TestSessionResource extends LensJerseyTest {
     List<LensSessionHandle> sessions = new ArrayList<LensSessionHandle>();
     try {
       for (int i = 0; i < maxSessionsLimitPerUser; i++) {
-        LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test1",
+        LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test",
           new HashMap<String, String>());
         sessions.add(sessionHandle);
         Assert.assertNotNull(sessionHandle);
       }
       try {
-        LensSessionHandle sessionHandle = sessionService.openSession("test@localhost", "test1",
-          new HashMap<String, String>());
+        sessionService.openSession("test@localhost", "test", new HashMap<String, String>());
         Assert.fail("Session should not be created as session limit is already reached");
       } catch (LensException le) {
         // Exception expected as max session limit is reached for user

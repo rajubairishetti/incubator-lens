@@ -145,6 +145,7 @@ public class TestLensDAO extends LensJerseyTest {
       Long.MAX_VALUE);
     Assert.assertEquals(daoTestQueryHandles.size(), 1);
     Assert.assertEquals(daoTestQueryHandles.get(0).getHandleId().toString(), finishedHandle);
+    service.closeSession(session);
   }
 
   /*
