@@ -86,7 +86,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
 
   private final Map<String, Integer> sessionsPerUser = new ConcurrentHashMap<String, Integer>();
 
-  private final Map<String, String> sessionHandleToUserMap
+  public final Map<String, String> sessionHandleToUserMap
     = new ConcurrentHashMap<String, String>();
 
   /**
@@ -231,10 +231,6 @@ public abstract class BaseLensService extends CompositeService implements Extern
     } catch (HiveSQLException e) {
       throw new LensException("Error restoring session " + sessionHandle, e);
     }
-  }
-
-  public Map<String, String> getSessionHandleToUserMap() {
-    return sessionHandleToUserMap;
   }
 
   /**
