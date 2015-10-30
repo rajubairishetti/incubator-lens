@@ -84,6 +84,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<String, LensSessionHandle>();
 
+  private final Map<String, Integer> sessionsPerUser = new ConcurrentHashMap<String, Integer>();
+
   /**
    * Instantiates a new lens service.
    *
@@ -110,6 +112,16 @@ public abstract class BaseLensService extends CompositeService implements Extern
     return BaseLensService.SESSION_MAP.size();
   }
 
+  public static int getMaximumNumberOfSessionsPerUser() {
+    return LensServerConf.getHiveConf().getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
+      LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
+  }
+
+  private boolean isMaxSessionsLimitReachedPerUser(String userName) {
+    Integer numSessions = sessionsPerUser.get(userName);
+    return numSessions != null && numSessions >= getMaximumNumberOfSessionsPerUser();
+  }
+
   /**
    * Open session.
    *
@@ -126,6 +138,12 @@ public abstract class BaseLensService extends CompositeService implements Extern
     }
     SessionHandle sessionHandle;
     username = UtilityMethods.removeDomain(username);
+    if (isMaxSessionsLimitReachedPerUser(username)) {
+      log.error("Can not open new session as session limit {} is reached already for {} user",
+        getMaximumNumberOfSessionsPerUser(), username);
+      throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
+        + username + " user");
+    }
     doPasswdAuth(username, password);
     try {
       Map<String, String> sessionConf = new HashMap<String, String>();
@@ -159,10 +177,20 @@ public abstract class BaseLensService extends CompositeService implements Extern
     } catch (Exception e) {
       throw new LensException(e);
     }
-    LensSessionHandle lensSession = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
+    LensSessionHandle lensSessionHandle = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
       sessionHandle.getHandleIdentifier().getSecretId());
-    SESSION_MAP.put(lensSession.getPublicId().toString(), lensSession);
-    return lensSession;
+    SESSION_MAP.put(lensSessionHandle.getPublicId().toString(), lensSessionHandle);
+    updateSessionsPerUser(username);
+    return lensSessionHandle;
+  }
+
+  private void updateSessionsPerUser(String userName) {
+    Integer numOfSessions = sessionsPerUser.get(userName);
+    if (null == numOfSessions) {
+      sessionsPerUser.put(userName, 1);
+    } else {
+      sessionsPerUser.put(userName, ++numOfSessions);
+    }
   }
 
   protected LensEventService getEventService() {
@@ -194,6 +222,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
       LensSessionHandle restoredSession = new LensSessionHandle(restoredHandle.getHandleIdentifier().getPublicId(),
         restoredHandle.getHandleIdentifier().getSecretId());
       SESSION_MAP.put(restoredSession.getPublicId().toString(), restoredSession);
+      updateSessionsPerUser(userName);
     } catch (HiveSQLException e) {
       throw new LensException("Error restoring session " + sessionHandle, e);
     }
@@ -237,9 +266,20 @@ public abstract class BaseLensService extends CompositeService implements Extern
   public void closeSession(LensSessionHandle sessionHandle) throws LensException {
     try {
       cliService.closeSession(getHiveSessionHandle(sessionHandle));
-      SESSION_MAP.remove(sessionHandle.getPublicId().toString());
+      String publicId = sessionHandle.getPublicId().toString();
+      SESSION_MAP.remove(publicId);
+      decrementSessionCountForUser(sessionHandle);
     } catch (Exception e) {
       throw new LensException(e);
+    }
+  }
+
+  private void decrementSessionCountForUser(LensSessionHandle sessionHandle) {
+    String userName = getSession(sessionHandle).getLoggedInUser();
+    Integer sessionCount = sessionsPerUser.get(userName);
+    log.info("Closed session {} for {} user", sessionHandle, userName);
+    if (sessionCount != null && sessionCount > 0) {
+      sessionsPerUser.put(userName, --sessionCount);
     }
   }
 
