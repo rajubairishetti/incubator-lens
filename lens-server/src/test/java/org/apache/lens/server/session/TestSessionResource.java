@@ -518,8 +518,9 @@ public class TestSessionResource extends LensJerseyTest {
       try {
         sessionService.openSession("test@localhost", "test", new HashMap<String, String>());
         Assert.fail("Session should not be created as session limit is already reached");
-      } catch (LensException le) {
+      } catch (ClientErrorException le) {
         // Exception expected as max session limit is reached for user
+        Assert.assertEquals(le.getResponse().getStatus(), 429);
       }
       // User should be able to open a new session by closing the one of the existing opened sessions
       sessionService.closeSession(sessions.remove(0));

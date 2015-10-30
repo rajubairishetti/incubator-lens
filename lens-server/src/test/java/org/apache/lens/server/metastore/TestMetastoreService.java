@@ -46,6 +46,8 @@ import org.apache.lens.server.LensJerseyTest;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.LensTestUtil;
 import org.apache.lens.server.api.metastore.CubeMetastoreService;
+import org.apache.lens.server.api.session.SessionService;
+import org.apache.lens.server.session.HiveSessionService;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -57,6 +59,7 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.*;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -2404,6 +2407,8 @@ public class TestMetastoreService extends LensJerseyTest {
 
   @Test
   public void testNativeTables() throws Exception {
+    HiveSessionService service = LensServices.get().getService(SessionService.NAME);
+    LensSessionHandle sessionHandle = service.openSession("foo", "bar", new HashMap<String, String>());
     final String DB = dbPFX + "test_native_tables";
     String prevDb = getCurrentDatabase();
     createDatabase(DB);
@@ -2497,6 +2502,7 @@ public class TestMetastoreService extends LensJerseyTest {
     } finally {
       dropDatabase(DB);
       setCurrentDatabase(prevDb);
+      service.closeSession(sessionHandle);
     }
   }
 

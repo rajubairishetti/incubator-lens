@@ -141,8 +141,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
     if (isMaxSessionsLimitReachedPerUser(username)) {
       log.error("Can not open new session as session limit {} is reached already for {} user",
         getMaximumNumberOfSessionsPerUser(), username);
-      throw new LensException("Maximum sessions limit per user is already reached. Not opening another session for "
-        + username + " user");
+      throw new ClientErrorException("Maximum sessions limit per user is already reached. Not opening another session"
+        + " for " + username + " user.", 429);
     }
     doPasswdAuth(username, password);
     try {
@@ -265,17 +265,17 @@ public abstract class BaseLensService extends CompositeService implements Extern
    */
   public void closeSession(LensSessionHandle sessionHandle) throws LensException {
     try {
+      String userName = getSession(sessionHandle).getLoggedInUser();
       cliService.closeSession(getHiveSessionHandle(sessionHandle));
       String publicId = sessionHandle.getPublicId().toString();
       SESSION_MAP.remove(publicId);
-      decrementSessionCountForUser(sessionHandle);
+      decrementSessionCountForUser(sessionHandle, userName);
     } catch (Exception e) {
       throw new LensException(e);
     }
   }
 
-  private void decrementSessionCountForUser(LensSessionHandle sessionHandle) {
-    String userName = getSession(sessionHandle).getLoggedInUser();
+  private void decrementSessionCountForUser(LensSessionHandle sessionHandle, String userName) {
     Integer sessionCount = sessionsPerUser.get(userName);
     log.info("Closed session {} for {} user", sessionHandle, userName);
     if (sessionCount != null && sessionCount > 0) {
