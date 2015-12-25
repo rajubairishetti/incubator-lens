@@ -30,6 +30,7 @@ import org.apache.lens.api.APIResult.Status;
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
 import org.apache.lens.api.StringList;
+import org.apache.lens.api.error.ErrorCollection;
 import org.apache.lens.server.BaseLensService;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.error.LensException;
@@ -52,6 +53,8 @@ public class SessionResource {
   /** The session service. */
   private SessionService sessionService;
 
+  private final ErrorCollection errorCollection;
+
   /**
    * API to know if session service is up and running
    *
@@ -70,6 +73,7 @@ public class SessionResource {
    */
   public SessionResource() throws LensException {
     sessionService = LensServices.get().getService(SessionService.NAME);
+    errorCollection = LensServices.get().getErrorCollection();
   }
 
   /**
@@ -97,6 +101,7 @@ public class SessionResource {
       }
       return sessionService.openSession(username, password, database,   conf);
     } catch (LensException e) {
+      //e.buildLensErrorResponse(errorCollection, null, "session-request");
       throw new WebApplicationException(e);
     }
   }

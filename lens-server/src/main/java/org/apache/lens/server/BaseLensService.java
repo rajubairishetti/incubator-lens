@@ -34,13 +34,18 @@ import javax.ws.rs.NotFoundException;
 
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
+import org.apache.lens.api.error.ErrorCollection;
+import org.apache.lens.api.error.LensError;
+import org.apache.lens.api.result.LensErrorTO;
 import org.apache.lens.api.util.PathValidator;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.LensService;
 import org.apache.lens.server.api.error.LensException;
+import org.apache.lens.server.api.error.LensMultiCauseException;
 import org.apache.lens.server.api.events.LensEvent;
 import org.apache.lens.server.api.events.LensEventService;
 import org.apache.lens.server.api.health.HealthStatus;
+import org.apache.lens.server.error.LensServerErrorCode;
 import org.apache.lens.server.session.LensSessionImpl;
 import org.apache.lens.server.user.UserConfigLoaderFactory;
 import org.apache.lens.server.util.UtilityMethods;
@@ -86,6 +91,9 @@ public abstract class BaseLensService extends CompositeService implements Extern
 
   private final Map<String, Integer> sessionsPerUser = new ConcurrentHashMap<String, Integer>();
 
+  private final int MAX_NUM_SESSIONS_PER_USER;
+
+  private final ErrorCollection errorCollection;
   /**
    * Instantiates a new lens service.
    *
@@ -95,6 +103,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected BaseLensService(String name, CLIService cliService) {
     super(name);
     this.cliService = cliService;
+    errorCollection = LensServices.get().getErrorCollection();
+    MAX_NUM_SESSIONS_PER_USER = getMaximumNumberOfSessionsPerUser();
   }
 
   /**
@@ -140,9 +150,14 @@ public abstract class BaseLensService extends CompositeService implements Extern
     username = UtilityMethods.removeDomain(username);
     if (isMaxSessionsLimitReachedPerUser(username)) {
       log.error("Can not open new session as session limit {} is reached already for {} user",
-        getMaximumNumberOfSessionsPerUser(), username);
-      throw new ClientErrorException("Maximum sessions limit per user is already reached. Not opening another session"
-        + " for " + username + " user.", 429);
+          MAX_NUM_SESSIONS_PER_USER, username);
+      log.info("AAAAAAAAAAAAAA error info : " + LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo());
+      throw new LensException(LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
+          MAX_NUM_SESSIONS_PER_USER);
+      //LensError lensError = errorCollection.getLensError(2004);
+      //throw new LensException(lensError.getErrorMsg(), LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo());
+     /* throw new ClientErrorException("Maximum sessions limit per user is already reached. Not opening another session"
+        + " for " + username + " user.", 429);*/
     }
     doPasswdAuth(username, password);
     try {
