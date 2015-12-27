@@ -21,7 +21,6 @@ package org.apache.lens.cube.metadata;
 import java.util.*;
 
 import org.apache.lens.cube.metadata.UpdatePeriod.UpdatePeriodComparator;
-import org.apache.lens.cube.parse.DateUtil;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -154,7 +153,7 @@ public class CubeFactTable extends AbstractCubeTable {
     List<String> partitions = new ArrayList<String>();
     Date dt = cal.getTime();
     while (dt.compareTo(toDate) < 0) {
-      String part = interval.format().format(cal.getTime());
+      String part = interval.format(cal.getTime());
       partitions.add(part);
       cal.add(interval.calendarField(), 1);
       dt = cal.getTime();

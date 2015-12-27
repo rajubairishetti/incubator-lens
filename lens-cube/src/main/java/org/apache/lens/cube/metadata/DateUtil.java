@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.lens.cube.parse;
+package org.apache.lens.cube.metadata;
 
-import static java.util.Calendar.*;
+import static java.util.Calendar.MONTH;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,16 +26,19 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lens.cube.error.LensCubeErrorCode;
-import org.apache.lens.cube.metadata.UpdatePeriod;
 import org.apache.lens.server.api.error.LensException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -63,12 +66,11 @@ public final class DateUtil {
   }
 
   public static final String GRANULARITY = "\\.(" + UNIT + ")";
-  public static final String RELATIVE = "(now){1}(" + GRANULARITY + "){0,1}";
+  public static final String RELATIVE = "(now)(" + GRANULARITY + ")?";
   public static final Pattern P_RELATIVE = Pattern.compile(RELATIVE, Pattern.CASE_INSENSITIVE);
 
   public static final String WSPACE = "\\s+";
   public static final String OPTIONAL_WSPACE = "\\s*";
-  public static final Pattern P_WSPACE = Pattern.compile(WSPACE);
 
   public static final String SIGNAGE = "\\+|\\-";
   public static final Pattern P_SIGNAGE = Pattern.compile(SIGNAGE);
@@ -79,7 +81,7 @@ public final class DateUtil {
   public static final Pattern P_UNIT = Pattern.compile(UNIT, Pattern.CASE_INSENSITIVE);
 
   public static final String RELDATE_VALIDATOR_STR = RELATIVE + OPTIONAL_WSPACE + "((" + SIGNAGE + ")" + "("
-    + WSPACE + ")?" + "(" + QUANTITY + ")" + OPTIONAL_WSPACE + "(" + UNIT + ")){0,1}" + "(s?)";
+    + WSPACE + ")?" + "(" + QUANTITY + ")" + OPTIONAL_WSPACE + "(" + UNIT + "))?" + "(s?)";
 
   public static final Pattern RELDATE_VALIDATOR = Pattern.compile(RELDATE_VALIDATOR_STR, Pattern.CASE_INSENSITIVE);
 
@@ -107,10 +109,6 @@ public final class DateUtil {
         return new SimpleDateFormat(HIVE_QUERY_DATE_FMT);
       }
     };
-
-  public static String formatDate(Date dt) {
-    return ABSDATE_PARSER.get().format(dt);
-  }
 
   public static String getAbsDateFormatString(String str) {
     if (str.matches(YEAR_FMT)) {
@@ -151,10 +149,18 @@ public final class DateUtil {
     }
   }
 
-  public static Date resolveAbsoluteDate(String str) throws LensException {
+  static Cache<String, Date> stringToDateCache = CacheBuilder.newBuilder()
+    .expireAfterWrite(2, TimeUnit.HOURS).maximumSize(100).build();
+
+  public static Date resolveAbsoluteDate(final String str) throws LensException {
     try {
-      return ABSDATE_PARSER.get().parse(getAbsDateFormatString(str));
-    } catch (ParseException e) {
+      return stringToDateCache.get(str, new Callable<Date>() {
+        @Override
+        public Date call() throws ParseException {
+          return ABSDATE_PARSER.get().parse(getAbsDateFormatString(str));
+        }
+      });
+    } catch (Exception e) {
       log.error("Invalid date format. expected only {} date provided:{}", ABSDATE_FMT, str, e);
       throw new LensException(LensCubeErrorCode.WRONG_TIME_RANGE_FORMAT.getLensErrorInfo(), ABSDATE_FMT, str);
     }
@@ -178,7 +184,6 @@ public final class DateUtil {
 
       Matcher granularityMatcher = P_UNIT.matcher(nowWithGranularity);
       if (granularityMatcher.find()) {
-        String unit = granularityMatcher.group().toLowerCase();
         calendar = UpdatePeriod.fromUnitName(granularityMatcher.group().toLowerCase()).truncate(calendar);
       }
     }
@@ -189,90 +194,12 @@ public final class DateUtil {
     return diff.offsetFrom(calendar.getTime());
   }
 
-  public static Date getCeilDate(Date fromDate, UpdatePeriod interval) {
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(fromDate);
-    boolean hasFraction = false;
-    switch (interval) {
-    case YEARLY:
-      if (cal.get(MONTH) != 0) {
-        hasFraction = true;
-        break;
-      }
-    case MONTHLY:
-      if (cal.get(DAY_OF_MONTH) != 1) {
-        hasFraction = true;
-        break;
-      }
-    case DAILY:
-      if (cal.get(Calendar.HOUR_OF_DAY) != 0) {
-        hasFraction = true;
-        break;
-      }
-    case HOURLY:
-      if (cal.get(Calendar.MINUTE) != 0) {
-        hasFraction = true;
-        break;
-      }
-    case MINUTELY:
-      if (cal.get(Calendar.SECOND) != 0) {
-        hasFraction = true;
-        break;
-      }
-    case SECONDLY:
-    case CONTINUOUS:
-      if (cal.get(Calendar.MILLISECOND) != 0) {
-        hasFraction = true;
-      }
-      break;
-    case WEEKLY:
-      if (cal.get(Calendar.DAY_OF_WEEK) != 1) {
-        hasFraction = true;
-        break;
-      }
-    }
-
-    if (hasFraction) {
-      cal.add(interval.calendarField(), 1);
-      return getFloorDate(cal.getTime(), interval);
-    } else {
-      return fromDate;
-    }
+  public static Date getCeilDate(Date date, UpdatePeriod interval) {
+    return interval.getCeilDate(date);
   }
 
-  public static Date getFloorDate(Date toDate, UpdatePeriod interval) {
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(toDate);
-    switch (interval) {
-    case YEARLY:
-      cal.set(MONTH, 0);
-    case MONTHLY:
-      cal.set(DAY_OF_MONTH, 1);
-    case DAILY:
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-    case HOURLY:
-      cal.set(Calendar.MINUTE, 0);
-    case MINUTELY:
-      cal.set(Calendar.SECOND, 0);
-    case SECONDLY:
-    case CONTINUOUS:
-      cal.set(Calendar.MILLISECOND, 0);
-      break;
-    case WEEKLY:
-      cal.set(Calendar.DAY_OF_WEEK, 1);
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
-      cal.set(Calendar.MILLISECOND, 0);
-      break;
-    }
-    return cal.getTime();
-  }
-
-  public static int getNumberofDaysInMonth(Date date) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    return calendar.getActualMaximum(DAY_OF_MONTH);
+  public static Date getFloorDate(Date date, UpdatePeriod interval) {
+    return interval.getFloorDate(date);
   }
 
   public static CoveringInfo getMonthlyCoveringInfo(Date from, Date to) {
@@ -356,20 +283,13 @@ public final class DateUtil {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(from);
-    int fromWeek = cal.get(Calendar.WEEK_OF_YEAR);
     int fromDay = cal.get(Calendar.DAY_OF_WEEK);
-    int fromYear = cal.get(YEAR);
-
-    cal.clear();
-    cal.set(YEAR, fromYear);
-    cal.set(Calendar.WEEK_OF_YEAR, fromWeek);
     cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-    int maxDayInWeek = cal.getActualMaximum(Calendar.DAY_OF_WEEK);
     Date fromWeekStartDate = cal.getTime();
     boolean coverable = dayDiff % 7 == 0;
     if (fromWeekStartDate.before(from)) {
       // Count from the start of next week
-      dayDiff -= (maxDayInWeek - (fromDay - Calendar.SUNDAY));
+      dayDiff -= (cal.getActualMaximum(Calendar.DAY_OF_WEEK) - (fromDay - Calendar.SUNDAY));
       coverable = false;
     }
 

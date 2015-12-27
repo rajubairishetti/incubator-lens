@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,11 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.lens.server.api.scheduler;
+package org.apache.lens.driver.hive;
 
-/**
- * The Interface QuerySchedulerService.
- */
-public interface QuerySchedulerService {
+import org.apache.lens.server.api.LensErrorInfo;
 
+public enum LensHiveErrorCode {
+
+  SEMANTIC_ERROR(4001, 10000), HIVE_ERROR(4002, 10000);
+
+  public LensErrorInfo getLensErrorInfo() {
+    return this.errorInfo;
+  }
+
+  LensHiveErrorCode(final int code, final int weight) {
+    this.errorInfo = new LensErrorInfo(code, weight, name());
+  }
+
+  private final LensErrorInfo errorInfo;
 }

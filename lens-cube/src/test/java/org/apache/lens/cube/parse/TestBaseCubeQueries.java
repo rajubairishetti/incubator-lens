@@ -19,9 +19,10 @@
 
 package org.apache.lens.cube.parse;
 
+import static org.apache.lens.cube.metadata.DateFactory.*;
+import static org.apache.lens.cube.metadata.DateUtil.*;
 import static org.apache.lens.cube.parse.CandidateTablePruneCause.CandidateTablePruneCode.MISSING_PARTITIONS;
 import static org.apache.lens.cube.parse.CubeTestSetup.*;
-import static org.apache.lens.cube.parse.DateUtil.*;
 import static org.apache.lens.cube.parse.TestCubeRewriter.compareQueries;
 
 import static org.apache.hadoop.hive.ql.parse.HiveParser.KW_AND;
@@ -33,6 +34,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lens.cube.error.LensCubeErrorCode;
+import org.apache.lens.cube.error.NoCandidateFactAvailableException;
+import org.apache.lens.cube.metadata.TimeRange;
 import org.apache.lens.cube.metadata.UpdatePeriod;
 import org.apache.lens.cube.parse.CandidateTablePruneCause.CandidateTablePruneCode;
 import org.apache.lens.server.api.error.LensException;
@@ -47,7 +50,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Splitter;
-
+import com.google.common.collect.Sets;
 import lombok.Getter;
 
 public class TestBaseCubeQueries extends TestQueryRewrite {
@@ -66,6 +69,18 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
   }
 
   @Test
+  public void testNoCandidateFactAvailableExceptionCompareTo() throws Exception {
+    //maxCause : COLUMN_NOT_FOUND, Ordinal : 9
+    NoCandidateFactAvailableException ne1 =(NoCandidateFactAvailableException)
+            getLensExceptionInRewrite("select dim1, test_time_dim, msr3, msr13 from basecube where "
+            + TWO_DAYS_RANGE, conf);
+    //maxCause : FACT_NOT_AVAILABLE_IN_RANGE, Ordinal : 1
+    NoCandidateFactAvailableException ne2 = (NoCandidateFactAvailableException)
+            getLensExceptionInRewrite("cube select dim1 from " + cubeName + " where " + LAST_YEAR_RANGE, getConf());
+    assertEquals(ne1.compareTo(ne2), 8);
+  }
+
+  @Test
   public void testColumnErrors() throws Exception {
     LensException e;
 
@@ -77,7 +92,8 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
       + TWO_DAYS_RANGE, conf);
     assertEquals(e.getErrorCode(),
         LensCubeErrorCode.NO_CANDIDATE_FACT_AVAILABLE.getLensErrorInfo().getErrorCode());
-    PruneCauses.BriefAndDetailedError pruneCauses = extractPruneCause(e);
+    NoCandidateFactAvailableException ne = (NoCandidateFactAvailableException) e;
+    PruneCauses.BriefAndDetailedError pruneCauses = ne.getJsonMessage();
     String regexp = String.format(CandidateTablePruneCause.CandidateTablePruneCode.COLUMN_NOT_FOUND.errorFormat,
       "Column Sets: (.*?)", "queriable together");
     Matcher matcher = Pattern.compile(regexp).matcher(pruneCauses.getBrief());
@@ -223,6 +239,33 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
 
     assertTrue(hqlQuery.contains("mq1 full outer join ") && hqlQuery.endsWith("mq2 on mq1.dim1 <=> mq2.dim1"),
       hqlQuery);
+  }
+
+  @Test
+  public void testMultiFactQueryWithExpressionsFromMultipleFacts() throws Exception {
+    Configuration tConf = new Configuration(conf);
+    tConf.setBoolean(CubeQueryConfUtil.LIGHTEST_FACT_FIRST, true);
+    String hqlQuery = rewrite("select  dim1, roundedmsr2, flooredmsr12 from basecube" + " where "
+            + TWO_DAYS_RANGE, tConf);
+    String expected1 =
+            getExpectedQuery(cubeName, "select basecube.dim1 as `dim1`, "
+                            + "floor(sum(( basecube . msr12 ))) as `flooredmsr12` FROM ", null,
+                    " group by basecube.dim1", getWhereForDailyAndHourly2days(cubeName, "C1_testFact2_BASE"));
+    String expected2 = getExpectedQuery(cubeName,
+            "select basecube.dim1 as `dim1`, round(sum(basecube.msr2)/1000) as `roundedmsr2` FROM ", null,
+            " group by basecube.dim1", getWhereForDailyAndHourly2days(cubeName, "C1_testFact1_BASE"));
+    TestCubeRewriter.compareContains(expected1, hqlQuery);
+    TestCubeRewriter.compareContains(expected2, hqlQuery);
+    String lower = hqlQuery.toLowerCase();
+    assertTrue(
+            lower.startsWith("select coalesce(mq1.dim1, mq2.dim1) dim1, mq2.roundedmsr2 roundedmsr2, "
+                    + "mq1.flooredmsr12 flooredmsr12 from ")
+                    || lower.startsWith("select coalesce(mq1.dim1, mq2.dim1) dim1, mq1.roundedmsr2 roundedmsr2, "
+                    + "mq2.flooredmsr12 flooredmsr12"
+                    + " from "), hqlQuery);
+
+    assertTrue(hqlQuery.contains("mq1 full outer join ") && hqlQuery.endsWith("mq2 on mq1.dim1 <=> mq2.dim1"),
+            hqlQuery);
   }
 
   @Test
@@ -466,15 +509,16 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
     conf.setBoolean(CubeQueryConfUtil.FAIL_QUERY_ON_PARTIAL_DATA, true);
     LensException exc =
       getLensExceptionInRewrite("cube select msr12 from basecube where " + TWO_DAYS_RANGE, conf);
-    PruneCauses.BriefAndDetailedError pruneCause = extractPruneCause(exc);
+    NoCandidateFactAvailableException ne = (NoCandidateFactAvailableException) exc;
+    PruneCauses.BriefAndDetailedError pruneCause = ne.getJsonMessage();
     assertTrue(pruneCause.getBrief().contains("Missing partitions"));
     assertEquals(pruneCause.getDetails().get("testfact2_base").iterator().next().getCause(), MISSING_PARTITIONS);
     assertEquals(pruneCause.getDetails().get("testfact2_base").iterator().next().getMissingPartitions().size(), 1);
     assertEquals(
       pruneCause.getDetails().get("testfact2_base").iterator().next().getMissingPartitions().iterator().next(),
       "ttd:["
-        + UpdatePeriod.SECONDLY.format().format(DateUtils.addDays(DateUtils.truncate(TWODAYS_BACK, Calendar.HOUR), -10))
-        + ", " + UpdatePeriod.SECONDLY.format().format(DateUtils.addDays(DateUtils.truncate(NOW, Calendar.HOUR), 10))
+        + UpdatePeriod.SECONDLY.format(DateUtils.addDays(DateUtils.truncate(TWODAYS_BACK, Calendar.HOUR), -10))
+        + ", " + UpdatePeriod.SECONDLY.format(DateUtils.addDays(DateUtils.truncate(NOW, Calendar.HOUR), 10))
         + ")");
 
     // fail on partial false. Should go to fallback column. Also testing transitivity of timedim relations
@@ -503,17 +547,24 @@ public class TestBaseCubeQueries extends TestQueryRewrite {
     assertEquals(ctx.getCandidateFactSets().size(), 1);
     assertEquals(ctx.getCandidateFactSets().iterator().next().size(), 1);
     CandidateFact cfact = ctx.getCandidateFactSets().iterator().next().iterator().next();
-    assertEquals(cfact.getRangeToWhereClause().size(), 2);
-    for(Map.Entry<TimeRange, String> entry: cfact.getRangeToWhereClause().entrySet()) {
+
+    assertEquals(cfact.getRangeToStoragePartMap().size(), 2);
+    Set<String> storages = Sets.newHashSet();
+    for(Map<String, String> entry: cfact.getRangeToStorageWhereMap().values()) {
+      storages.addAll(entry.keySet());
+    }
+    assertEquals(storages.size(), 1);
+    String storage = storages.iterator().next();
+    for(Map.Entry<TimeRange, Map<String, String>> entry: cfact.getRangeToStorageWhereMap().entrySet()) {
       if (entry.getKey().getPartitionColumn().equals("dt")) {
-        ASTNode parsed = HQLParser.parseExpr(entry.getValue());
+        ASTNode parsed = HQLParser.parseExpr(entry.getValue().get(storage));
         assertEquals(parsed.getToken().getType(), KW_AND);
-        assertTrue(entry.getValue().substring(((CommonToken) parsed.getToken()).getStopIndex() + 1).toLowerCase()
-          .contains(dTimeWhereClause));
-        assertFalse(entry.getValue().substring(0, ((CommonToken) parsed.getToken()).getStartIndex()).toLowerCase()
-          .contains("and"));
+        assertTrue(entry.getValue().get(storage).substring(((CommonToken) parsed.getToken()).getStopIndex() + 1)
+          .toLowerCase().contains(dTimeWhereClause));
+        assertFalse(entry.getValue().get(storage).substring(0, ((CommonToken) parsed.getToken()).getStartIndex())
+          .toLowerCase().contains("and"));
       } else if (entry.getKey().getPartitionColumn().equals("ttd")) {
-        assertFalse(entry.getValue().toLowerCase().contains("and"));
+        assertFalse(entry.getValue().get(storage).toLowerCase().contains("and"));
       } else {
         throw new LensException("Unexpected");
       }
