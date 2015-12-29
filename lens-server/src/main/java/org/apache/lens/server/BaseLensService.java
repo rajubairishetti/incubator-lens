@@ -189,11 +189,13 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private void updateSessionsPerUser(String userName) {
-    Integer numOfSessions = SESSIONS_PER_USER.get(userName);
-    if (null == numOfSessions) {
-      SESSIONS_PER_USER.put(userName, 1);
-    } else {
-      SESSIONS_PER_USER.put(userName, ++numOfSessions);
+    synchronized (SESSIONS_PER_USER) {
+      Integer numOfSessions = SESSIONS_PER_USER.get(userName);
+      if (null == numOfSessions) {
+        SESSIONS_PER_USER.put(userName, 1);
+      } else {
+        SESSIONS_PER_USER.put(userName, ++numOfSessions);
+      }
     }
   }
 
@@ -280,10 +282,12 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private void decrementSessionCountForUser(LensSessionHandle sessionHandle, String userName) {
-    Integer sessionCount = SESSIONS_PER_USER.get(userName);
-    log.info("Closed session {} for {} user", sessionHandle, userName);
-    if (sessionCount != null && sessionCount > 0) {
-      SESSIONS_PER_USER.put(userName, --sessionCount);
+    synchronized (SESSIONS_PER_USER) {
+      Integer sessionCount = SESSIONS_PER_USER.get(userName);
+      log.info("Closed session {} for {} user", sessionHandle, userName);
+      if (sessionCount != null && sessionCount > 0) {
+        SESSIONS_PER_USER.put(userName, --sessionCount);
+      }
     }
   }
 
