@@ -34,7 +34,6 @@ import javax.ws.rs.NotFoundException;
 
 import org.apache.lens.api.LensConf;
 import org.apache.lens.api.LensSessionHandle;
-import org.apache.lens.api.error.ErrorCollection;
 import org.apache.lens.api.util.PathValidator;
 import org.apache.lens.server.api.LensConfConstants;
 import org.apache.lens.server.api.LensService;
@@ -84,11 +83,11 @@ public abstract class BaseLensService extends CompositeService implements Extern
   // lens session before submitting a query to hive server
   /** The session map. */
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
-    = new ConcurrentHashMap<String, LensSessionHandle>();
+    = new ConcurrentHashMap<>();
 
-  private static final Map<String, Integer> sessionsPerUser = new ConcurrentHashMap<String, Integer>();
+  private static final Map<String, Integer> SESSIONS_PER_USER = new ConcurrentHashMap<>();
 
-  private final int MAX_NUM_SESSIONS_PER_USER;
+  private final int maxNumSessionsPerUser;
 
   /**
    * Instantiates a new lens service.
@@ -99,7 +98,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected BaseLensService(String name, CLIService cliService) {
     super(name);
     this.cliService = cliService;
-    MAX_NUM_SESSIONS_PER_USER = getMaximumNumberOfSessionsPerUser();
+    maxNumSessionsPerUser = getMaximumNumberOfSessionsPerUser();
   }
 
   /**
@@ -123,8 +122,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private boolean isMaxSessionsLimitReachedPerUser(String userName) {
-    Integer numSessions = sessionsPerUser.get(userName);
-    return numSessions != null && numSessions >= MAX_NUM_SESSIONS_PER_USER;
+    Integer numSessions = SESSIONS_PER_USER.get(userName);
+    return numSessions != null && numSessions >= maxNumSessionsPerUser;
   }
 
   /**
@@ -145,9 +144,9 @@ public abstract class BaseLensService extends CompositeService implements Extern
     username = UtilityMethods.removeDomain(username);
     if (isMaxSessionsLimitReachedPerUser(username)) {
       log.error("Can not open new session as session limit {} is reached already for {} user",
-          MAX_NUM_SESSIONS_PER_USER, username);
+          maxNumSessionsPerUser, username);
       throw new LensException(LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
-          MAX_NUM_SESSIONS_PER_USER);
+          maxNumSessionsPerUser);
     }
     doPasswdAuth(username, password);
     try {
@@ -190,11 +189,11 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private void updateSessionsPerUser(String userName) {
-    Integer numOfSessions = sessionsPerUser.get(userName);
+    Integer numOfSessions = SESSIONS_PER_USER.get(userName);
     if (null == numOfSessions) {
-      sessionsPerUser.put(userName, 1);
+      SESSIONS_PER_USER.put(userName, 1);
     } else {
-      sessionsPerUser.put(userName, ++numOfSessions);
+      SESSIONS_PER_USER.put(userName, ++numOfSessions);
     }
   }
 
@@ -281,10 +280,10 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private void decrementSessionCountForUser(LensSessionHandle sessionHandle, String userName) {
-    Integer sessionCount = sessionsPerUser.get(userName);
+    Integer sessionCount = SESSIONS_PER_USER.get(userName);
     log.info("Closed session {} for {} user", sessionHandle, userName);
     if (sessionCount != null && sessionCount > 0) {
-      sessionsPerUser.put(userName, --sessionCount);
+      SESSIONS_PER_USER.put(userName, --sessionCount);
     }
   }
 

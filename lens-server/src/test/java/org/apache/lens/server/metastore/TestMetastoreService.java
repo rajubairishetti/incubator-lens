@@ -52,8 +52,8 @@ import org.apache.lens.server.LensServerTestUtil;
 import org.apache.lens.server.LensServices;
 import org.apache.lens.server.api.metastore.CubeMetastoreService;
 import org.apache.lens.server.api.session.SessionService;
-import org.apache.lens.server.session.HiveSessionService;
 import org.apache.lens.server.api.util.LensUtil;
+import org.apache.lens.server.session.HiveSessionService;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
