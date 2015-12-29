@@ -61,6 +61,9 @@ public class ErrorCollectionFactory {
 
       int errorCode = config.getInt(ERROR_CODE_KEY);
       int httpStatusCodeInt = config.getInt(HTTP_STATUS_CODE_KEY);
+      // javax.ws Response class does not prepare response Status instance for 429 http status code.
+      // TODO Either add Status for 429 response in the Javax.ws Response class
+      // TODO or prepare Status for 429 from lens side to handle 429 response code
       Status httpStatusCode = Status.fromStatusCode(httpStatusCodeInt);
       String errorMsg = config.getString(ERROR_MSG_KEY);
 
