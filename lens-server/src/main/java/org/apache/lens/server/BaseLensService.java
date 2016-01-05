@@ -50,7 +50,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars;
-
 import org.apache.hive.service.CompositeService;
 import org.apache.hive.service.auth.AuthenticationProviderFactory;
 import org.apache.hive.service.auth.HiveAuthFactory;
@@ -62,6 +61,8 @@ import org.apache.hive.service.cli.SessionHandle;
 import org.apache.hive.service.cli.session.SessionManager;
 import org.apache.hive.service.cli.thrift.TSessionHandle;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -87,6 +88,8 @@ public abstract class BaseLensService extends CompositeService implements Extern
 
   private static final Map<String, Integer> SESSIONS_PER_USER = new ConcurrentHashMap<>();
 
+  private static final Map<String, SessionUser> SESSION_USER_INSTANCE_MAP = new HashMap<>();
+
   private final int maxNumSessionsPerUser;
 
   /**
@@ -99,6 +102,10 @@ public abstract class BaseLensService extends CompositeService implements Extern
     super(name);
     this.cliService = cliService;
     maxNumSessionsPerUser = getMaximumNumberOfSessionsPerUser();
+  }
+
+  private static class SessionUser {
+    @Getter @Setter private String user;
   }
 
   /**
@@ -116,7 +123,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
     return BaseLensService.SESSION_MAP.size();
   }
 
-  public static int getMaximumNumberOfSessionsPerUser() {
+  private static int getMaximumNumberOfSessionsPerUser() {
     return LensServerConf.getHiveConf().getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
       LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
   }
@@ -142,60 +149,67 @@ public abstract class BaseLensService extends CompositeService implements Extern
     }
     SessionHandle sessionHandle;
     username = UtilityMethods.removeDomain(username);
-    if (isMaxSessionsLimitReachedPerUser(username)) {
-      log.error("Can not open new session as session limit {} is reached already for {} user",
-          maxNumSessionsPerUser, username);
-      throw new LensException(LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
-          maxNumSessionsPerUser);
-    }
     doPasswdAuth(username, password);
-    try {
-      Map<String, String> sessionConf = new HashMap<String, String>();
-      sessionConf.putAll(LensSessionImpl.DEFAULT_HIVE_SESSION_CONF);
-      if (configuration != null) {
-        sessionConf.putAll(configuration);
-      }
-      Map<String, String> userConfig = UserConfigLoaderFactory.getUserConfig(username);
-      log.info("Got user config: {}", userConfig);
-      UtilityMethods.mergeMaps(sessionConf, userConfig, false);
-      sessionConf.put(LensConfConstants.SESSION_LOGGEDIN_USER, username);
-      if (sessionConf.get(LensConfConstants.SESSION_CLUSTER_USER) == null) {
-        log.info("Didn't get cluster user from user config loader. Setting same as logged in user: {}", username);
-        sessionConf.put(LensConfConstants.SESSION_CLUSTER_USER, username);
-      }
-      String clusterUser = sessionConf.get(LensConfConstants.SESSION_CLUSTER_USER);
-      password = "useless";
-      if (cliService.getHiveConf().getVar(ConfVars.HIVE_SERVER2_AUTHENTICATION)
-        .equals(HiveAuthFactory.AuthTypes.KERBEROS.toString())
-        && cliService.getHiveConf().getBoolVar(ConfVars.HIVE_SERVER2_ENABLE_DOAS)) {
-        String delegationTokenStr = null;
-        try {
-          delegationTokenStr = cliService.getDelegationTokenFromMetaStore(username);
-        } catch (UnsupportedOperationException e) {
-          // The delegation token is not applicable in the given deployment mode
-        }
-        sessionHandle = cliService.openSessionWithImpersonation(clusterUser, password, sessionConf, delegationTokenStr);
-      } else {
-        sessionHandle = cliService.openSession(clusterUser, password, sessionConf);
-      }
-    } catch (Exception e) {
-      throw new LensException(e);
+    SessionUser sessionUser = SESSION_USER_INSTANCE_MAP.get(username);
+    if (sessionUser == null) {
+      sessionUser = new SessionUser();
+      sessionUser.setUser(username);
+      SESSION_USER_INSTANCE_MAP.put(username, sessionUser);
     }
-    LensSessionHandle lensSessionHandle = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
-      sessionHandle.getHandleIdentifier().getSecretId());
-    SESSION_MAP.put(lensSessionHandle.getPublicId().toString(), lensSessionHandle);
-    updateSessionsPerUser(username);
-    return lensSessionHandle;
+    synchronized (sessionUser) {
+      if (isMaxSessionsLimitReachedPerUser(username)) {
+        log.error("Can not open new session as session limit {} is reached already for {} user",
+            maxNumSessionsPerUser, username);
+        throw new LensException(LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
+            maxNumSessionsPerUser);
+      }
+      try {
+        Map<String, String> sessionConf = new HashMap<String, String>();
+        sessionConf.putAll(LensSessionImpl.DEFAULT_HIVE_SESSION_CONF);
+        if (configuration != null) {
+          sessionConf.putAll(configuration);
+        }
+        Map<String, String> userConfig = UserConfigLoaderFactory.getUserConfig(username);
+        log.info("Got user config: {}", userConfig);
+        UtilityMethods.mergeMaps(sessionConf, userConfig, false);
+        sessionConf.put(LensConfConstants.SESSION_LOGGEDIN_USER, username);
+        if (sessionConf.get(LensConfConstants.SESSION_CLUSTER_USER) == null) {
+          log.info("Didn't get cluster user from user config loader. Setting same as logged in user: {}", username);
+          sessionConf.put(LensConfConstants.SESSION_CLUSTER_USER, username);
+        }
+        String clusterUser = sessionConf.get(LensConfConstants.SESSION_CLUSTER_USER);
+        password = "useless";
+        if (cliService.getHiveConf().getVar(ConfVars.HIVE_SERVER2_AUTHENTICATION)
+            .equals(HiveAuthFactory.AuthTypes.KERBEROS.toString())
+            && cliService.getHiveConf().getBoolVar(ConfVars.HIVE_SERVER2_ENABLE_DOAS)) {
+          String delegationTokenStr = null;
+          try {
+            delegationTokenStr = cliService.getDelegationTokenFromMetaStore(username);
+          } catch (UnsupportedOperationException e) {
+            // The delegation token is not applicable in the given deployment mode
+          }
+          sessionHandle = cliService.openSessionWithImpersonation(clusterUser, password, sessionConf,
+              delegationTokenStr);
+        } else {
+          sessionHandle = cliService.openSession(clusterUser, password, sessionConf);
+        }
+      } catch (Exception e) {
+        throw new LensException(e);
+      }
+      LensSessionHandle lensSessionHandle = new LensSessionHandle(sessionHandle.getHandleIdentifier().getPublicId(),
+          sessionHandle.getHandleIdentifier().getSecretId());
+      SESSION_MAP.put(lensSessionHandle.getPublicId().toString(), lensSessionHandle);
+      updateSessionsPerUser(username);
+      return lensSessionHandle;
+    }
   }
 
   private void updateSessionsPerUser(String userName) {
-    synchronized (SESSIONS_PER_USER) {
-      Integer numOfSessions = SESSIONS_PER_USER.get(userName);
-      if (null == numOfSessions) {
-        SESSIONS_PER_USER.put(userName, 1);
-      } else {
-        SESSIONS_PER_USER.put(userName, ++numOfSessions);
-      }
+    Integer numOfSessions = SESSIONS_PER_USER.get(userName);
+    if (null == numOfSessions) {
+      SESSIONS_PER_USER.put(userName, 1);
+    } else {
+      SESSIONS_PER_USER.put(userName, ++numOfSessions);
     }
   }
 
@@ -282,7 +296,12 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private void decrementSessionCountForUser(LensSessionHandle sessionHandle, String userName) {
-    synchronized (SESSIONS_PER_USER) {
+    SessionUser sessionUser = SESSION_USER_INSTANCE_MAP.get(userName);
+    if (sessionUser == null) {
+      log.info("Trying to close invalid session {} for user {}", sessionHandle, userName);
+      return;
+    }
+    synchronized (sessionUser) {
       Integer sessionCount = SESSIONS_PER_USER.get(userName);
       log.info("Closed session {} for {} user", sessionHandle, userName);
       if (sessionCount != null && sessionCount > 0) {
