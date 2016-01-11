@@ -48,6 +48,7 @@ import org.apache.lens.server.api.metrics.MetricsService;
 import org.apache.lens.server.api.session.SessionService;
 import org.apache.lens.server.common.LenServerTestException;
 import org.apache.lens.server.common.LensServerTestFileUtils;
+import org.apache.lens.server.common.RestAPITestUtil;
 import org.apache.lens.server.common.TestResourceFile;
 
 import org.apache.commons.io.FileUtils;
@@ -84,6 +85,7 @@ public class TestSessionResource extends LensJerseyTest {
   @BeforeTest
   public void setUp() throws Exception {
     metricsSvc = LensServices.get().getService(MetricsService.NAME);
+    LensServices.get().getLogSegregationContext().setLogSegregationId("logid");
     super.setUp();
   }
 
@@ -557,13 +559,13 @@ public class TestSessionResource extends LensJerseyTest {
       sessionHandleList.add(handle);
     }
     try {
-      LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
-          LensSessionHandle.class);
+      RestAPITestUtil.openSession(target(), "test", "test");
+
       Assert.fail("Should not open a new session for user: 'test' as user has already "
           + maxSessionsLimitPerUser + "active sessions");
     } catch (Exception e) {
-      e.printStackTrace();
       System.out.println("AAAAAAAAAAA exception : " + e);
+      Assert.assertTrue(e instanceof LensException);
     }
   }
 

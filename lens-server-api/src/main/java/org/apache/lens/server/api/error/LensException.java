@@ -185,6 +185,9 @@ public class LensException extends Exception implements Comparable<LensException
     final String apiVersion, final String id) {
 
     final LensError lensError = errorCollection.getLensError(getErrorCode());
+    System.out.printf("BBBBBBBBBBBBB lens error : " + lensError);
+    System.out.printf("BBBBBBBBBBBBB lens error statustype: " + lensError.getHttpStatusCode());
+
     final LensErrorTO lensErrorTO = buildLensErrorTO(errorCollection, lensError);
     lensAPIResult = LensAPIResult.composedOf(apiVersion, id, lensErrorTO, lensError.getHttpStatusCode());
   }

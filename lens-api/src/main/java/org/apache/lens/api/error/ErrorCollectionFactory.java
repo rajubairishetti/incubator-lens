@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import javax.ws.rs.core.Response;
 
 /**
  * Creates ErrorCollection from error configuration file.
@@ -64,7 +65,7 @@ public class ErrorCollectionFactory {
       // javax.ws Response class does not prepare response Status instance for 429 http status code.
       // TODO Either add Status for 429 response in the Javax.ws Response class
       // TODO or prepare Status for 429 from lens side to handle 429 response code
-      Status httpStatusCode = Status.fromStatusCode(httpStatusCodeInt);
+      Response.StatusType httpStatusCode = LensHttpStatus.fromStatusCode(httpStatusCodeInt);
       String errorMsg = config.getString(ERROR_MSG_KEY);
 
       Class payloadClass = null;

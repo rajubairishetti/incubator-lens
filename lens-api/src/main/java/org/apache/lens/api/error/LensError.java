@@ -23,6 +23,8 @@ import static javax.ws.rs.core.Response.Status;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Optional;
@@ -41,11 +43,11 @@ import lombok.NonNull;
 public final class LensError {
 
   private final int errorCode;
-  private final Status httpStatusCode;
+  private final Response.StatusType httpStatusCode;
   private final String errorMsg;
   private final Optional<Class> payloadClass;
 
-  public LensError(final int errorCode, final Status httpStatusCode, final String errorMsg,
+  public LensError(final int errorCode, final Response.StatusType httpStatusCode, final String errorMsg,
       @NonNull final Optional<Class> payloadClass) {
 
     checkArgument(errorCode > 0);

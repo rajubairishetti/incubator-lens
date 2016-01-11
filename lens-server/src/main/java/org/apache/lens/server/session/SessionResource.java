@@ -91,7 +91,7 @@ public class SessionResource {
   public LensSessionHandle openSession(@FormDataParam("username") String username,
     @FormDataParam("password") String password,
     @FormDataParam("database")  @DefaultValue("") String database,
-    @FormDataParam("sessionconf") LensConf sessionconf) {
+    @FormDataParam("sessionconf") LensConf sessionconf) throws LensException {
     try {
       Map<String, String> conf;
       if (sessionconf != null) {
@@ -101,8 +101,9 @@ public class SessionResource {
       }
       return sessionService.openSession(username, password, database,   conf);
     } catch (LensException e) {
-      e.buildLensErrorResponse(LensServices.get().getErrorCollection(), null, null);
-      throw new WebApplicationException(e);
+      e.buildLensErrorResponse(errorCollection, null,
+          LensServices.get().getLogSegregationContext().getLogSegragationId());
+      throw new LensException(e);
     }
   }
 
