@@ -101,6 +101,7 @@ public class SessionResource {
       }
       return sessionService.openSession(username, password, database,   conf);
     } catch (LensException e) {
+      e.buildLensErrorResponse(LensServices.get().getErrorCollection(), null, null);
       throw new WebApplicationException(e);
     }
   }

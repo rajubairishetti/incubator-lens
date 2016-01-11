@@ -536,6 +536,38 @@ public class TestSessionResource extends LensJerseyTest {
   }
 
   @Test
+  public void testSessionLimit() {
+    final WebTarget target = target().path("session");
+    final FormDataMultiPart mp = new FormDataMultiPart();
+
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("username").build(), "test"));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("password").build(), "test"));
+    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
+        new LensConf(), MediaType.APPLICATION_XML_TYPE));
+
+    HiveConf conf = LensServerConf.getHiveConf();
+    Integer maxSessionsLimitPerUser = conf.getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
+        LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
+
+    List<LensSessionHandle> sessionHandleList = new ArrayList<>();
+    for (int i = 0; i < maxSessionsLimitPerUser; i++) {
+      final LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
+          LensSessionHandle.class);
+      Assert.assertNotNull(handle);
+      sessionHandleList.add(handle);
+    }
+    try {
+      LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
+          LensSessionHandle.class);
+      Assert.fail("Should not open a new session for user: 'test' as user has already "
+          + maxSessionsLimitPerUser + "active sessions");
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("AAAAAAAAAAA exception : " + e);
+    }
+  }
+
+  @Test
   public void testSessionEvents() {
     final WebTarget target = target().path("session");
     FormDataMultiPart mp = getMultiFormData("foo", "bar");

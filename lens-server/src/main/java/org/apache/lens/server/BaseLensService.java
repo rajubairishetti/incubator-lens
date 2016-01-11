@@ -86,8 +86,17 @@ public abstract class BaseLensService extends CompositeService implements Extern
   protected static final ConcurrentHashMap<String, LensSessionHandle> SESSION_MAP
     = new ConcurrentHashMap<>();
 
+  /**
+   * This map maintains active session count for each user
+   * Key: userName
+   * Value: number of sessions opened
+   */
   private static final Map<String, Integer> SESSIONS_PER_USER = new ConcurrentHashMap<>();
 
+  /**
+   * Maintains a map with user to SessionUser instance.
+   * This map is used for acquiring a lock on specific user for while opening & closing sessions
+   */
   private static final Map<String, SessionUser> SESSION_USER_INSTANCE_MAP = new HashMap<>();
 
   private final int maxNumSessionsPerUser;
@@ -105,7 +114,11 @@ public abstract class BaseLensService extends CompositeService implements Extern
   }
 
   private static class SessionUser {
-    @Getter @Setter private String user;
+    private String sessionUser;
+
+    public SessionUser(String user) {
+      this.sessionUser = user;
+    }
   }
 
   /**
@@ -152,15 +165,14 @@ public abstract class BaseLensService extends CompositeService implements Extern
     doPasswdAuth(username, password);
     SessionUser sessionUser = SESSION_USER_INSTANCE_MAP.get(username);
     if (sessionUser == null) {
-      sessionUser = new SessionUser();
-      sessionUser.setUser(username);
+      sessionUser = new SessionUser(username);
       SESSION_USER_INSTANCE_MAP.put(username, sessionUser);
     }
     synchronized (sessionUser) {
       if (isMaxSessionsLimitReachedPerUser(username)) {
         log.error("Can not open new session as session limit {} is reached already for {} user",
             maxNumSessionsPerUser, username);
-        throw new LensException(LensServerErrorCode.TOOP_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
+        throw new LensException(LensServerErrorCode.TOO_MANY_OPEN_SESSIONS.getLensErrorInfo(), username,
             maxNumSessionsPerUser);
       }
       try {
@@ -304,7 +316,7 @@ public abstract class BaseLensService extends CompositeService implements Extern
     synchronized (sessionUser) {
       Integer sessionCount = SESSIONS_PER_USER.get(userName);
       log.info("Closed session {} for {} user", sessionHandle, userName);
-      if (sessionCount != null && sessionCount > 0) {
+      if (sessionCount != null) {
         SESSIONS_PER_USER.put(userName, --sessionCount);
       }
     }
