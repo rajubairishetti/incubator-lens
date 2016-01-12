@@ -24,6 +24,7 @@ import java.util.Map;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.lens.api.APIResult;
 import org.apache.lens.api.APIResult.Status;
@@ -103,7 +104,8 @@ public class SessionResource {
     } catch (LensException e) {
       e.buildLensErrorResponse(errorCollection, null,
           LensServices.get().getLogSegregationContext().getLogSegragationId());
-      throw new LensException(e);
+      Response response = Response.status(e.getLensAPIResult().getHttpStatusCode()).build();
+      throw new WebApplicationException(response);
     }
   }
 
