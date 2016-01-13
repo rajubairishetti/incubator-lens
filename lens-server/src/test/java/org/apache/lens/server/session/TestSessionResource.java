@@ -552,20 +552,30 @@ public class TestSessionResource extends LensJerseyTest {
         LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
 
     List<LensSessionHandle> sessionHandleList = new ArrayList<>();
-    for (int i = 0; i < maxSessionsLimitPerUser; i++) {
-      final LensSessionHandle handle = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE),
-          LensSessionHandle.class);
-      Assert.assertNotNull(handle);
-      sessionHandleList.add(handle);
-    }
     try {
-      RestAPITestUtil.openSession(target(), "test", "test");
+      for (int i = 0; i < maxSessionsLimitPerUser; i++) {
+        final LensSessionHandle handle = RestAPITestUtil.openSession(target(), "test", "test");
+        Assert.assertNotNull(handle);
+        sessionHandleList.add(handle);
+      }
+      try {
+        RestAPITestUtil.openSession(target(), "test", "test");
 
-      Assert.fail("Should not open a new session for user: 'test' as user has already "
-          + maxSessionsLimitPerUser + "active sessions");
-    } catch (ClientErrorException e) {
-      System.out.println("AAAAAAAAAAA exception : " + e);
-      Assert.assertEquals(e.getResponse().getStatus(), 429);
+        Assert.fail("Should not open a new session for user: 'test' as user has already "
+            + maxSessionsLimitPerUser + "active sessions");
+      } catch (ClientErrorException e) {
+        Assert.assertEquals(e.getResponse().getStatus(), 429);
+      }
+      // User should be able to open a new session by closing the one of the existing opened sessions
+      RestAPITestUtil.closeSession(target, sessionHandleList.remove(0));
+
+      LensSessionHandle lensSessionHandle = RestAPITestUtil.openSession(target(), "test", "test");
+      Assert.assertNotNull(lensSessionHandle);
+      sessionHandleList.add(lensSessionHandle);
+    } finally {
+      for (LensSessionHandle sessionHandle : sessionHandleList) {
+        RestAPITestUtil.closeSession(target, sessionHandle);
+      }
     }
   }
 
