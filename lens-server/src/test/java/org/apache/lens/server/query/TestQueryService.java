@@ -457,7 +457,7 @@ public class TestQueryService extends LensJerseyTest {
 
     Response response = target.request().post(Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE));
     LensAPIResult result = response.readEntity(LensAPIResult.class);
-    List<LensErrorTO> childErrors = result.getLensErrorTO().getChildErrors();
+    List<LensErrorTO> childErrors = ((LensErrorTO)result.getData()).getChildErrors();
     boolean hiveSemanticErrorExists=false;
     for (LensErrorTO error : childErrors) {
       if (error.getCode() == LensDriverErrorCode.SEMANTIC_ERROR.getLensErrorInfo().getErrorCode()) {

@@ -173,7 +173,7 @@ public class QueryAPIErrorResponseTest extends LensJerseyTest {
     LensErrorTO expectedLensErrorTO2 = LensErrorTO.composedOf(INTERNAL_SERVER_ERROR.getValue(),
             expectedErrMsg2, MOCK_STACK_TRACE);
 
-    LensErrorTO responseLensErrorTO = response.readEntity(LensAPIResult.class).getLensErrorTO();
+    LensErrorTO responseLensErrorTO = (LensErrorTO) response.readEntity(LensAPIResult.class).getData();
 
     assertTrue(expectedLensErrorTO1.getMessage().equals(responseLensErrorTO.getMessage())
             || expectedLensErrorTO2.getMessage().equals(responseLensErrorTO.getMessage()));

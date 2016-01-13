@@ -30,10 +30,10 @@ import org.apache.lens.api.result.LensErrorTO;
 
 public class ErrorResponseExpectedData {
 
-  private final Response.Status expectedStatus;
+  private final Response.StatusType expectedStatus;
   private final LensErrorTO expectedLensErrorTO;
 
-  public ErrorResponseExpectedData(final Response.Status expectedStatus,
+  public ErrorResponseExpectedData(final Response.StatusType expectedStatus,
       final LensErrorTO expectedLensErrorTO) {
 
     this.expectedStatus = expectedStatus;
@@ -48,11 +48,12 @@ public class ErrorResponseExpectedData {
     LensAPIResult lensAPIResult = response.readEntity(LensAPIResult.class);
 
     /* Assert Equal LensErrorTO (stack trace gets excluded in equality check) */
-    final LensErrorTO actualLensErrorTO = lensAPIResult.getLensErrorTO();
+    final LensErrorTO actualLensErrorTO = (LensErrorTO) lensAPIResult.getData();
     assertEquals(actualLensErrorTO.getMessage(), expectedLensErrorTO.getMessage());
 
     /* Assert receipt of valid stacktraces */
-    assertTrue(lensAPIResult.areValidStackTracesPresent(), "Received Lens Response:" + lensAPIResult);
+    assertTrue(((LensErrorTO) lensAPIResult.getData()).areValidStackTracesPresent(),
+        "Received Lens Response:" + lensAPIResult);
   }
 
 }

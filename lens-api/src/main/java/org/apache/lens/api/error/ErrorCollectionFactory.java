@@ -18,17 +18,16 @@
  */
 package org.apache.lens.api.error;
 
-import static javax.ws.rs.core.Response.Status;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.core.Response;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import javax.ws.rs.core.Response;
 
 /**
  * Creates ErrorCollection from error configuration file.

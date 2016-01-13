@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.lens.api.error;
 
 import javax.ws.rs.core.Response;
@@ -5,16 +23,6 @@ import javax.ws.rs.core.Response;
 import lombok.Getter;
 
 public enum LensHttpStatus implements Response.StatusType {
- /* @Getter private final int statusCode;
-  @Getter private final String reasonPhrase;
-  @Getter private final Response.Status.Family family;
-
-  private LensHttpStatus(int statusCode, String reasonPhrase) {
-    this.statusCode = statusCode;
-    this.reasonPhrase = reasonPhrase;
-    this.family = Response.Status.Family.familyOf(statusCode);
-  }*/
-
   OK(200, "OK"),
   CREATED(201, "Created"),
   ACCEPTED(202, "Accepted"),
@@ -53,40 +61,28 @@ public enum LensHttpStatus implements Response.StatusType {
   GATEWAY_TIMEOUT(504, "Gateway Timeout"),
   HTTP_VERSION_NOT_SUPPORTED(505, "HTTP Version Not Supported");
 
-  private final int code;
-  private final String reason;
-  private final Response.Status.Family family;
+  @Getter private final int statusCode;
+  @Getter private final String reasonPhrase;
+  @Getter private final Response.Status.Family family;
 
   private LensHttpStatus(int statusCode, String reasonPhrase) {
-    this.code = statusCode;
-    this.reason = reasonPhrase;
+    this.statusCode = statusCode;
+    this.reasonPhrase = reasonPhrase;
     this.family = LensHttpStatus.familyOf(statusCode);
   }
 
-  public Response.Status.Family getFamily() {
-    return this.family;
-  }
-
-  public int getStatusCode() {
-    return this.code;
-  }
-
-  public String getReasonPhrase() {
-    return this.reason;
-  }
-
   public String toString() {
-    return this.reason;
+    return this.reasonPhrase;
   }
 
   public static LensHttpStatus fromStatusCode(int statusCode) {
-    LensHttpStatus[] arr$ = values();
-    int len$ = arr$.length;
+    LensHttpStatus[] arr = values();
+    int len = arr.length;
 
-    for(int i$ = 0; i$ < len$; ++i$) {
-      LensHttpStatus s = arr$[i$];
-      if(s.code == statusCode) {
-        return s;
+    for (int i = 0; i < len; ++i) {
+      LensHttpStatus lensHttpStatus = arr[i];
+      if (lensHttpStatus.statusCode == statusCode) {
+        return lensHttpStatus;
       }
     }
     return null;

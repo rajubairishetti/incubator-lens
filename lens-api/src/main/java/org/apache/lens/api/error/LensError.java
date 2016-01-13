@@ -19,8 +19,6 @@
 
 package org.apache.lens.api.error;
 
-import static javax.ws.rs.core.Response.Status;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 import javax.ws.rs.core.Response;

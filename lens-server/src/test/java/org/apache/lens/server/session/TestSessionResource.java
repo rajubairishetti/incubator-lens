@@ -563,9 +563,9 @@ public class TestSessionResource extends LensJerseyTest {
 
       Assert.fail("Should not open a new session for user: 'test' as user has already "
           + maxSessionsLimitPerUser + "active sessions");
-    } catch (Exception e) {
+    } catch (ClientErrorException e) {
       System.out.println("AAAAAAAAAAA exception : " + e);
-      Assert.assertTrue(e instanceof LensException);
+      Assert.assertEquals(e.getResponse().getStatus(), 429);
     }
   }
 
