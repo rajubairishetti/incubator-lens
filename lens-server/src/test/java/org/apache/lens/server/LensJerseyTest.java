@@ -122,7 +122,6 @@ public abstract class LensJerseyTest extends JerseyTest {
   public void startAll() throws Exception {
     log.info("Before suite");
     System.setProperty("lens.log.dir", "target/");
-    System.setProperty("hadoop.home.dir", "/Users/rajubairishetti/Desktop/git/hadoop-2.6.2");
     System.setProperty(LensConfConstants.CONFIG_LOCATION, "target/test-classes/");
     TestRemoteHiveDriver.createHS2Service();
     System.out.println("Remote hive server started!");

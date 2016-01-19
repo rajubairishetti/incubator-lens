@@ -540,13 +540,6 @@ public class TestSessionResource extends LensJerseyTest {
   @Test
   public void testSessionLimit() {
     final WebTarget target = target().path("session");
-    final FormDataMultiPart mp = new FormDataMultiPart();
-
-    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("username").build(), "test"));
-    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("password").build(), "test"));
-    mp.bodyPart(new FormDataBodyPart(FormDataContentDisposition.name("sessionconf").fileName("sessionconf").build(),
-        new LensConf(), MediaType.APPLICATION_XML_TYPE));
-
     HiveConf conf = LensServerConf.getHiveConf();
     Integer maxSessionsLimitPerUser = conf.getInt(LensConfConstants.MAX_SESSIONS_PER_USER,
         LensConfConstants.DEFAULT_MAX_SESSIONS_PER_USER);
