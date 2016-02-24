@@ -62,7 +62,11 @@ public class ErrorCollectionFactory {
       int errorCode = config.getInt(ERROR_CODE_KEY);
       int httpStatusCodeInt = config.getInt(HTTP_STATUS_CODE_KEY);
 
-      Response.StatusType httpStatusCode = LensHttpStatus.fromStatusCode(httpStatusCodeInt);
+
+      Response.StatusType httpStatusCode = Response.Status.fromStatusCode(httpStatusCodeInt);
+      if (httpStatusCode == null) {
+        httpStatusCode = LensHttpStatus.fromStatusCode(httpStatusCodeInt);
+      }
       String errorMsg = config.getString(ERROR_MSG_KEY);
 
       Class payloadClass = null;

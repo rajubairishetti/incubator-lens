@@ -560,14 +560,14 @@ public class TestSessionResource extends LensJerseyTest {
         Assert.assertEquals(e.getResponse().getStatus(), 429);
       }
       // User should be able to open a new session by closing the one of the existing opened sessions
-      RestAPITestUtil.closeSession(target, sessionHandleList.remove(0));
+      RestAPITestUtil.closeSession(target(), sessionHandleList.remove(0));
 
       LensSessionHandle lensSessionHandle = RestAPITestUtil.openSession(target(), "test", "test");
       Assert.assertNotNull(lensSessionHandle);
       sessionHandleList.add(lensSessionHandle);
     } finally {
       for (LensSessionHandle sessionHandle : sessionHandleList) {
-        RestAPITestUtil.closeSession(target, sessionHandle);
+        RestAPITestUtil.closeSession(target(), sessionHandle);
       }
     }
   }

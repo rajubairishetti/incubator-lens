@@ -25,7 +25,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.*;
 
-import org.apache.lens.api.error.LensHttpStatus;
 import org.apache.lens.api.query.QuerySubmitResult;
 
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +64,7 @@ public class LensAPIResult<DATA> {
 
   public static <DATA> LensAPIResult<DATA> composedOf(final String apiVersion,
       final String id, @NonNull final DATA data) {
-    return composedOf(apiVersion, id, data, LensHttpStatus.OK);
+    return composedOf(apiVersion, id, data, Status.OK);
   }
 
   public static <DATA> LensAPIResult<DATA> composedOf(final String apiVersion,

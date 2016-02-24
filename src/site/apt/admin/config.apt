@@ -103,7 +103,7 @@ Lens server configuration
 *--+--+---+--+
 |38|lens.server.mail.smtp.timeout|30000|Socket read timeout value in milliseconds. This timeout is implemented by java.net.Socket. Default is 30 seconds.|
 *--+--+---+--+
-|39|lens.server.max.sessions.per.user|10|Number of sessions can be allowed for each user.|
+|39|lens.server.max.sessions.per.user|10|Number of sessions can be allowed for each user. User has to close one of the active sessions to open a new session once limit is reached. Otherwise Server throws an exception by saying that opened session limit has been already reached for user.|
 *--+--+---+--+
 |40|lens.server.metastore.service.impl|org.apache.lens.server.metastore.CubeMetastoreServiceImpl|Implementation class for metastore service|
 *--+--+---+--+
