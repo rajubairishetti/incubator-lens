@@ -118,13 +118,13 @@ public class BaseLensCommand implements ExecutionProcessor {
   }
 
   public void setClient(LensClient client) {
+    isConnectionActive = true;
     lensClient = client;
   }
 
   public LensClient getClient() {
     if (lensClient == null) {
       setClient(getClientWrapper().getClient());
-      isConnectionActive = true;
     }
     return lensClient;
   }
