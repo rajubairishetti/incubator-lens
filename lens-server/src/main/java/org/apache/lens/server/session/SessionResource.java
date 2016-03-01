@@ -113,6 +113,8 @@ public class SessionResource {
     try {
       sessionService.closeSession(sessionid);
     } catch (LensException e) {
+      log.debug("AAAAAAAAAAAAAAA got an exception while closing : ", e);
+      e.printStackTrace();
       return new APIResult(Status.FAILED, e.getMessage());
     }
     return new APIResult(Status.SUCCEEDED, "Close session with id" + sessionid + "succeeded");

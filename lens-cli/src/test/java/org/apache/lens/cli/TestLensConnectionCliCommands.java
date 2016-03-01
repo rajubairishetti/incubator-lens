@@ -44,7 +44,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test client creation.
    */
-  @Test
+  //@Test
   public void testClientCreation() {
     LensClient client = null;
     try {
@@ -61,7 +61,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test connection command.
    */
-  @Test
+  //@Test
   public void testConnectionCommand() {
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();
@@ -134,6 +134,8 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   @Test
   public void testFileCommands() {
     LensClient client = new LensClient();
+    LOG.info("AAAAAAAAAAAAA testFileCommands session handle: " + client.getConnection().getSessionHandle());
+    System.out.println("AAAAAAAAAAAAA testFileCommands session handle: " + client.getConnection().getSessionHandle());
     LensConnectionCommands commands = new LensConnectionCommands();
     commands.setClient(client);
     LOG.debug("Testing set/remove file operations");
@@ -161,7 +163,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test file commands with URI in regex.
    */
-  @Test
+  //@Test
   public void testFileCommandsWithURIRegex() {
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();
@@ -195,13 +197,14 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
     }
   }
 
-
   /**
    * Test jar commands.
    */
   @Test
   public void testJarCommands() {
     LensClient client = new LensClient();
+    LOG.debug("AAAAAAAAAAAAA testJarCommands session handle: " + client.getConnection().getSessionHandle());
+    System.out.println("AAAAAAAAAAAAA testJarCommands session handle: " + client.getConnection().getSessionHandle());
     LensConnectionCommands commands = new LensConnectionCommands();
     commands.setClient(client);
     LOG.debug("Testing set/remove file operations");
@@ -228,7 +231,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test jar commands with regex specified.
    */
-  @Test
+  //@Test
   public void testResourceCommandsWithRegex() {
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();
@@ -278,7 +281,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test list resources commands.
    */
-  @Test
+  //@Test
   public void testListResourcesCommands() {
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();
@@ -332,7 +335,7 @@ public class TestLensConnectionCliCommands extends LensCliApplicationTest {
   /**
    * Test CLI command to get session handle
    */
-  @Test
+  //@Test
   public void testGetSessionHandle() {
     LensClient client = new LensClient();
     LensConnectionCommands commands = new LensConnectionCommands();

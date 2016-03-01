@@ -60,7 +60,7 @@ public class BaseLensCommand implements ExecutionProcessor {
   protected static boolean isConnectionActive;
   public static final String DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss:SSS";
 
-  private LensClient lensClient = null;
+  private static LensClient lensClient = null;
 
   public static final ThreadLocal<DateFormat> DATE_PARSER =
     new ThreadLocal<DateFormat>() {
@@ -88,7 +88,7 @@ public class BaseLensCommand implements ExecutionProcessor {
   protected static synchronized void closeClientConnection() {
     if (isConnectionActive) {
       log.debug("Request for stopping lens cli received");
-      getClientWrapper().getClient().closeConnection();
+      lensClient.closeConnection();
       isConnectionActive = false;
     }
   }
