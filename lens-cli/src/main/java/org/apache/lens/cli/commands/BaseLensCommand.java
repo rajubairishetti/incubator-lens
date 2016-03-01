@@ -57,10 +57,11 @@ public class BaseLensCommand implements ExecutionProcessor {
   protected DefaultPrettyPrinter pp;
 
   /** The is connection active. */
-  protected static boolean isConnectionActive;
+  protected boolean isConnectionActive;
+
   public static final String DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss:SSS";
 
-  private static LensClient lensClient = null;
+  private LensClient lensClient = null;
 
   public static final ThreadLocal<DateFormat> DATE_PARSER =
     new ThreadLocal<DateFormat>() {
@@ -74,18 +75,25 @@ public class BaseLensCommand implements ExecutionProcessor {
     return DATE_PARSER.get().format(dt);
   }
 
-  static {
+ /* static {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         closeClientConnection();
       }
     });
   }
-
+*/
+  private void registerShutDown() {
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        closeClientConnection();
+      }
+    });
+  }
   /**
    * Close client connection.
    */
-  protected static synchronized void closeClientConnection() {
+  protected synchronized void closeClientConnection() {
     if (isConnectionActive) {
       log.debug("Request for stopping lens cli received");
       lensClient.closeConnection();
@@ -97,6 +105,7 @@ public class BaseLensCommand implements ExecutionProcessor {
    * Instantiates a new base lens command.
    */
   public BaseLensCommand() {
+    registerShutDown();
     mapper = new ObjectMapper();
     mapper.setSerializationInclusion(Inclusion.NON_NULL);
     mapper.setSerializationInclusion(Inclusion.NON_DEFAULT);
